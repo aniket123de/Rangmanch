@@ -51,6 +51,13 @@ const StyledWrapper = styled.div`
     width: 100%;
     filter: drop-shadow(0 0 23px var(--animation-color))
   }
+
+  @media (max-width: 768px) {
+    .button {
+      --fs-size: 1.5em;
+      letter-spacing: 2px;
+    }
+  }
 `;
 
 const ThemeSwitchWrapper = styled.div`
@@ -222,7 +229,7 @@ const Navbar = () => {
             <img 
               src={Icon} 
               alt="Rangmanch" 
-              className="w-12 h-12 object-contain"
+              className="w-10 h-10 md:w-12 md:h-12 object-contain"
             />
             <StyledWrapper theme={isDark ? 'dark' : 'light'}>
               <button className="button" data-text="RANGMANCH">
@@ -270,7 +277,7 @@ const Navbar = () => {
           <div className="relative">
             <button
               onClick={() => setIsProfileOpen(true)}
-              className="w-10 h-10 rounded-full overflow-hidden border-2 border-purple-500 hover:border-purple-600 transition-colors duration-200"
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-purple-500 hover:border-purple-600 transition-colors duration-200"
             >
               <img
                 src="https://i.pravatar.cc/150?img=1"
