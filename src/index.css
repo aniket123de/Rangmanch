@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Gotham:wght@400;500;700&display=swap');
+@import url('https://fonts.cdnfonts.com/css/gilroy-bold');
+@import url('https://fonts.cdnfonts.com/css/lufga');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: "Gotham", sans-serif;
+  }
+}
+
+@layer components {
+  .primary-btn {
+    @apply text-sm font-semibold lg:text-base border-[1px] border-black px-4 py-2 shadow-[5px_5px_0px_0px] hover:bg-black hover:text-white duration-300 hover:shadow-[5px_5px_0px_0px_#6c6c6c];
+  }
+
+  .running-gradient {
+    @apply bg-clip-text text-transparent;
+    background-size: 200% auto;
+    background-image: linear-gradient(
+      to right,
+      #9d4edd,
+      #c77dff,
+      #ff9e00,
+      #ddff00,
+      #9d4edd
+    );
+    animation: gradient 5s linear infinite;
+  }
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+}
