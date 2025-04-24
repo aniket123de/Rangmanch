@@ -1,16 +1,43 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { ThemeContext } from '../context/ThemeContext';
 import { Link } from 'react-router-dom';
+import { doSendPasswordResetEmail } from '../firebase/auth';
 
 const ForgotPassword = () => {
   const { isDark } = useContext(ThemeContext);
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+
+    try {
+      setIsLoading(true);
+      setMessage({ type: '', text: '' });
+      await doSendPasswordResetEmail(email);
+      setMessage({
+        type: 'success',
+        text: 'Password reset link has been sent to your email!'
+      });
+      setEmail('');
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error.message
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <StyledWrapper $isDark={isDark}>
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 to-white dark:from-gray-900 dark:to-black transition-colors duration-300">
         <div id="form-ui">
-          <form action="" method="post" id="form">
+          <form onSubmit={handleSubmit} id="form">
             <div id="form-body">
               <div id="welcome-lines">
                 <div id="welcome-line-1">Rangmanch</div>
@@ -19,13 +46,30 @@ const ForgotPassword = () => {
               <div id="message-box">
                 <p>Enter your email address and we'll send you a link to reset your password.</p>
               </div>
+              {message.text && (
+                <div className={`message ${message.type}`}>
+                  {message.text}
+                </div>
+              )}
               <div id="input-area">
                 <div className="form-inp">
-                  <input placeholder="Email Address" type="email" required />
+                  <input
+                    placeholder="Email Address"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
                 </div>
               </div>
               <div id="submit-button-cvr">
-                <button id="submit-button" type="submit">Send Reset Link</button>
+                <button 
+                  id="submit-button" 
+                  type="submit"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Sending...' : 'Send Reset Link'}
+                </button>
               </div>
               <div id="back-to-login">
                 <Link to="/login">Back to Login</Link>
@@ -204,6 +248,31 @@ const StyledWrapper = styled.div`
 
   #bar:after {
     right: -38px;
+  }
+
+  .message {
+    text-align: center;
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .message.success {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+
+  .message.error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  #submit-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 `;
 

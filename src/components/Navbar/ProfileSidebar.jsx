@@ -1,7 +1,9 @@
 import React, { useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeContext } from '../../context/ThemeContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { doSignOut } from '../../firebase/auth';
+import { useAuth } from '../../contexts/authContext';
 import { 
   FaUser, 
   FaCog, 
@@ -17,6 +19,27 @@ import Switch from './Switch';
 
 const ProfileSidebar = ({ isOpen, onClose }) => {
   const { isDark, toggleTheme } = useContext(ThemeContext);
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  // Function to get user's first name
+  const getFirstName = () => {
+    if (currentUser?.displayName) {
+      // Split the full name and get the first name
+      return currentUser.displayName.split(' ')[0];
+    }
+    return 'User';
+  };
+
+  const handleLogout = async () => {
+    try {
+      await doSignOut();
+      onClose(); // Close the sidebar
+      navigate('/'); // Navigate to home page
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   const menuItems = [
     { icon: <FaUser />, label: 'Profile', link: '/profile' },
@@ -25,7 +48,6 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
     { icon: <FaHistory />, label: 'History', link: '/history' },
     { icon: <FaCog />, label: 'Settings', link: '/settings' },
     { icon: <FaQuestionCircle />, label: 'Help & Support', link: '/help' },
-    { icon: <FaSignOutAlt />, label: 'Logout', link: '/logout' },
   ];
 
   return (
@@ -53,13 +75,17 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-4">
                 <img
-                  src="https://i.pravatar.cc/150?img=1"
+                  src={currentUser?.photoURL || "https://i.pravatar.cc/150?img=1"}
                   alt="Profile"
                   className="w-16 h-16 rounded-full border-2 border-purple-500"
                 />
                 <div>
-                  <h2 className="text-xl font-bold dark:text-white">John Doe</h2>
-                  <p className="text-gray-500 dark:text-gray-400">john.doe@example.com</p>
+                  <h2 className="text-xl font-bold dark:text-white">
+                    {getFirstName()}
+                  </h2>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm break-all">
+                    {currentUser?.email}
+                  </p>
                 </div>
               </div>
             </div>
@@ -76,6 +102,15 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
                   <span>{item.label}</span>
                 </Link>
               ))}
+              
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center space-x-3 px-6 py-3 text-red-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+              >
+                <span className="text-lg"><FaSignOutAlt /></span>
+                <span>Logout</span>
+              </button>
             </div>
 
             {/* Theme Toggle */}

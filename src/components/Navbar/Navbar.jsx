@@ -2,10 +2,11 @@ import React, { useContext, useState } from "react";
 import { motion } from "framer-motion";
 import { ThemeContext } from "../../context/ThemeContext";
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import ProfileSidebar from './ProfileSidebar';
 import { FaBuilding } from 'react-icons/fa';
 import Icon from '../../assets/icon.png';
+import { useAuth } from '../../contexts/authContext';
 
 const StyledWrapper = styled.div`
   /* === removing default button style ===*/
@@ -212,8 +213,29 @@ const NavLink = ({ href, children }) => {
 
 const Navbar = () => {
   const { isDark } = useContext(ThemeContext);
+  const { userLoggedIn, currentUser } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const location = useLocation();
+
+  // Check if we're on an auth page (login or signup)
+  const isAuthPage = ['/login', '/signup', '/forgot-password'].includes(location.pathname);
+
+  // Get the profile picture URL
+  const getProfilePicture = () => {
+    if (currentUser?.photoURL) {
+      return currentUser.photoURL;
+    }
+    return "https://i.pravatar.cc/150?img=1"; // Default avatar
+  };
+
+  // Get user's first name
+  const getFirstName = () => {
+    if (currentUser?.displayName) {
+      return currentUser.displayName.split(' ')[0];
+    }
+    return 'User';
+  };
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-6">
@@ -264,27 +286,33 @@ const Navbar = () => {
             {/* Divider */}
             <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
 
-            {/* Login Button */}
-            <Link 
-              to="/login" 
-              className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
-            >
-              Login / Sign Up
-            </Link>
-          </div>
-
-          {/* Profile Picture */}
-          <div className="relative">
-            <button
-              onClick={() => setIsProfileOpen(true)}
-              className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-purple-500 hover:border-purple-600 transition-colors duration-200"
-            >
-              <img
-                src="https://i.pravatar.cc/150?img=1"
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            </button>
+            {/* Conditional rendering of Login/Profile */}
+            {!isAuthPage && (
+              !userLoggedIn ? (
+                <Link 
+                  to="/login" 
+                  className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
+                >
+                  Login / Sign Up
+                </Link>
+              ) : (
+                <div className="relative flex items-center gap-3">
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">
+                    Hey, {getFirstName()}
+                  </span>
+                  <button
+                    onClick={() => setIsProfileOpen(true)}
+                    className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-purple-500 hover:border-purple-600 transition-colors duration-200"
+                  >
+                    <img
+                      src={getProfilePicture()}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                </div>
+              )
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -346,22 +374,26 @@ const Navbar = () => {
             >
               For Business
             </Link>
-            <Link
-              to="/login"
-              className="mobile-login-btn block"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Login / Sign Up
-            </Link>
+            {!isAuthPage && !userLoggedIn && (
+              <Link
+                to="/login"
+                className="mobile-login-btn block"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Login / Sign Up
+              </Link>
+            )}
           </motion.div>
         )}
       </MobileMenuWrapper>
 
-      {/* Profile Sidebar */}
-      <ProfileSidebar 
-        isOpen={isProfileOpen} 
-        onClose={() => setIsProfileOpen(false)} 
-      />
+      {/* Profile Sidebar - Only show if user is logged in */}
+      {userLoggedIn && (
+        <ProfileSidebar 
+          isOpen={isProfileOpen} 
+          onClose={() => setIsProfileOpen(false)} 
+        />
+      )}
     </div>
   );
 };
