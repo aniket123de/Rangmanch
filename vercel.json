@@ -1,21 +1,14 @@
 {
   "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
+    }
+  ],
   "routes": [
     { "handle": "filesystem" },
-    { "src": "/about", "dest": "/index.html" },
-    { "src": "/business/(.*)", "dest": "/index.html" },
-    { "src": "/for-business", "dest": "/index.html" },
     { "src": "/(.*)", "dest": "/index.html" }
-  ],
-  "rewrites": [
-    { "source": "/about", "destination": "/index.html" },
-    { "source": "/business/:path*", "destination": "/index.html" },
-    { "source": "/for-business", "destination": "/index.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "redirects": [
-    { "source": "/about", "destination": "/index.html", "permanent": true },
-    { "source": "/business/:path*", "destination": "/index.html", "permanent": true },
-    { "source": "/for-business", "destination": "/index.html", "permanent": true }
   ]
 } 
