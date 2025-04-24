@@ -4,7 +4,7 @@ import Brand2 from "../../assets/brand/2.png";
 import Brand3 from "../../assets/brand/3.png";
 import Brand4 from "../../assets/brand/4.png";
 import { motion } from "framer-motion";
-import { SlideLeft } from "../../animation/animate";
+import { SlideLeft, SlideUp } from "../../animation/animate";
 import { ThemeContext } from "../../context/ThemeContext";
 
 const Brands = () => {
@@ -13,6 +13,26 @@ const Brands = () => {
   return (
     <div className="w-full dark:bg-dark-bg transition-colors duration-300">
       <div className="container py-14">
+        {/* Heading section */}
+        <div className="text-center mb-12">
+          <motion.h2
+            variants={SlideUp(0.2)}
+            initial="initial"
+            whileInView="animate"
+            className="text-3xl md:text-4xl font-bold font-serif dark:text-white mb-4"
+          >
+            Platforms
+          </motion.h2>
+          <motion.p
+            variants={SlideUp(0.4)}
+            initial="initial"
+            whileInView="animate"
+            className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto"
+          >
+            Connect with us across multiple platforms to experience seamless integration and comprehensive solutions
+          </motion.p>
+        </div>
+
         <div className="flex flex-wrap justify-center lg:justify-between gap-6">
           <motion.div
             variants={SlideLeft(0.2)}

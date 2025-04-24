@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import Logo from "../../assets/Logo.png";
+import Logo from "../../assets/icon.png";
 import { FaPhone } from "react-icons/fa6";
 import { LuMessageSquare } from "react-icons/lu";
 import { motion } from "framer-motion";
@@ -22,10 +22,10 @@ const Footer = () => {
           <div className="space-y-4 font-semibold">
             <div className="flex items-center space-x-3">
               <img src={Logo} alt="" className="w-6" />
-              <p className="text-xl font-semibold dark:text-white">Interior</p>
+              <p className="text-xl font-semibold dark:text-white">Rangmanch</p>
             </div>
-            <p className="dark:text-gray-300">Greater Noida, Uttar Pradesh, India</p>
-            <p className="dark:text-gray-300">@ 2024 TCJ All rights reserved</p>
+            <p className="dark:text-gray-300">Kolkata, West Bengal, India</p>
+            <p className="dark:text-gray-300">@ 2025 TCJ All rights reserved</p>
           </div>
           {/* Footer Link */}
           <div className="grid grid-cols-2 gap-3">
@@ -36,13 +36,13 @@ const Footer = () => {
                   <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Our Story</a>
                 </li>
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Designer</a>
+                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">The Vision</a>
                 </li>
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Craftmanship</a>
+                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Team Rangmanch</a>
                 </li>
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Sustainability</a>
+                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Careers</a>
                 </li>
               </ul>
             </div>
@@ -53,13 +53,13 @@ const Footer = () => {
                   <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">FAQ's</a>
                 </li>
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Shipping & Returns</a>
+                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Terms & Conditions</a>
                 </li>
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Care Guide</a>
+                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Privacy Policy</a>
                 </li>
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Guaranty</a>
+                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Help Center</a>
                 </li>
               </ul>
             </div>

@@ -180,29 +180,41 @@ const NavLinks = [
   {
     id: 1,
     title: "About",
-    link: "#",
+    link: "/about",
   },
   {
     id: 2,
     title: "Services",
-    link: "#",
+    link: "/#services",
   },
   {
     id: 3,
-    title: "Project",
-    link: "#",
+    title: "Projects",
+    link: "/#projects",
   },
   {
     id: 4,
     title: "Contact",
-    link: "#",
+    link: "/#newsletter",
   },
 ];
 
 const NavLink = ({ href, children }) => {
+  const handleClick = (e) => {
+    if (href.startsWith('/#')) {
+      e.preventDefault();
+      const elementId = href.substring(2);
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <a
       href={href}
+      onClick={handleClick}
       className="relative text-lg font-semibold dark:text-dark-text group transition-colors duration-300"
     >
       <span className="relative z-10">{children}</span>
@@ -276,7 +288,7 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-4">
             {/* For Business Button */}
             <Link 
-              to="/business" 
+              to="/for-business" 
               className="flex items-center gap-2 px-4 py-2 rounded-full border border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white transition-all duration-200"
             >
               <FaBuilding className="text-lg" />
@@ -368,7 +380,7 @@ const Navbar = () => {
               </a>
             ))}
             <Link
-              to="/business"
+              to="/for-business"
               className="menu-item block"
               onClick={() => setIsMenuOpen(false)}
             >

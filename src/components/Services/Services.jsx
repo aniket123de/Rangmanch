@@ -10,9 +10,9 @@ import styled from 'styled-components';
 const ServiceCard = [
   {
     id: 1,
-    title: "Luxury Facilities",
+    title: "Smart Content Creation",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit,Lorem ipsum dolor sit amet, consectetur",
+      "Unlock high-quality blogs, emails, and scripts with custom tone and length. Let AI do the heavy lifting so you can focus on creativity.",
     icon: <FaVectorSquare />,
     link: "#",
     delay: 0.2,
@@ -23,9 +23,9 @@ const ServiceCard = [
   },
   {
     id: 2,
-    title: "Quality Products",
+    title: "Audience-Driven Insights",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit,Lorem ipsum dolor sit amet, consectetur",
+      "Our ML-powered analyzer understands your target audience and recommends tone, style, and structure that truly resonates.",
     icon: <FaPenToSquare />,
     link: "#",
     delay: 0.4,
@@ -36,9 +36,9 @@ const ServiceCard = [
   },
   {
     id: 3,
-    title: "Affordable Price",
+    title: "Creator-Brand Marketplace",
     description:
-      "Lorem ipsum dolor sit amet, consectetur Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
+      "Our platform acts as a smart mediator—connecting brands with the perfect creators for their campaigns. Brands can browse, filter, and directly collaborate with content creators for tailored promotions.",
     icon: <BiSolidDollarCircle />,
     link: "#",
     delay: 0.6,
@@ -67,7 +67,7 @@ const CardWrapper = styled.div`
     padding: 24px;
     display: flex;
     flex-direction: column;
-    justify-content: end;
+    justify-content: space-between;
     gap: 16px;
     border: ${props => props.theme === 'dark' ? 'none' : '1px solid rgba(0, 0, 0, 0.1)'};
   }
@@ -102,17 +102,69 @@ const CardWrapper = styled.div`
     line-height: 1.5;
     transition: all 0.3s ease;
   }
+`;
 
-  .learn-more {
-    color: ${props => props.gradientStart};
-    font-weight: 600;
-    font-size: 14px;
+const StyledButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: auto;
+
+  .button {
+    line-height: 1;
     text-decoration: none;
-    transition: all 0.3s ease;
+    display: inline-flex;
+    border: none;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: ${props => props.gradientStart};
+    color: #fff;
+    border-radius: 10rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    padding-left: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.3s;
   }
 
-  .learn-more:hover {
-    color: ${props => props.gradientEnd};
+  .button__icon-wrapper {
+    flex-shrink: 0;
+    width: 25px;
+    height: 25px;
+    position: relative;
+    color: ${props => props.gradientStart};
+    background-color: #fff;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+
+  .button:hover {
+    background-color: #000;
+  }
+
+  .button:hover .button__icon-wrapper {
+    color: #000;
+  }
+
+  .button__icon-svg--copy {
+    position: absolute;
+    transform: translate(-150%, 150%);
+  }
+
+  .button:hover .button__icon-svg:first-child {
+    transition: transform 0.3s ease-in-out;
+    transform: translate(150%, -150%);
+  }
+
+  .button:hover .button__icon-svg--copy {
+    transition: transform 0.3s ease-in-out 0.1s;
+    transform: translate(0);
   }
 `;
 
@@ -138,8 +190,7 @@ const Services = () => {
             whileInView={"animate"}
             className="text-gray-500 dark:text-gray-400 text-sm"
           >
-            Bring your dream home to life with one-on-one design help & hand
-            picked products
+            Bring your content dreams to life with personalized AI tools, insightful analytics, and creative flexibility—all in one place.
           </motion.p>
         </div>
         {/* card section */}
@@ -163,9 +214,19 @@ const Services = () => {
                     </div>
                     <h3 className="heading">{card.title}</h3>
                     <p className="description">{card.description}</p>
-                    <a href={card.link} className="learn-more">
-                      Learn More
-                    </a>
+                    <StyledButton gradientStart={card.gradient.start}>
+                      <button className="button">
+                        <span className="button__icon-wrapper">
+                          <svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="button__icon-svg" width={10}>
+                            <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />
+                          </svg>
+                          <svg viewBox="0 0 14 15" fill="none" width={10} xmlns="http://www.w3.org/2000/svg" className="button__icon-svg button__icon-svg--copy">
+                            <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />
+                          </svg>
+                        </span>
+                        Explore All
+                      </button>
+                    </StyledButton>
                   </div>
                 </div>
               </CardWrapper>

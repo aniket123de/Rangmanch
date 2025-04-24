@@ -2,46 +2,165 @@ import React, { useContext } from "react";
 import { delay, motion } from "framer-motion";
 import { SlideUp } from "../../animation/animate";
 import { ThemeContext } from "../../context/ThemeContext";
+import styled from "styled-components";
+
+const StyledWrapper = styled.div`
+  .input {
+    color: #333;
+    font-size: 0.9rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+    padding-inline: 0.5em;
+    padding-block: 0.7em;
+    border: none;
+    border-bottom: var(--border-height) solid var(--border-before-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+  }
+
+  .input::placeholder {
+    color: #666;
+  }
+
+  .input-border {
+    position: absolute;
+    background: var(--border-after-color);
+    height: 2px;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    transform: scaleX(0%);
+    transition: transform 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+  }
+
+  .input:focus {
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .input:focus + .input-border {
+    transform: scaleX(100%);
+  }
+
+  .form-control {
+    position: relative;
+    --width-of-input: 300px;
+  }
+
+  .input-alt {
+    font-size: 1.2rem;
+    padding-inline: 1em;
+    padding-block: 0.8em;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
+
+  .input-border-alt {
+    height: 3px;
+    background: linear-gradient(90deg, #ff6464 0%, #ffbf59 50%, #47c9ff 100%);
+    transition: transform 0.4s cubic-bezier(0.42, 0, 0.58, 1);
+  }
+
+  .input-alt:focus + .input-border-alt {
+    transform: scaleX(100%);
+  }
+
+  /* Dark mode adjustments */
+  .dark & .input {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #fff;
+  }
+
+  .dark & .input::placeholder {
+    color: #999;
+  }
+
+  .dark & .input:focus {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+`;
 
 const Newsletter = () => {
   const { isDark } = useContext(ThemeContext);
 
   return (
     <div className="w-full dark:bg-dark-bg transition-colors duration-300">
-      <div className="max-w-[500px] mx-auto space-y-5 py-14">
+      <div className="max-w-[600px] mx-auto space-y-5 py-14">
         <motion.h1
           variants={SlideUp(0.2)}
           initial="initial"
           whileInView="animate"
           className="text-3xl font-bold font-serif text-center dark:text-white"
         >
-          Subscribe to our Newsletter
+          Contact Us
         </motion.h1>
         <motion.p
           variants={SlideUp(0.4)}
           initial="initial"
           whileInView="animate"
-          className="max-w-[300px] mx-auto text-gray-500 dark:text-gray-400 text-sm text-center"
+          className="max-w-[400px] mx-auto text-gray-500 dark:text-gray-400 text-sm text-center"
         >
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Sed libero
-          doloremque ab eum!
+          Have questions, ideas, or just want to say hello?
+          Fill out the form below and our team at Rangmanch will get back to you shortly.
         </motion.p>
-        {/* form here */}
-        <motion.div
+        {/* Contact Form */}
+        <motion.form
           variants={SlideUp(0.6)}
           initial="initial"
           whileInView="animate"
-          className="!mt-10 flex justify-center"
+          className="!mt-10 space-y-4"
         >
-          <input
-            type="text"
-            placeholder="Enter your email"
-            className="px-4 py-4 ring-1 ring-gray-300 dark:ring-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
-          />
-          <button className="bg-black dark:bg-white text-white dark:text-black px-6 py-4 uppercase transition-colors duration-300">
-            Subscribe
-          </button>
-        </motion.div>
+          <StyledWrapper>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="form-control">
+                <input
+                  type="text"
+                  required
+                  placeholder="Your Name"
+                  className="input input-alt"
+                />
+                <span className="input-border input-border-alt" />
+              </div>
+              <div className="form-control">
+                <input
+                  type="email"
+                  required
+                  placeholder="Your Email"
+                  className="input input-alt"
+                />
+                <span className="input-border input-border-alt" />
+              </div>
+            </div>
+            <div className="form-control mt-4">
+              <input
+                type="text"
+                required
+                placeholder="Subject"
+                className="input input-alt"
+              />
+              <span className="input-border input-border-alt" />
+            </div>
+            <div className="form-control mt-4">
+              <textarea
+                required
+                placeholder="Your Message"
+                rows="4"
+                className="input input-alt"
+                style={{ resize: "none" }}
+              ></textarea>
+              <span className="input-border input-border-alt" />
+            </div>
+          </StyledWrapper>
+          <div className="flex justify-center mt-8">
+            <button
+              type="submit"
+              className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 rounded-lg uppercase font-medium hover:opacity-90 transition-all duration-300"
+            >
+              Send Message
+            </button>
+          </div>
+        </motion.form>
       </div>
     </div>
   );

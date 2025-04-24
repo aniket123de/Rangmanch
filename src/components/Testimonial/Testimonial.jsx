@@ -6,26 +6,26 @@ import { ThemeContext } from "../../context/ThemeContext";
 const TestimonialData = [
   {
     id: 1,
-    name: "John Doe",
-    designation: "Designer",
-    img: "https://i.pravatar.cc/300?img=1",
-    text: "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    name: "Priya Sharma",
+    designation: "Influencer & Content Creator",
+    img: "https://i.pravatar.cc/300?img=32",
+    text: "Rangmanch helped me land my first paid brand deal! The dashboard is super easy to use, and I loved the support from the team.",
     delay: 0.2,
   },
   {
     id: 2,
-    name: "Alex",
-    designation: "Developer",
-    img: "https://i.pravatar.cc/300?img=2",
-    text: "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    name: "Ananya Gupta",
+    designation: "Startup Founder",
+    img: "https://i.pravatar.cc/300?img=44",
+    text: "We were able to collaborate with three niche creators within 24 hours. The platform feels tailored for quick, smart campaigns.",
     delay: 0.4,
   },
   {
     id: 3,
-    name: "George",
-    designation: "Manager",
-    img: "https://i.pravatar.cc/300?img=3",
-    text: "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    name: "Rahul Patel",
+    designation: "Brand Strategist",
+    img: "https://i.pravatar.cc/300?img=68",
+    text: "This is the bridge the creator economy needed. Easy selection, transparent pricing, and real engagement.",
     delay: 0.6,
   },
 ];
@@ -52,8 +52,7 @@ const Testimonial = () => {
             whileInView="animate"
             className="text-gray-500 dark:text-gray-400 text-sm max-w-[350px] mx-auto"
           >
-            Bring your dream home to life with one-on-one design help & hand
-            picked products
+            Real voices from creators and brands that built something impactful together on Rangmanch.
           </motion.p>
         </div>
         {/* testimonial cards */}
