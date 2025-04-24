@@ -126,13 +126,14 @@ const StyledWrapper = styled.div`
     justify-content: center;
     min-height: 100vh;
     padding: 20px;
+    margin-top: 60px;
   }
 
   #form {
     position: relative;
     width: 320px;
     height: auto;
-    padding: 25px;
+    padding: 35px;
     background-color: ${props => props.$isDark ? '#161616' : '#ffffff'};
     box-shadow: 0px 15px 60px ${props => props.$isDark ? '#9d4edd' : '#c77dff'};
     outline: 1px solid ${props => props.$isDark ? '#c77dff' : '#9d4edd'};
@@ -143,12 +144,15 @@ const StyledWrapper = styled.div`
   #form-body {
     position: relative;
     width: 100%;
+    margin-top: 5px;
   }
 
   #welcome-lines {
     text-align: center;
     line-height: 1;
     margin-bottom: 40px;
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
 
   #welcome-line-1 {
@@ -248,36 +252,38 @@ const StyledWrapper = styled.div`
   }
 
   #google-button-cvr {
-    margin-bottom: 20px;
+    margin-top: 20px;
   }
 
   #google-button {
+    width: 100%;
+    padding: 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    background: ${props => props.$isDark ? '#161616' : '#ffffff'};
-    color: ${props => props.$isDark ? '#ffffff' : '#161616'};
-    font-weight: 500;
+    gap: 10px;
     font-size: 14px;
-    margin: 0;
-    padding: 12px 13px;
-    border: 1px solid ${props => props.$isDark ? '#666' : '#e0e0e0'};
-    border-radius: 8px;
-    line-height: 1;
+    color: #333;
     cursor: pointer;
     transition: all 0.3s ease;
   }
 
   #google-button:hover {
-    background: ${props => props.$isDark ? '#242424' : '#f5f5f5'};
-    border-color: ${props => props.$isDark ? '#888' : '#d0d0d0'};
+    background: #f5f5f5;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
 
   #google-button img {
     width: 18px;
     height: 18px;
-    margin-right: 10px;
+  }
+
+  #google-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 
   #forgot-pass {
