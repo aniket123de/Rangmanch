@@ -42,7 +42,7 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
   };
 
   const menuItems = [
-    { icon: <FaUser />, label: 'Profile', link: '/profile' },
+    { icon: <FaUser />, label: 'Dashboard', link: '/profile' },
     { icon: <FaBell />, label: 'Notifications', link: '/notifications' },
     { icon: <FaBookmark />, label: 'Saved Posts', link: '/saved' },
     { icon: <FaHistory />, label: 'History', link: '/history' },
