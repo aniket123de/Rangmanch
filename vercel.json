@@ -1,6 +1,18 @@
 {
   "rewrites": [
     {
+      "source": "/about",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/business/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/for-business",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
