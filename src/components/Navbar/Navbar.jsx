@@ -7,6 +7,7 @@ import ProfileSidebar from './ProfileSidebar';
 import { FaBuilding } from 'react-icons/fa';
 import Icon from '../../assets/icon.png';
 import { useAuth } from '../../contexts/authContext';
+import AnimatedButton from '../common/AnimatedButton';
 
 const StyledWrapper = styled.div`
   /* === removing default button style ===*/
@@ -287,13 +288,12 @@ const Navbar = () => {
         <div className="flex items-center gap-4 md:gap-6">
           <div className="hidden md:flex items-center gap-4">
             {/* For Business Button */}
-            <Link 
-              to="/for-business" 
-              className="flex items-center gap-2 px-4 py-2 rounded-full border border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white transition-all duration-200"
+            <AnimatedButton 
+              to="/for-business"
+              variant="outline"
             >
-              <FaBuilding className="text-lg" />
-              <span>For Business</span>
-            </Link>
+              For Business
+            </AnimatedButton>
 
             {/* Divider */}
             <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
@@ -301,12 +301,12 @@ const Navbar = () => {
             {/* Conditional rendering of Login/Profile */}
             {!isAuthPage && (
               !userLoggedIn ? (
-                <Link 
-                  to="/login" 
-                  className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
+                <AnimatedButton 
+                  to="/login"
+                  variant="filled"
                 >
                   Login / Sign Up
-                </Link>
+                </AnimatedButton>
               ) : (
                 <div className="relative flex items-center gap-3">
                   <span className="text-gray-700 dark:text-gray-300 font-medium">
