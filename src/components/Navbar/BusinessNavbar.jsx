@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ThemeContext } from "../../context/ThemeContext";
 import styled from 'styled-components';
@@ -106,6 +106,55 @@ const BusinessNavbar = () => {
     }
   };
 
+  // Handle back button and page visibility
+  useEffect(() => {
+    // Handle back button
+    const handlePopState = async (event) => {
+      if (businessUser) {
+        // Prevent the default back action
+        event.preventDefault();
+        // Logout the user
+        await handleLogout();
+      }
+    };
+
+    // Handle page visibility change
+    const handleVisibilityChange = async () => {
+      if (document.hidden && businessUser) {
+        // If page is hidden (user switched tabs or minimized) and user is logged in
+        await handleLogout();
+      }
+    };
+
+    // Handle page unload
+    const handleBeforeUnload = async (event) => {
+      if (businessUser) {
+        // Logout on page refresh or close
+        await handleLogout();
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('popstate', handlePopState);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [businessUser]); // Only re-run effect if businessUser changes
+
+  // Prevent accessing business pages directly after logout
+  useEffect(() => {
+    const protectedRoutes = ['/business/dashboard', '/business/profile', '/business/settings'];
+    if (!businessUser && protectedRoutes.some(route => location.pathname.startsWith(route))) {
+      navigate('/business/login');
+    }
+  }, [businessUser, location.pathname, navigate]);
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-6">
       <motion.div
@@ -116,19 +165,40 @@ const BusinessNavbar = () => {
       >
         {/* Logo section */}
         <div className="flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-3">
-            <img 
-              src={Icon} 
-              alt="Rangmanch" 
-              className="w-10 h-10 md:w-12 md:h-12 object-contain"
-            />
-            <StyledWrapper theme={isDark ? 'dark' : 'light'}>
-              <button className="button" data-text="RANGMANCH">
-                <span className="actual-text">&nbsp;RANGMANCH&nbsp;</span>
-                <span aria-hidden="true" className="hover-text">&nbsp;RANGMANCH&nbsp;</span>
-              </button>
-            </StyledWrapper>
-          </Link>
+          {businessUser ? (
+            // When logged in, clicking logo triggers logout
+            <button 
+              onClick={handleLogout}
+              className="flex items-center gap-3"
+            >
+              <img 
+                src={Icon} 
+                alt="Rangmanch" 
+                className="w-10 h-10 md:w-12 md:h-12 object-contain"
+              />
+              <StyledWrapper theme={isDark ? 'dark' : 'light'}>
+                <button className="button" data-text="RANGMANCH">
+                  <span className="actual-text">&nbsp;RANGMANCH&nbsp;</span>
+                  <span aria-hidden="true" className="hover-text">&nbsp;RANGMANCH&nbsp;</span>
+                </button>
+              </StyledWrapper>
+            </button>
+          ) : (
+            // When not logged in, logo links to home
+            <Link to="/" className="flex items-center gap-3">
+              <img 
+                src={Icon} 
+                alt="Rangmanch" 
+                className="w-10 h-10 md:w-12 md:h-12 object-contain"
+              />
+              <StyledWrapper theme={isDark ? 'dark' : 'light'}>
+                <button className="button" data-text="RANGMANCH">
+                  <span className="actual-text">&nbsp;RANGMANCH&nbsp;</span>
+                  <span aria-hidden="true" className="hover-text">&nbsp;RANGMANCH&nbsp;</span>
+                </button>
+              </StyledWrapper>
+            </Link>
+          )}
         </div>
 
         {/* Link section - Only show when not logged in */}
