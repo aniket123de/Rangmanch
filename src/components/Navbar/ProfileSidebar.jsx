@@ -42,7 +42,7 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
   };
 
   const menuItems = [
-    { icon: <FaUser />, label: 'Dashboard', link: '/profile' },
+    { icon: <FaUser />, label: 'Dashboard', link: 'https://rangmanch-dashboard-rh8a.vercel.app/' },
     { icon: <FaBell />, label: 'Notifications', link: '/notifications' },
     { icon: <FaBookmark />, label: 'Saved Posts', link: '/saved' },
     { icon: <FaHistory />, label: 'History', link: '/history' },
@@ -92,16 +92,30 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
 
             {/* Menu Items */}
             <div className="py-4">
-              {menuItems.map((item, index) => (
-                <Link
-                  key={index}
-                  to={item.link}
-                  className="flex items-center space-x-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-                >
-                  <span className="text-lg text-purple-500">{item.icon}</span>
-                  <span>{item.label}</span>
-                </Link>
-              ))}
+              {menuItems.map((item, index) => {
+                const isExternalLink = item.link.startsWith('http');
+                return isExternalLink ? (
+                  <a
+                    key={index}
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+                  >
+                    <span className="text-lg text-purple-500">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </a>
+                ) : (
+                  <Link
+                    key={index}
+                    to={item.link}
+                    className="flex items-center space-x-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+                  >
+                    <span className="text-lg text-purple-500">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
               
               {/* Logout Button */}
               <button
