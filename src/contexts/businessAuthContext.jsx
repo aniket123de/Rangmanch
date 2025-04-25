@@ -6,7 +6,7 @@ import {
   sendPasswordResetEmail,
   onAuthStateChanged
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, enableNetwork, disableNetwork } from 'firebase/firestore';
+import { doc, setDoc, getDoc, enableNetwork, disableNetwork, connectFirestoreEmulator } from 'firebase/firestore';
 import { businessAuth, businessDb } from '../firebase/businessFirebase';
 
 const BusinessAuthContext = createContext();
@@ -20,35 +20,74 @@ export function BusinessAuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [businessData, setBusinessData] = useState(null);
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
+  const [connectionError, setConnectionError] = useState(null);
 
-  // Handle online/offline status
+  // Handle online/offline status and connection management
   useEffect(() => {
-    const handleOnline = () => {
+    let retryTimeout;
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 2000; // 2 seconds
+
+    const handleOnline = async () => {
       setIsOnline(true);
-      enableNetwork(businessDb).catch(console.error);
+      setConnectionError(null);
+      try {
+        await enableNetwork(businessDb);
+        retryCount = 0; // Reset retry count on successful connection
+      } catch (error) {
+        console.error('Error enabling network:', error);
+        handleConnectionError(error);
+      }
     };
 
-    const handleOffline = () => {
+    const handleOffline = async () => {
       setIsOnline(false);
-      disableNetwork(businessDb).catch(console.error);
+      try {
+        await disableNetwork(businessDb);
+      } catch (error) {
+        console.error('Error disabling network:', error);
+      }
+    };
+
+    const handleConnectionError = (error) => {
+      setConnectionError(error);
+      if (retryCount < MAX_RETRIES) {
+        retryCount++;
+        retryTimeout = setTimeout(async () => {
+          try {
+            await enableNetwork(businessDb);
+            setConnectionError(null);
+            retryCount = 0;
+          } catch (error) {
+            handleConnectionError(error);
+          }
+        }, RETRY_DELAY * retryCount);
+      }
     };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
+    // Initial connection attempt
+    if (window.navigator.onLine) {
+      handleOnline();
+    }
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
     };
   }, []);
 
   async function signup(email, password, businessInfo) {
     try {
-      // Create the user account
       const userCredential = await createUserWithEmailAndPassword(businessAuth, email, password);
       
-      // Store additional business information in Firestore
-      if (businessInfo) {
+      if (businessInfo && isOnline) {
         await setDoc(doc(businessDb, 'businesses', userCredential.user.uid), {
           ...businessInfo,
           email,
@@ -67,11 +106,14 @@ export function BusinessAuthProvider({ children }) {
   async function login(email, password) {
     try {
       const userCredential = await signInWithEmailAndPassword(businessAuth, email, password);
-      // Fetch business data after successful login
       if (isOnline) {
-        const businessDoc = await getDoc(doc(businessDb, 'businesses', userCredential.user.uid));
-        if (businessDoc.exists()) {
-          setBusinessData(businessDoc.data());
+        try {
+          const businessDoc = await getDoc(doc(businessDb, 'businesses', userCredential.user.uid));
+          if (businessDoc.exists()) {
+            setBusinessData(businessDoc.data());
+          }
+        } catch (error) {
+          console.error('Error fetching business data:', error);
         }
       }
       return userCredential;
@@ -116,7 +158,6 @@ export function BusinessAuthProvider({ children }) {
       setCurrentUser(user);
       
       if (user && isOnline) {
-        // Fetch business data when user is logged in and online
         try {
           const businessDoc = await getDoc(doc(businessDb, 'businesses', user.uid));
           if (businessDoc.exists()) {
@@ -139,6 +180,7 @@ export function BusinessAuthProvider({ children }) {
     currentUser,
     businessData,
     isOnline,
+    connectionError,
     signup,
     login,
     logout,

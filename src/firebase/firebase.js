@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -22,24 +22,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
-const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
+
+// Initialize Firestore with persistence
+const db = getFirestore(app, {
+    cacheSizeBytes: 50 * 1024 * 1024, // 50 MB cache size
+    experimentalForceLongPolling: true,
+    useFetchStreams: false,
+    cache: {
+        lru: {
+            sizeBytes: 50 * 1024 * 1024 // 50 MB
+        }
+    }
+});
 
 // Configure Google Auth Provider
+const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
-
-// Enable offline persistence
-enableIndexedDbPersistence(db)
-    .catch((err) => {
-        if (err.code === 'failed-precondition') {
-            // Multiple tabs open, persistence can only be enabled in one tab at a time.
-            console.warn('Firebase persistence failed - multiple tabs open');
-        } else if (err.code === 'unimplemented') {
-            // The current browser does not support persistence
-            console.warn('Firebase persistence not supported in this browser');
-        }
-    });
 
 export { auth, app, analytics, db, googleProvider };
