@@ -8,6 +8,7 @@ import { FaBuilding } from 'react-icons/fa';
 import Icon from '../../assets/icon.png';
 import { useAuth } from '../../contexts/authContext';
 import AnimatedButton from '../common/AnimatedButton';
+import { useBusinessAuth } from '../../contexts/businessAuthContext';
 
 const StyledWrapper = styled.div`
   /* === removing default button style ===*/
@@ -227,27 +228,20 @@ const NavLink = ({ href, children }) => {
 const Navbar = () => {
   const { isDark } = useContext(ThemeContext);
   const { userLoggedIn, currentUser } = useAuth();
+  const { currentUser: businessUser } = useBusinessAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
 
-  // Check if we're on an auth page (login or signup)
+  // Check if we're on an auth page
   const isAuthPage = ['/login', '/signup', '/forgot-password'].includes(location.pathname);
 
-  // Get the profile picture URL
-  const getProfilePicture = () => {
-    if (currentUser?.photoURL) {
-      return currentUser.photoURL;
-    }
-    return "https://i.pravatar.cc/150?img=1"; // Default avatar
+  const getFirstName = () => {
+    return currentUser?.displayName?.split(' ')[0] || 'User';
   };
 
-  // Get user's first name
-  const getFirstName = () => {
-    if (currentUser?.displayName) {
-      return currentUser.displayName.split(' ')[0];
-    }
-    return 'User';
+  const getProfilePicture = () => {
+    return currentUser?.photoURL || 'https://via.placeholder.com/150';
   };
 
   return (
@@ -287,16 +281,20 @@ const Navbar = () => {
         {/* Right section - Login/Signup and Profile */}
         <div className="flex items-center gap-4 md:gap-6">
           <div className="hidden md:flex items-center gap-4">
-            {/* For Business Button */}
-            <AnimatedButton 
-              to="/for-business"
-              variant="outline"
-            >
-              For Business
-            </AnimatedButton>
+            {/* For Business Button - Only show if no user is logged in (business or regular) */}
+            {!userLoggedIn && !businessUser && !isAuthPage && (
+              <>
+                <AnimatedButton 
+                  to="/for-business"
+                  variant="outline"
+                >
+                  For Business
+                </AnimatedButton>
 
-            {/* Divider */}
-            <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
+                {/* Divider */}
+                <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
+              </>
+            )}
 
             {/* Conditional rendering of Login/Profile */}
             {!isAuthPage && (
@@ -369,23 +367,35 @@ const Navbar = () => {
             transition={{ duration: 0.2 }}
             className="mobile-menu"
           >
-            {NavLinks.map((link) => (
-              <a
-                key={link.id}
-                href={link.link}
-                className="menu-item block"
+            <div className="flex flex-col space-y-4">
+              <Link
+                to="/"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
-                {link.title}
-              </a>
-            ))}
-            <Link
-              to="/for-business"
-              className="menu-item block"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              For Business
-            </Link>
+                Home
+              </Link>
+              {/* Only show For Business in mobile menu if no user is logged in */}
+              {!userLoggedIn && !businessUser && (
+                <Link
+                  to="/for-business"
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  For Business
+                </Link>
+              )}
+              {NavLinks.map((link) => (
+                <a
+                  key={link.id}
+                  href={link.link}
+                  className="menu-item block"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.title}
+                </a>
+              ))}
+            </div>
             {!isAuthPage && !userLoggedIn && (
               <Link
                 to="/login"

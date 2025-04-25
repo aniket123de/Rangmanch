@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaBuilding } from 'react-icons/fa';
 import Icon from '../../assets/icon.png';
 import { useBusinessAuth } from '../../contexts/businessAuthContext';
+import { useAuth } from '../../contexts/authContext';
 
 const StyledWrapper = styled.div`
   /* === removing default button style ===*/
@@ -86,18 +87,19 @@ const NavLink = ({ href, children }) => {
 
 const BusinessNavbar = () => {
   const { isDark } = useContext(ThemeContext);
-  const { currentUser, logout } = useBusinessAuth();
+  const { currentUser: businessUser, logout: businessLogout } = useBusinessAuth();
+  const { userLoggedIn } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
   // Check if we're on a business auth page
   const isBusinessAuthPage = ['/business/login', '/business/signup', '/business/forgot-password'].includes(location.pathname);
-  const showLoginButton = !isBusinessAuthPage && !currentUser;
+  const showLoginButton = !isBusinessAuthPage && !businessUser;
 
   const handleLogout = async () => {
     try {
-      await logout();
+      await businessLogout();
       navigate('/business/login');
     } catch (error) {
       console.error('Failed to logout:', error);
@@ -130,65 +132,69 @@ const BusinessNavbar = () => {
         </div>
 
         {/* Link section - Desktop */}
-        <div className="hidden md:flex items-center gap-8">
-          <NavLink href="/">Home</NavLink>
-          <NavLink href="/for-business">For Business</NavLink>
-        </div>
+        {!userLoggedIn && (
+          <div className="hidden md:flex items-center gap-8">
+            <NavLink href="/">Home</NavLink>
+            <NavLink href="/for-business">For Business</NavLink>
+          </div>
+        )}
 
         {/* Right section - Login/Logout */}
-        <div className="flex items-center gap-4 md:gap-6">
-          <div className="hidden md:flex items-center gap-4">
-            {showLoginButton ? (
-              <Link 
-                to="/business/login" 
-                className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
-              >
-                Business Login
-              </Link>
-            ) : currentUser && (
-              <button 
-                onClick={handleLogout}
-                className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
-              >
-                Logout
-              </button>
-            )}
-          </div>
-
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {isMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
+        {!userLoggedIn && (
+          <div className="flex items-center gap-4 md:gap-6">
+            <div className="hidden md:flex items-center gap-4">
+              {showLoginButton ? (
+                <Link 
+                  to="/business/login" 
+                  className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
+                >
+                  Business Login
+                </Link>
+              ) : businessUser && (
+                <button 
+                  onClick={handleLogout}
+                  className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
+                >
+                  Logout
+                </button>
               )}
-            </svg>
-          </button>
-        </div>
+            </div>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {isMenuOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                )}
+              </svg>
+            </button>
+          </div>
+        )}
       </motion.div>
 
       {/* Mobile Menu */}
-      {isMenuOpen && (
+      {isMenuOpen && !userLoggedIn && (
         <motion.div
           initial={{ opacity: 0, scaleY: 0 }}
           animate={{ opacity: 1, scaleY: 1 }}
@@ -219,7 +225,7 @@ const BusinessNavbar = () => {
               >
                 Business Login
               </Link>
-            ) : currentUser && (
+            ) : businessUser && (
               <button
                 onClick={() => {
                   handleLogout();
