@@ -41,13 +41,48 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleDashboardClick = async () => {
+    try {
+      // Get the current user's token
+      const token = await currentUser.getIdToken();
+      // Redirect to dashboard with token
+      window.location.href = `https://rangmanch-dashboard-rh8a.vercel.app?token=${token}`;
+    } catch (error) {
+      console.error('Error getting token:', error);
+    }
+  };
+
   const menuItems = [
-    { icon: <FaUser />, label: 'Dashboard', link: 'https://rangmanch-dashboard-rh8a.vercel.app/' },
-    { icon: <FaBell />, label: 'Notifications', link: '/notifications' },
-    { icon: <FaBookmark />, label: 'Saved Posts', link: '/saved' },
-    { icon: <FaHistory />, label: 'History', link: '/history' },
-    { icon: <FaCog />, label: 'Settings', link: '/settings' },
-    { icon: <FaQuestionCircle />, label: 'Help & Support', link: '/help' },
+    {
+      icon: <FaUser />,
+      label: 'Dashboard',
+      onClick: handleDashboardClick
+    },
+    { 
+      icon: <FaBell />, 
+      label: 'Notifications', 
+      link: '/notifications' 
+    },
+    { 
+      icon: <FaBookmark />, 
+      label: 'Saved Posts', 
+      link: '/saved' 
+    },
+    { 
+      icon: <FaHistory />, 
+      label: 'History', 
+      link: '/history' 
+    },
+    { 
+      icon: <FaCog />, 
+      label: 'Settings', 
+      link: '/settings' 
+    },
+    { 
+      icon: <FaQuestionCircle />, 
+      label: 'Help & Support', 
+      link: '/help' 
+    },
   ];
 
   return (
@@ -93,19 +128,20 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
             {/* Menu Items */}
             <div className="py-4">
               {menuItems.map((item, index) => {
-                const isExternalLink = item.link.startsWith('http');
-                return isExternalLink ? (
-                  <a
-                    key={index}
-                    href={item.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-                  >
-                    <span className="text-lg text-purple-500">{item.icon}</span>
-                    <span>{item.label}</span>
-                  </a>
-                ) : (
+                if (item.onClick) {
+                  return (
+                    <button
+                      key={index}
+                      onClick={item.onClick}
+                      className="w-full flex items-center space-x-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+                    >
+                      <span className="text-lg text-purple-500">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                }
+
+                return (
                   <Link
                     key={index}
                     to={item.link}
@@ -148,4 +184,4 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
   );
 };
 
-export default ProfileSidebar; 
+export default ProfileSidebar;
