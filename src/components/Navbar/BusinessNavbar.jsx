@@ -131,36 +131,42 @@ const BusinessNavbar = () => {
           </Link>
         </div>
 
-        {/* Link section - Desktop */}
-        {!userLoggedIn && (
+        {/* Link section - Only show when not logged in */}
+        {!businessUser && !userLoggedIn && (
           <div className="hidden md:flex items-center gap-8">
-            <NavLink href="/">Home</NavLink>
-            <NavLink href="/for-business">For Business</NavLink>
+            <Link to="/" className="relative text-lg font-semibold dark:text-white group transition-colors duration-300">
+              <span className="relative z-10">Home</span>
+              <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
+            </Link>
+            <Link to="/for-business" className="relative text-lg font-semibold dark:text-white group transition-colors duration-300">
+              <span className="relative z-10">For Business</span>
+              <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
+            </Link>
           </div>
         )}
 
         {/* Right section - Login/Logout */}
-        {!userLoggedIn && (
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="hidden md:flex items-center gap-4">
-              {showLoginButton ? (
-                <Link 
-                  to="/business/login" 
-                  className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
-                >
-                  Business Login
-                </Link>
-              ) : businessUser && (
-                <button 
-                  onClick={handleLogout}
-                  className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
-                >
-                  Logout
-                </button>
-              )}
-            </div>
+        <div className="flex items-center gap-4 md:gap-6">
+          <div className="hidden md:flex items-center gap-4">
+            {showLoginButton ? (
+              <Link 
+                to="/business/login" 
+                className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
+              >
+                Business Login
+              </Link>
+            ) : businessUser && (
+              <button 
+                onClick={handleLogout}
+                className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
+              >
+                Logout
+              </button>
+            )}
+          </div>
 
-            {/* Mobile menu button */}
+          {/* Mobile menu button - Only show when not logged in */}
+          {!businessUser && (
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -189,53 +195,51 @@ const BusinessNavbar = () => {
                 )}
               </svg>
             </button>
-          </div>
-        )}
+          )}
+
+          {/* Mobile Logout Button - Show when logged in */}
+          {businessUser && (
+            <button
+              onClick={handleLogout}
+              className="md:hidden px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
+            >
+              Logout
+            </button>
+          )}
+        </div>
       </motion.div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && !userLoggedIn && (
+      {/* Mobile Menu - Only show when not logged in */}
+      {isMenuOpen && !businessUser && !userLoggedIn && (
         <motion.div
           initial={{ opacity: 0, scaleY: 0 }}
           animate={{ opacity: 1, scaleY: 1 }}
           exit={{ opacity: 0, scaleY: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed top-24 left-4 right-4 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4"
+          className="md:hidden fixed top-24 left-4 right-4 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl rounded-3xl p-4 shadow-lg"
         >
-          <div className="flex flex-col space-y-4">
-            <Link
+          <div className="flex flex-col gap-4">
+            <Link 
               to="/"
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="px-4 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-lg font-semibold"
               onClick={() => setIsMenuOpen(false)}
             >
               Home
             </Link>
-            <Link
+            <Link 
               to="/for-business"
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="px-4 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-lg font-semibold"
               onClick={() => setIsMenuOpen(false)}
             >
               For Business
             </Link>
-            {showLoginButton ? (
-              <Link
-                to="/business/login"
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Business Login
-              </Link>
-            ) : businessUser && (
-              <button
-                onClick={() => {
-                  handleLogout();
-                  setIsMenuOpen(false);
-                }}
-                className="px-4 py-2 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                Logout
-              </button>
-            )}
+            <Link 
+              to="/business/login"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white text-center font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Business Login
+            </Link>
           </div>
         </motion.div>
       )}
