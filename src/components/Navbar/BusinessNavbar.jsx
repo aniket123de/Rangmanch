@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
 import { FaBuilding } from 'react-icons/fa';
 import Icon from '../../assets/icon.png';
+import { useAuth } from '../../contexts/authContext';
 
 const StyledWrapper = styled.div`
   /* === removing default button style ===*/
@@ -61,11 +62,13 @@ const StyledWrapper = styled.div`
 
 const BusinessNavbar = () => {
   const { isDark } = useContext(ThemeContext);
+  const { userLoggedIn } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
   // Check if we're on a business auth page
   const isBusinessAuthPage = ['/business/login', '/business/signup', '/business/forgot-password'].includes(location.pathname);
+  const showLoginButton = !isBusinessAuthPage && !userLoggedIn;
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-6">
@@ -106,7 +109,7 @@ const BusinessNavbar = () => {
         <div className="flex items-center gap-4 md:gap-6">
           <div className="hidden md:flex items-center gap-4">
             {/* Conditional rendering of Login/Profile */}
-            {!isBusinessAuthPage && (
+            {showLoginButton && (
               <Link 
                 to="/business/login" 
                 className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
@@ -172,7 +175,7 @@ const BusinessNavbar = () => {
             >
               For Business
             </Link>
-            {!isBusinessAuthPage && (
+            {showLoginButton && (
               <Link
                 to="/business/login"
                 className="px-4 py-2 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white rounded-lg text-center font-semibold"
