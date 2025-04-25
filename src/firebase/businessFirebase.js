@@ -1,13 +1,18 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
-import { initializeFirestore, enableIndexedDbPersistence, CACHE_SIZE_UNLIMITED } from "firebase/firestore";
+import { 
+  initializeFirestore, 
+  enableIndexedDbPersistence, 
+  CACHE_SIZE_UNLIMITED, 
+  connectFirestoreEmulator 
+} from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 
 const businessFirebaseConfig = {
   apiKey: "AIzaSyASit8iitzXD8Ai9xx8dTCi5_r3e8WWbCg",
   authDomain: "rangmanchbuss.firebaseapp.com",
   projectId: "rangmanchbuss",
-  storageBucket: "rangmanchbuss.firebasestorage.app",
+  storageBucket: "rangmanchbuss.appspot.com",
   messagingSenderId: "252364669468",
   appId: "1:252364669468:web:a92ab94dfba16ad0b395d9",
   measurementId: "G-43YSYY4HG3"
@@ -18,42 +23,56 @@ let businessDb;
 let businessAnalytics;
 
 try {
-  // Initialize Firebase with a unique name to avoid conflicts
-  const businessApp = initializeApp(businessFirebaseConfig, 'business');
+  // Initialize Firebase with a unique name and options
+  const businessApp = initializeApp(businessFirebaseConfig, {
+    name: 'business',
+    automaticDataCollectionEnabled: false
+  });
   
-  // Initialize Auth with error handling
+  // Initialize Auth
   businessAuth = getAuth(businessApp);
   
-  // Initialize Firestore with optimized configuration
+  // Initialize Firestore with optimized settings for web
   businessDb = initializeFirestore(businessApp, {
     cacheSizeBytes: CACHE_SIZE_UNLIMITED,
     experimentalForceLongPolling: true,
     useFetchStreams: false,
-    ignoreUndefinedProperties: true
+    ignoreUndefinedProperties: true,
+    experimentalAutoDetectLongPolling: true,
+    merge: true
   });
 
-  // Enable offline persistence with error handling
-  enableIndexedDbPersistence(businessDb).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
-    } else if (err.code === 'unimplemented') {
-      console.warn('The current browser does not support persistence.');
+  // Enable persistence with retry logic
+  const enablePersistence = async () => {
+    try {
+      await enableIndexedDbPersistence(businessDb);
+    } catch (err) {
+      if (err.code === 'failed-precondition') {
+        // Multiple tabs open, persistence can only be enabled in one tab at a time
+        console.warn('Multiple tabs open, persistence enabled in another tab');
+      } else if (err.code === 'unimplemented') {
+        // The current browser doesn't support persistence
+        console.warn('Browser does not support persistence');
+      } else {
+        console.error('Persistence error:', err);
+      }
     }
-  });
+  };
 
-  // Initialize analytics only in production and if supported
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+  // Call persistence enablement
+  enablePersistence().catch(console.error);
+
+  // Initialize analytics only in production
+  if (process.env.NODE_ENV === 'production' && typeof window !== 'undefined') {
     try {
       businessAnalytics = getAnalytics(businessApp);
-    } catch (analyticsError) {
-      console.warn('Analytics initialization failed:', analyticsError);
+    } catch (error) {
+      console.warn('Analytics initialization failed:', error);
       businessAnalytics = null;
     }
-  } else {
-    businessAnalytics = null;
   }
 } catch (error) {
-  console.error('Error initializing Firebase:', error);
+  console.error('Firebase initialization error:', error);
   throw error;
 }
 
