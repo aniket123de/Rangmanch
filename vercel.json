@@ -4,21 +4,29 @@
     {
       "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": {
+        "distDir": "dist",
+        "buildCommand": "npm run build"
+      }
     }
   ],
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "headers": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
+      "src": "/assets/(.*)",
+      "headers": { "cache-control": "s-maxage=31536000, immutable" },
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/(.*).(js|css|ico|json)",
+      "headers": { "cache-control": "s-maxage=31536000, immutable" },
+      "dest": "/$1.$2"
+    },
+    { 
+      "src": "/(.*)", 
+      "dest": "/index.html",
+      "headers": {
+        "cache-control": "public, max-age=0, must-revalidate"
+      }
     }
   ]
 } 
