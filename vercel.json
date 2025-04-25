@@ -9,6 +9,20 @@
   ],
   "routes": [
     { "handle": "filesystem" },
+    { "src": "/business/(.*)", "dest": "/index.html" },
+    { "src": "/for-business", "dest": "/index.html" },
+    { "src": "/about", "dest": "/index.html" },
     { "src": "/(.*)", "dest": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
   ]
 } 
