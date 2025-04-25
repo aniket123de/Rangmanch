@@ -22,7 +22,8 @@ import BusinessDashboard from "./pages/business/BusinessDashboard";
 import About from "./pages/About";
 import { LoadingProvider } from './contexts/LoadingContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/authContext';
+import { BusinessAuthProvider } from './contexts/businessAuthContext';
 
 const Home = () => {
   return (
@@ -55,28 +56,30 @@ const App = () => {
     <Router>
       <ThemeProvider>
         <AuthProvider>
-          <LoadingProvider>
-            <main className="overflow-x-hidden">
-              <NavbarWrapper />
-              <Routes>
-                {/* User Routes */}
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/email-verification" element={<EmailVerification />} />
-                
-                {/* Business Routes */}
-                <Route path="/for-business" element={<ForBusiness />} />
-                <Route path="/business/login" element={<BusinessLogin />} />
-                <Route path="/business/signup" element={<BusinessSignup />} />
-                <Route path="/business/forgot-password" element={<BusinessForgotPassword />} />
-                <Route path="/business/dashboard" element={<BusinessDashboard />} />
-              </Routes>
-              <Footer />
-            </main>
-          </LoadingProvider>
+          <BusinessAuthProvider>
+            <LoadingProvider>
+              <main className="overflow-x-hidden">
+                <NavbarWrapper />
+                <Routes>
+                  {/* User Routes */}
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/email-verification" element={<EmailVerification />} />
+                  
+                  {/* Business Routes */}
+                  <Route path="/for-business" element={<ForBusiness />} />
+                  <Route path="/business/login" element={<BusinessLogin />} />
+                  <Route path="/business/signup" element={<BusinessSignup />} />
+                  <Route path="/business/forgot-password" element={<BusinessForgotPassword />} />
+                  <Route path="/business/dashboard" element={<BusinessDashboard />} />
+                </Routes>
+                <Footer />
+              </main>
+            </LoadingProvider>
+          </BusinessAuthProvider>
         </AuthProvider>
       </ThemeProvider>
     </Router>

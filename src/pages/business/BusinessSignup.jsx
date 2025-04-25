@@ -1,15 +1,13 @@
 import React, { useContext, useState } from 'react';
-import styled from 'styled-components';
 import { ThemeContext } from '../../context/ThemeContext';
 import { Link, Navigate } from 'react-router-dom';
-import { doCreateUserWithEmailAndPassword } from '../../firebase/auth';
-import { useAuth } from '../../contexts/authContext';
+import { useBusinessAuth } from '../../contexts/businessAuthContext';
 import BusinessNavbar from '../../components/Navbar/BusinessNavbar';
 
 const BusinessSignup = () => {
   const { isDark } = useContext(ThemeContext);
-  const { userLoggedIn } = useAuth();
-  
+  const { signup, currentUser } = useBusinessAuth();
+
   const [formData, setFormData] = useState({
     businessName: '',
     industry: '',
@@ -33,7 +31,7 @@ const BusinessSignup = () => {
     hasNumber: false,
     hasSpecial: false
   });
-  
+
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -76,13 +74,31 @@ const BusinessSignup = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     if (!isSigningUp && formData.email && formData.password) {
+      if (formData.password !== formData.confirmPassword) {
+        setErrorMessage('Passwords do not match');
+        return;
+      }
       try {
         setIsSigningUp(true);
         setErrorMessage('');
-        await doCreateUserWithEmailAndPassword(formData.email, formData.password);
+        
+        // Create business info object without sensitive data
+        const businessInfo = {
+          businessName: formData.businessName,
+          industry: formData.industry,
+          location: formData.location,
+          website: formData.website,
+          linkedin: formData.linkedin,
+          instagram: formData.instagram,
+          twitter: formData.twitter,
+          businessSize: formData.businessSize,
+          yearsInBusiness: formData.yearsInBusiness
+        };
+
+        await signup(formData.email, formData.password, businessInfo);
       } catch (error) {
         setErrorMessage(error.message);
       } finally {
@@ -93,7 +109,7 @@ const BusinessSignup = () => {
 
   return (
     <>
-      {userLoggedIn && <Navigate to="/business/dashboard" replace={true} />}
+      {currentUser && <Navigate to="/business/dashboard" replace={true} />}
       <BusinessNavbar />
       <div className="min-h-screen bg-gradient-to-br from-gray-100 to-white dark:from-gray-900 dark:to-black transition-colors duration-300 pt-32">
         <div className="container mx-auto px-4">
@@ -110,7 +126,7 @@ const BusinessSignup = () => {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={onSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-gray-700 dark:text-gray-300 mb-2">Business Name</label>

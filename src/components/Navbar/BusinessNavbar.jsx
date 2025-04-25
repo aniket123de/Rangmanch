@@ -2,10 +2,10 @@ import React, { useContext, useState } from "react";
 import { motion } from "framer-motion";
 import { ThemeContext } from "../../context/ThemeContext";
 import styled from 'styled-components';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaBuilding } from 'react-icons/fa';
 import Icon from '../../assets/icon.png';
-import { useAuth } from '../../contexts/authContext';
+import { useBusinessAuth } from '../../contexts/businessAuthContext';
 
 const StyledWrapper = styled.div`
   /* === removing default button style ===*/
@@ -86,13 +86,23 @@ const NavLink = ({ href, children }) => {
 
 const BusinessNavbar = () => {
   const { isDark } = useContext(ThemeContext);
-  const { userLoggedIn } = useAuth();
+  const { currentUser, logout } = useBusinessAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Check if we're on a business auth page
   const isBusinessAuthPage = ['/business/login', '/business/signup', '/business/forgot-password'].includes(location.pathname);
-  const showLoginButton = !isBusinessAuthPage && !userLoggedIn;
+  const showLoginButton = !isBusinessAuthPage && !currentUser;
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/business/login');
+    } catch (error) {
+      console.error('Failed to logout:', error);
+    }
+  };
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-6">
@@ -125,17 +135,23 @@ const BusinessNavbar = () => {
           <NavLink href="/for-business">For Business</NavLink>
         </div>
 
-        {/* Right section - Login/Signup */}
+        {/* Right section - Login/Logout */}
         <div className="flex items-center gap-4 md:gap-6">
           <div className="hidden md:flex items-center gap-4">
-            {/* Conditional rendering of Login/Profile */}
-            {showLoginButton && (
+            {showLoginButton ? (
               <Link 
                 to="/business/login" 
                 className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
               >
                 Business Login
               </Link>
+            ) : currentUser && (
+              <button 
+                onClick={handleLogout}
+                className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
+              >
+                Logout
+              </button>
             )}
           </div>
 
@@ -195,14 +211,24 @@ const BusinessNavbar = () => {
             >
               For Business
             </Link>
-            {showLoginButton && (
+            {showLoginButton ? (
               <Link
                 to="/business/login"
-                className="px-4 py-2 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white rounded-lg text-center font-semibold"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Business Login
               </Link>
+            ) : currentUser && (
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setIsMenuOpen(false);
+                }}
+                className="px-4 py-2 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                Logout
+              </button>
             )}
           </div>
         </motion.div>

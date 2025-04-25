@@ -16,7 +16,6 @@ import {
   FaMoon
 } from 'react-icons/fa';
 import Switch from './Switch';
-import { getAuth } from 'firebase/auth';
 
 const ProfileSidebar = ({ isOpen, onClose }) => {
   const { isDark, toggleTheme } = useContext(ThemeContext);
@@ -43,12 +42,13 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
   };
 
   const handleDashboardClick = async () => {
-    const auth = getAuth();
-    if (auth.currentUser) {
-      window.location.href = 'https://rangmanch-dashboard-rh8a.vercel.app';
-    } else {
-      // Handle not logged in state
-      console.error('User not logged in');
+    try {
+      // Get the current user's token
+      const token = await currentUser.getIdToken();
+      // Redirect to dashboard with token
+      window.location.href = `https://rangmanch-dashboard-rh8a.vercel.app?token=${token}`;
+    } catch (error) {
+      console.error('Error getting token:', error);
     }
   };
 

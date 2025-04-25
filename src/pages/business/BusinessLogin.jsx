@@ -2,13 +2,12 @@ import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { ThemeContext } from '../../context/ThemeContext';
 import { Link, Navigate } from 'react-router-dom';
-import { doSignInWithEmailAndPassword } from '../../firebase/auth';
-import { useAuth } from '../../contexts/authContext';
+import { useBusinessAuth } from '../../contexts/businessAuthContext';
 import BusinessNavbar from '../../components/Navbar/BusinessNavbar';
 
 const BusinessLogin = () => {
   const { isDark } = useContext(ThemeContext);
-  const { userLoggedIn } = useAuth();
+  const { login, currentUser } = useBusinessAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,7 +20,7 @@ const BusinessLogin = () => {
       try {
         setIsSigningIn(true);
         setErrorMessage('');
-        await doSignInWithEmailAndPassword(email, password);
+        await login(email, password);
       } catch (error) {
         setErrorMessage(error.message);
       } finally {
@@ -32,7 +31,7 @@ const BusinessLogin = () => {
 
   return (
     <>
-      {userLoggedIn && <Navigate to="/business/dashboard" replace={true} />}
+      {currentUser && <Navigate to="/business/dashboard" replace={true} />}
       <BusinessNavbar />
       <div className="min-h-screen bg-gradient-to-br from-gray-100 to-white dark:from-gray-900 dark:to-black transition-colors duration-300 pt-32">
         <div className="container mx-auto px-4">

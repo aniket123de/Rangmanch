@@ -1,38 +1,34 @@
 import React, { useContext, useState } from 'react';
-import styled from 'styled-components';
 import { ThemeContext } from '../../context/ThemeContext';
 import { Link } from 'react-router-dom';
-import { doSendPasswordResetEmail } from '../../firebase/auth';
+import { useBusinessAuth } from '../../contexts/businessAuthContext';
 import BusinessNavbar from '../../components/Navbar/BusinessNavbar';
 
 const BusinessForgotPassword = () => {
   const { isDark } = useContext(ThemeContext);
+  const { resetPassword } = useBusinessAuth();
+
   const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [isResetting, setIsResetting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const handleSubmit = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    if (!email) return;
-
-    try {
-      setIsLoading(true);
-      setMessage({ type: '', text: '' });
-      await doSendPasswordResetEmail(email);
-      setMessage({
-        type: 'success',
-        text: 'Password reset link has been sent to your business email!'
-      });
-      setEmail('');
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        text: error.message
-      });
-    } finally {
-      setIsLoading(false);
+    if (!isResetting && email) {
+      try {
+        setIsResetting(true);
+        setErrorMessage('');
+        setSuccessMessage('');
+        await resetPassword(email);
+        setSuccessMessage('Password reset email sent. Please check your inbox.');
+      } catch (error) {
+        setErrorMessage(error.message);
+      } finally {
+        setIsResetting(false);
+      }
     }
-  };
+  }
 
   return (
     <>
@@ -43,23 +39,22 @@ const BusinessForgotPassword = () => {
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
               <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Reset Password</h1>
-                <p className="text-gray-600 dark:text-gray-400">Enter your business email to reset your password</p>
+                <p className="text-gray-600 dark:text-gray-400">Enter your email to reset your password</p>
               </div>
 
-              {message.text && (
-                <div
-                  className={`${
-                    message.type === 'success'
-                      ? 'bg-green-100 border-green-400 text-green-700'
-                      : 'bg-red-100 border-red-400 text-red-700'
-                  } px-4 py-3 rounded relative mb-6`}
-                  role="alert"
-                >
-                  <span className="block sm:inline">{message.text}</span>
+              {errorMessage && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+                  <span className="block sm:inline">{errorMessage}</span>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              {successMessage && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6" role="alert">
+                  <span className="block sm:inline">{successMessage}</span>
+                </div>
+              )}
+
+              <form onSubmit={onSubmit} className="space-y-6">
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 mb-2">Business Email</label>
                   <input
@@ -74,10 +69,10 @@ const BusinessForgotPassword = () => {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isResetting}
                   className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50"
                 >
-                  {isLoading ? 'Sending...' : 'Send Reset Link'}
+                  {isResetting ? 'Sending...' : 'Send Reset Link'}
                 </button>
               </form>
 
