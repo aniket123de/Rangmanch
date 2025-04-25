@@ -108,43 +108,32 @@ const BusinessNavbar = () => {
 
   // Handle back button and page visibility
   useEffect(() => {
-    // Handle back button
-    const handlePopState = async (event) => {
-      if (businessUser) {
-        // Prevent the default back action
-        event.preventDefault();
-        // Logout the user
-        await handleLogout();
-      }
-    };
+    // Check if window is defined (client-side)
+    if (typeof window !== 'undefined') {
+      // Handle back button
+      const handlePopState = async () => {
+        if (businessUser) {
+          await handleLogout();
+        }
+      };
 
-    // Handle page visibility change
-    const handleVisibilityChange = async () => {
-      if (document.hidden && businessUser) {
-        // If page is hidden (user switched tabs or minimized) and user is logged in
-        await handleLogout();
-      }
-    };
+      // Handle page visibility change
+      const handleVisibilityChange = async () => {
+        if (document.hidden && businessUser) {
+          await handleLogout();
+        }
+      };
 
-    // Handle page unload
-    const handleBeforeUnload = async (event) => {
-      if (businessUser) {
-        // Logout on page refresh or close
-        await handleLogout();
-      }
-    };
+      // Add event listeners
+      window.addEventListener('popstate', handlePopState);
+      document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Add event listeners
-    window.addEventListener('popstate', handlePopState);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    // Cleanup function
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
+      // Cleanup function
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
+    }
   }, [businessUser]); // Only re-run effect if businessUser changes
 
   // Prevent accessing business pages directly after logout
@@ -154,6 +143,34 @@ const BusinessNavbar = () => {
       navigate('/business/login');
     }
   }, [businessUser, location.pathname, navigate]);
+
+  // Handle page refresh or close
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (businessUser) {
+        // Store a flag in sessionStorage
+        sessionStorage.setItem('shouldLogout', 'true');
+      }
+    };
+
+    // Check for stored logout flag on mount
+    const checkStoredLogout = () => {
+      const shouldLogout = sessionStorage.getItem('shouldLogout');
+      if (shouldLogout === 'true' && businessUser) {
+        handleLogout();
+        sessionStorage.removeItem('shouldLogout');
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      checkStoredLogout();
+
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
+    }
+  }, [businessUser]);
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-6">
