@@ -1,10 +1,9 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { 
   initializeFirestore, 
   enableIndexedDbPersistence, 
-  CACHE_SIZE_UNLIMITED, 
-  connectFirestoreEmulator 
+  CACHE_SIZE_UNLIMITED,
 } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 
