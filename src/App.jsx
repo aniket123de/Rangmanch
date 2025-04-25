@@ -18,6 +18,7 @@ import ForBusiness from "./pages/ForBusiness";
 import BusinessLogin from "./pages/business/BusinessLogin";
 import BusinessSignup from "./pages/business/BusinessSignup";
 import BusinessForgotPassword from "./pages/business/BusinessForgotPassword";
+import BusinessDashboard from "./pages/business/BusinessDashboard";
 import About from "./pages/About";
 
 const Home = () => {
@@ -65,6 +66,7 @@ const App = () => {
           <Route path="/business/login" element={<BusinessLogin />} />
           <Route path="/business/signup" element={<BusinessSignup />} />
           <Route path="/business/forgot-password" element={<BusinessForgotPassword />} />
+          <Route path="/business/dashboard" element={<BusinessDashboard />} />
         </Routes>
         <Footer />
       </main>
