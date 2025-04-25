@@ -35,10 +35,9 @@ try {
   // Initialize Firestore with optimized settings for web
   businessDb = initializeFirestore(businessApp, {
     cacheSizeBytes: CACHE_SIZE_UNLIMITED,
-    experimentalForceLongPolling: true,
+    experimentalAutoDetectLongPolling: true,
     useFetchStreams: false,
     ignoreUndefinedProperties: true,
-    experimentalAutoDetectLongPolling: true,
     merge: true
   });
 
