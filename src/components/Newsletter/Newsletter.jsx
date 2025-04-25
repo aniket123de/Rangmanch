@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { delay, motion } from "framer-motion";
+import React, { useContext, useState } from "react";
+import { motion } from "framer-motion";
 import { SlideUp } from "../../animation/animate";
 import { ThemeContext } from "../../context/ThemeContext";
 import styled from "styled-components";
@@ -46,6 +46,9 @@ const StyledWrapper = styled.div`
   .form-control {
     position: relative;
     --width-of-input: 300px;
+    --border-height: 1px;
+    --border-before-color: rgba(221, 221, 221, 0.39);
+    --border-after-color: #5891ff;
   }
 
   .input-alt {
@@ -83,6 +86,55 @@ const StyledWrapper = styled.div`
 
 const Newsletter = () => {
   const { isDark } = useContext(ThemeContext);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState({
+    submitted: false,
+    success: false,
+    message: ""
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    try {
+      const formJson = Object.fromEntries(formData.entries());
+      
+      const response = await fetch(`https://formsubmit.co/ajax/rangmanchofficial30@gmail.com`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(formJson)
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setSubmitStatus({
+          submitted: true,
+          success: true,
+          message: "Thank you for your message! We will get back to you soon."
+        });
+        form.reset();
+      } else {
+        throw new Error(data.message || "Something went wrong!");
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setSubmitStatus({
+        submitted: true,
+        success: false,
+        message: error.message || "Failed to send message. Please try again later."
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="w-full dark:bg-dark-bg transition-colors duration-300">
@@ -104,18 +156,37 @@ const Newsletter = () => {
           Have questions, ideas, or just want to say hello?
           Fill out the form below and our team at Rangmanch will get back to you shortly.
         </motion.p>
+        
+        {/* Success/Error Message */}
+        {submitStatus.submitted && (
+          <div className={`text-center p-4 rounded-lg ${submitStatus.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+            {submitStatus.message}
+          </div>
+        )}
+        
         {/* Contact Form */}
         <motion.form
+          action={`https://formsubmit.co/rangmanchofficial30@gmail.com`}
+          method="POST"
           variants={SlideUp(0.6)}
           initial="initial"
           whileInView="animate"
           className="!mt-10 space-y-4"
+          onSubmit={handleSubmit}
         >
+          {/* FormSubmit specific hidden fields */}
+          <input type="hidden" name="_subject" value="New Contact Form Submission from Rangmanch" />
+          <input type="hidden" name="_captcha" value="false" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_next" value={window.location.href} />
+          <input type="hidden" name="_replyto" value="" />
+          
           <StyledWrapper>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <input
                   type="text"
+                  name="name"
                   required
                   placeholder="Your Name"
                   className="input input-alt"
@@ -125,6 +196,7 @@ const Newsletter = () => {
               <div className="form-control">
                 <input
                   type="email"
+                  name="email"
                   required
                   placeholder="Your Email"
                   className="input input-alt"
@@ -135,6 +207,7 @@ const Newsletter = () => {
             <div className="form-control mt-4">
               <input
                 type="text"
+                name="subject"
                 required
                 placeholder="Subject"
                 className="input input-alt"
@@ -143,6 +216,7 @@ const Newsletter = () => {
             </div>
             <div className="form-control mt-4">
               <textarea
+                name="message"
                 required
                 placeholder="Your Message"
                 rows="4"
@@ -155,9 +229,10 @@ const Newsletter = () => {
           <div className="flex justify-center mt-8">
             <button
               type="submit"
-              className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 rounded-lg uppercase font-medium hover:opacity-90 transition-all duration-300"
+              disabled={isSubmitting}
+              className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 rounded-lg uppercase font-medium hover:opacity-90 transition-all duration-300 disabled:opacity-50"
             >
-              Send Message
+              {isSubmitting ? "Sending..." : "Send Message"}
             </button>
           </div>
         </motion.form>
