@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore } from "firebase/firestore";
+import { getAnalytics } from "firebase/analytics";
 
 const businessFirebaseConfig = {
   apiKey: "AIzaSyASit8iitzXD8Ai9xx8dTCi5_r3e8WWbCg",
@@ -16,16 +17,15 @@ const businessFirebaseConfig = {
 const businessApp = initializeApp(businessFirebaseConfig, 'business');
 const businessAuth = getAuth(businessApp);
 
-// Initialize Firestore with multi-tab persistence
-const businessDb = getFirestore(businessApp, {
+// Initialize Firestore with proper configuration
+const businessDb = initializeFirestore(businessApp, {
   cacheSizeBytes: 50 * 1024 * 1024, // 50 MB cache size
   experimentalForceLongPolling: true,
   useFetchStreams: false,
-  cache: {
-    lru: {
-      sizeBytes: 50 * 1024 * 1024 // 50 MB
-    }
-  }
+  ignoreUndefinedProperties: true // Add this to handle undefined properties
 });
 
-export { businessAuth, businessDb }; 
+// Initialize analytics
+const businessAnalytics = getAnalytics(businessApp);
+
+export { businessAuth, businessDb, businessAnalytics }; 

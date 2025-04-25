@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -23,16 +23,12 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 
-// Initialize Firestore with persistence
-const db = getFirestore(app, {
+// Initialize Firestore with proper configuration
+const db = initializeFirestore(app, {
     cacheSizeBytes: 50 * 1024 * 1024, // 50 MB cache size
     experimentalForceLongPolling: true,
     useFetchStreams: false,
-    cache: {
-        lru: {
-            sizeBytes: 50 * 1024 * 1024 // 50 MB
-        }
-    }
+    ignoreUndefinedProperties: true // Add this to handle undefined properties
 });
 
 // Configure Google Auth Provider
