@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, enableMultiTabIndexedDbPersistence } from "firebase/firestore";
 
 const businessFirebaseConfig = {
   apiKey: "AIzaSyASit8iitzXD8Ai9xx8dTCi5_r3e8WWbCg",
@@ -12,9 +12,25 @@ const businessFirebaseConfig = {
   measurementId: "G-43YSYY4HG3"
 };
 
-// Initialize Firebase
+// Initialize Firebase with a unique name to avoid conflicts
 const businessApp = initializeApp(businessFirebaseConfig, 'business');
 const businessAuth = getAuth(businessApp);
 const businessDb = getFirestore(businessApp);
+
+// Enable multi-tab persistence for business app
+try {
+  enableMultiTabIndexedDbPersistence(businessDb)
+    .catch((err) => {
+      if (err.code === 'failed-precondition') {
+        // Multiple tabs open, persistence can only be enabled in one tab at a time.
+        console.warn('Business Firebase persistence failed - multiple tabs open');
+      } else if (err.code === 'unimplemented') {
+        // The current browser does not support persistence
+        console.warn('Business Firebase persistence not supported in this browser');
+      }
+    });
+} catch (err) {
+  console.warn('Error enabling business Firebase persistence:', err);
+}
 
 export { businessAuth, businessDb }; 
