@@ -60,6 +60,30 @@ const StyledWrapper = styled.div`
   }
 `;
 
+const NavLink = ({ href, children }) => {
+  const handleClick = (e) => {
+    if (href.startsWith('/#')) {
+      e.preventDefault();
+      const elementId = href.substring(2);
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  return (
+    <a
+      href={href}
+      onClick={handleClick}
+      className="relative text-lg font-semibold dark:text-white group transition-colors duration-300"
+    >
+      <span className="relative z-10">{children}</span>
+      <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
+    </a>
+  );
+};
+
 const BusinessNavbar = () => {
   const { isDark } = useContext(ThemeContext);
   const { userLoggedIn } = useAuth();
@@ -97,12 +121,8 @@ const BusinessNavbar = () => {
 
         {/* Link section - Desktop */}
         <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className="text-lg font-semibold dark:text-white hover:text-purple-500 transition-colors">
-            Home
-          </Link>
-          <Link to="/for-business" className="text-lg font-semibold dark:text-white hover:text-purple-500 transition-colors">
-            For Business
-          </Link>
+          <NavLink href="/">Home</NavLink>
+          <NavLink href="/for-business">For Business</NavLink>
         </div>
 
         {/* Right section - Login/Signup */}
