@@ -11,7 +11,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBKT2EyuMtocu1DCtYmDrr7NqYVNwAaSPs",
   authDomain: "rangmanch-4189e.firebaseapp.com",
   projectId: "rangmanch-4189e",
-  storageBucket: "rangmanch-4189e.appspot.com", // ✅ fixed
+  storageBucket: "rangmanch-4189e.appspot.com", 
   messagingSenderId: "385690692095",
   appId: "1:385690692095:web:5c3a871035d694f4415fca",
   measurementId: "G-73V0QBMC4F"
