@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore, initializeFirestore } from "firebase/firestore";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { initializeFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 
 const businessFirebaseConfig = {
@@ -13,19 +13,41 @@ const businessFirebaseConfig = {
   measurementId: "G-43YSYY4HG3"
 };
 
-// Initialize Firebase with a unique name to avoid conflicts
-const businessApp = initializeApp(businessFirebaseConfig, 'business');
-const businessAuth = getAuth(businessApp);
+let businessAuth;
+let businessDb;
+let businessAnalytics;
 
-// Initialize Firestore with proper configuration
-const businessDb = initializeFirestore(businessApp, {
-  cacheSizeBytes: 50 * 1024 * 1024, // 50 MB cache size
-  experimentalForceLongPolling: true,
-  useFetchStreams: false,
-  ignoreUndefinedProperties: true // Add this to handle undefined properties
-});
+try {
+  // Initialize Firebase with a unique name to avoid conflicts
+  const businessApp = initializeApp(businessFirebaseConfig, 'business');
+  
+  // Initialize Auth with error handling
+  businessAuth = getAuth(businessApp);
+  
+  // Initialize Firestore with proper configuration and error handling
+  businessDb = initializeFirestore(businessApp, {
+    cacheSizeBytes: 50 * 1024 * 1024, // 50 MB cache size
+    experimentalForceLongPolling: true,
+    useFetchStreams: false,
+    ignoreUndefinedProperties: true
+  });
 
-// Initialize analytics
-const businessAnalytics = getAnalytics(businessApp);
+  // Enable offline persistence for Firestore
+  enableIndexedDbPersistence(businessDb).catch((err) => {
+    if (err.code === 'failed-precondition') {
+      console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+    } else if (err.code === 'unimplemented') {
+      console.warn('The current browser does not support persistence.');
+    }
+  });
+
+  // Initialize analytics only in production and if supported
+  businessAnalytics = typeof window !== 'undefined' && process.env.NODE_ENV === 'production' 
+    ? getAnalytics(businessApp) 
+    : null;
+} catch (error) {
+  console.error('Error initializing Firebase:', error);
+  throw error;
+}
 
 export { businessAuth, businessDb, businessAnalytics }; 
