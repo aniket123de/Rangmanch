@@ -2,7 +2,6 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import {
   initializeFirestore,
-  CACHE_SIZE_UNLIMITED,
   persistentLocalCache,
   persistentMultipleTabManager
 } from "firebase/firestore";
@@ -23,27 +22,23 @@ let businessDb;
 let businessAnalytics;
 
 try {
-  // Initialize Firebase with a unique name and options
   const businessApp = initializeApp(businessFirebaseConfig, {
     name: 'business',
     automaticDataCollectionEnabled: false
   });
 
-  // Initialize Auth
   businessAuth = getAuth(businessApp);
 
-  // Initialize Firestore with persistent caching and advanced settings
   businessDb = initializeFirestore(businessApp, {
-    cacheSizeBytes: CACHE_SIZE_UNLIMITED,
     ignoreUndefinedProperties: true,
     experimentalAutoDetectLongPolling: true,
     useFetchStreams: false,
     localCache: persistentLocalCache({
+      cacheSizeBytes: Infinity, // replaces CACHE_SIZE_UNLIMITED
       tabManager: persistentMultipleTabManager()
     })
   });
 
-  // Initialize analytics only in production and supported environments
   if (process.env.NODE_ENV === 'production' && typeof window !== 'undefined') {
     isSupported().then((supported) => {
       if (supported) {
