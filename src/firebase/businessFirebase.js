@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
-import { initializeFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { initializeFirestore, enableIndexedDbPersistence, CACHE_SIZE_UNLIMITED } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 
 const businessFirebaseConfig = {
@@ -24,15 +24,15 @@ try {
   // Initialize Auth with error handling
   businessAuth = getAuth(businessApp);
   
-  // Initialize Firestore with proper configuration and error handling
+  // Initialize Firestore with optimized configuration
   businessDb = initializeFirestore(businessApp, {
-    cacheSizeBytes: 50 * 1024 * 1024, // 50 MB cache size
+    cacheSizeBytes: CACHE_SIZE_UNLIMITED,
     experimentalForceLongPolling: true,
     useFetchStreams: false,
     ignoreUndefinedProperties: true
   });
 
-  // Enable offline persistence for Firestore
+  // Enable offline persistence with error handling
   enableIndexedDbPersistence(businessDb).catch((err) => {
     if (err.code === 'failed-precondition') {
       console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
@@ -42,9 +42,16 @@ try {
   });
 
   // Initialize analytics only in production and if supported
-  businessAnalytics = typeof window !== 'undefined' && process.env.NODE_ENV === 'production' 
-    ? getAnalytics(businessApp) 
-    : null;
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+    try {
+      businessAnalytics = getAnalytics(businessApp);
+    } catch (analyticsError) {
+      console.warn('Analytics initialization failed:', analyticsError);
+      businessAnalytics = null;
+    }
+  } else {
+    businessAnalytics = null;
+  }
 } catch (error) {
   console.error('Error initializing Firebase:', error);
   throw error;
