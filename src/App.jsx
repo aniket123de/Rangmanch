@@ -24,6 +24,7 @@ import { LoadingProvider } from './contexts/LoadingContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/authContext';
 import { BusinessAuthProvider } from './contexts/businessAuthContext';
+import ScrollToTopButton from "./components/common/ScrollToTopButton";
 
 const Home = () => {
   return (
@@ -77,6 +78,7 @@ const App = () => {
                   <Route path="/business/dashboard" element={<BusinessDashboard />} />
                 </Routes>
                 <Footer />
+                <ScrollToTopButton />
               </main>
             </LoadingProvider>
           </BusinessAuthProvider>
