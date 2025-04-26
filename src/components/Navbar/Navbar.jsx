@@ -249,6 +249,10 @@ const Navbar = () => {
     return currentUser?.photoURL || 'https://via.placeholder.com/150';
   };
 
+  const filteredNavLinks = location.pathname === '/login' 
+    ? [{ id: 0, title: 'Home', link: '/' }] 
+    : NavLinks;
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-6">
       <motion.div
@@ -276,7 +280,7 @@ const Navbar = () => {
 
         {/* Link section - Desktop */}
         <div className="hidden md:flex items-center gap-8">
-          {NavLinks.map((link) => (
+          {filteredNavLinks.map((link) => (
             <NavLink key={link.id} href={link.link}>
               {link.title}
             </NavLink>
