@@ -431,9 +431,10 @@ const Navbar = () => {
       </MobileMenuWrapper>
 
       {/* Profile Sidebar */}
-      {isProfileOpen && (
-        <ProfileSidebar onClose={() => setIsProfileOpen(false)} />
-      )}
+      <ProfileSidebar 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)} 
+      />
     </div>
   );
 };
