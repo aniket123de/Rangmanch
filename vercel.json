@@ -5,6 +5,10 @@
   "framework": "vite",
   "routes": [
     {
+      "src": "/api/generate-suggestions",
+      "dest": "api/generate-suggestions.js"
+    },
+    {
       "src": "/assets/(.*)",
       "headers": { "cache-control": "public, max-age=31536000, immutable" },
       "dest": "/assets/$1"
@@ -20,4 +24,4 @@
       "headers": { "cache-control": "public, max-age=0, must-revalidate" }
     }
   ]
-} 
+}
