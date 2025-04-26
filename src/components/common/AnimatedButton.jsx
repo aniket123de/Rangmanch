@@ -1,14 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
 
-const AnimatedButton = ({ to, children, variant = "outline" }) => {
-  const color = variant === "outline" ? "#9d4edd" : "#ffffff";
-  const bgColor = variant === "outline" ? "#9d4edd" : "linear-gradient(45deg, #9d4edd, #c77dff)";
-
+const AnimatedButton = ({ children, onClick, className = "" }) => {
   return (
-    <StyledWrapper $color={color} $bgColor={bgColor}>
-      <Link to={to} className="animated-button">
+    <StyledWrapper>
+      <button className={`animated-button ${className}`} onClick={onClick}>
         <svg viewBox="0 0 24 24" className="arr-2" xmlns="http://www.w3.org/2000/svg">
           <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z" />
         </svg>
@@ -17,7 +13,7 @@ const AnimatedButton = ({ to, children, variant = "outline" }) => {
         <svg viewBox="0 0 24 24" className="arr-1" xmlns="http://www.w3.org/2000/svg">
           <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z" />
         </svg>
-      </Link>
+      </button>
     </StyledWrapper>
   );
 }
@@ -28,25 +24,24 @@ const StyledWrapper = styled.div`
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 12px 32px;
+    padding: 16px 36px;
     border: 4px solid;
     border-color: transparent;
-    font-size: 14px;
+    font-size: 16px;
     background-color: inherit;
     border-radius: 100px;
     font-weight: 600;
-    color: ${props => props.$color};
-    box-shadow: 0 0 0 2px ${props => props.$color};
+    color: #9d4edd;
+    box-shadow: 0 0 0 2px #9d4edd;
     cursor: pointer;
     overflow: hidden;
     transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-    text-decoration: none;
   }
 
   .animated-button svg {
     position: absolute;
-    width: 20px;
-    fill: ${props => props.$color};
+    width: 24px;
+    fill: #9d4edd;
     z-index: 9;
     transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
   }
@@ -66,7 +61,7 @@ const StyledWrapper = styled.div`
     transform: translate(-50%, -50%);
     width: 20px;
     height: 20px;
-    background: ${props => props.$bgColor};
+    background-color: #9d4edd;
     border-radius: 50%;
     opacity: 0;
     transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
@@ -81,7 +76,7 @@ const StyledWrapper = styled.div`
 
   .animated-button:hover {
     box-shadow: 0 0 0 12px transparent;
-    color: ${props => props.$color === "#ffffff" ? "#ffffff" : "#212121"};
+    color: #212121;
     border-radius: 12px;
   }
 
@@ -98,12 +93,12 @@ const StyledWrapper = styled.div`
   }
 
   .animated-button:hover svg {
-    fill: ${props => props.$color === "#ffffff" ? "#ffffff" : "#212121"};
+    fill: #212121;
   }
 
   .animated-button:active {
     scale: 0.95;
-    box-shadow: 0 0 0 4px ${props => props.$color};
+    box-shadow: 0 0 0 4px #9d4edd;
   }
 
   .animated-button:hover .circle {

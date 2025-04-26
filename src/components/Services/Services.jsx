@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { SlideUp } from "../../animation/animate";
 import { ThemeContext } from "../../context/ThemeContext";
 import styled from 'styled-components';
+import BackgroundPattern from "../common/BackgroundPattern";
 
 const ServiceCard = [
   {
@@ -172,69 +173,73 @@ const Services = () => {
   const { isDark } = useContext(ThemeContext);
 
   return (
-    <div className="w-full dark:bg-dark-bg transition-colors duration-300">
-      <div className="container py-20">
-        {/* heading title */}
-        <div className="space-y-2 text-center max-w-[350px] mx-auto mb-12">
-          <motion.h1
-            variants={SlideUp(0.2)}
-            initial="initial"
-            whileInView={"animate"}
-            className="text-3xl font-bold font-serif dark:text-white"
-          >
-            What we provide
-          </motion.h1>
-          <motion.p
-            variants={SlideUp(0.4)}
-            initial="initial"
-            whileInView={"animate"}
-            className="text-gray-500 dark:text-gray-400 text-sm"
-          >
-            Bring your content dreams to life with personalized AI tools, insightful analytics, and creative flexibility—all in one place.
-          </motion.p>
-        </div>
-        {/* card section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {ServiceCard.map((card) => (
-            <motion.div
-              variants={SlideUp(card.delay)}
-              initial="initial"
-              whileInView={"animate"}
-              key={card.id}
-            >
-              <CardWrapper 
-                theme={isDark ? 'dark' : 'light'}
-                gradientStart={card.gradient.start}
-                gradientEnd={card.gradient.end}
+    <section id="services">
+      <BackgroundPattern>
+        <div className="w-full dark:bg-dark-bg transition-colors duration-300">
+          <div className="container py-20">
+            {/* heading title */}
+            <div className="space-y-2 text-center max-w-[350px] mx-auto mb-12">
+              <motion.h1
+                variants={SlideUp(0.2)}
+                initial="initial"
+                whileInView={"animate"}
+                className="text-3xl font-bold font-serif dark:text-white"
               >
-                <div className="card">
-                  <div className="card2">
-                    <div className="icon-wrapper">
-                      {card.icon}
+                What we provide
+              </motion.h1>
+              <motion.p
+                variants={SlideUp(0.4)}
+                initial="initial"
+                whileInView={"animate"}
+                className="text-gray-500 dark:text-gray-400 text-sm"
+              >
+                Bring your content dreams to life with personalized AI tools, insightful analytics, and creative flexibility—all in one place.
+              </motion.p>
+            </div>
+            {/* card section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {ServiceCard.map((card) => (
+                <motion.div
+                  variants={SlideUp(card.delay)}
+                  initial="initial"
+                  whileInView={"animate"}
+                  key={card.id}
+                >
+                  <CardWrapper 
+                    theme={isDark ? 'dark' : 'light'}
+                    gradientStart={card.gradient.start}
+                    gradientEnd={card.gradient.end}
+                  >
+                    <div className="card">
+                      <div className="card2">
+                        <div className="icon-wrapper">
+                          {card.icon}
+                        </div>
+                        <h3 className="heading">{card.title}</h3>
+                        <p className="description">{card.description}</p>
+                        <StyledButton gradientStart={card.gradient.start}>
+                          <button className="button">
+                            <span className="button__icon-wrapper">
+                              <svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="button__icon-svg" width={10}>
+                                <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />
+                              </svg>
+                              <svg viewBox="0 0 14 15" fill="none" width={10} xmlns="http://www.w3.org/2000/svg" className="button__icon-svg button__icon-svg--copy">
+                                <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />
+                              </svg>
+                            </span>
+                            Explore All
+                          </button>
+                        </StyledButton>
+                      </div>
                     </div>
-                    <h3 className="heading">{card.title}</h3>
-                    <p className="description">{card.description}</p>
-                    <StyledButton gradientStart={card.gradient.start}>
-                      <button className="button">
-                        <span className="button__icon-wrapper">
-                          <svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="button__icon-svg" width={10}>
-                            <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />
-                          </svg>
-                          <svg viewBox="0 0 14 15" fill="none" width={10} xmlns="http://www.w3.org/2000/svg" className="button__icon-svg button__icon-svg--copy">
-                            <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />
-                          </svg>
-                        </span>
-                        Explore All
-                      </button>
-                    </StyledButton>
-                  </div>
-                </div>
-              </CardWrapper>
-            </motion.div>
-          ))}
+                  </CardWrapper>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </BackgroundPattern>
+    </section>
   );
 };
 

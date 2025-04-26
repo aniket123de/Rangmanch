@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { SlideUp } from "../../animation/animate";
 import { ThemeContext } from "../../context/ThemeContext";
 import styled from "styled-components";
+import BackgroundPattern from "../common/BackgroundPattern";
 
 const StyledWrapper = styled.div`
   .input {
@@ -137,107 +138,111 @@ const Newsletter = () => {
   };
 
   return (
-    <div className="w-full dark:bg-dark-bg transition-colors duration-300">
-      <div className="max-w-[600px] mx-auto space-y-5 py-14">
-        <motion.h1
-          variants={SlideUp(0.2)}
-          initial="initial"
-          whileInView="animate"
-          className="text-3xl font-bold font-serif text-center dark:text-white"
-        >
-          Contact Us
-        </motion.h1>
-        <motion.p
-          variants={SlideUp(0.4)}
-          initial="initial"
-          whileInView="animate"
-          className="max-w-[400px] mx-auto text-gray-500 dark:text-gray-400 text-sm text-center"
-        >
-          Have questions, ideas, or just want to say hello?
-          Fill out the form below and our team at Rangmanch will get back to you shortly.
-        </motion.p>
-        
-        {/* Success/Error Message */}
-        {submitStatus.submitted && (
-          <div className={`text-center p-4 rounded-lg ${submitStatus.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-            {submitStatus.message}
-          </div>
-        )}
-        
-        {/* Contact Form */}
-        <motion.form
-          action={`https://formsubmit.co/rangmanchofficial30@gmail.com`}
-          method="POST"
-          variants={SlideUp(0.6)}
-          initial="initial"
-          whileInView="animate"
-          className="!mt-10 space-y-4"
-          onSubmit={handleSubmit}
-        >
-          {/* FormSubmit specific hidden fields */}
-          <input type="hidden" name="_subject" value="New Contact Form Submission from Rangmanch" />
-          <input type="hidden" name="_captcha" value="false" />
-          <input type="hidden" name="_template" value="table" />
-          <input type="hidden" name="_next" value={window.location.href} />
-          <input type="hidden" name="_replyto" value="" />
-          
-          <StyledWrapper>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  placeholder="Your Name"
-                  className="input input-alt"
-                />
-                <span className="input-border input-border-alt" />
-              </div>
-              <div className="form-control">
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  placeholder="Your Email"
-                  className="input input-alt"
-                />
-                <span className="input-border input-border-alt" />
-              </div>
-            </div>
-            <div className="form-control mt-4">
-              <input
-                type="text"
-                name="subject"
-                required
-                placeholder="Subject"
-                className="input input-alt"
-              />
-              <span className="input-border input-border-alt" />
-            </div>
-            <div className="form-control mt-4">
-              <textarea
-                name="message"
-                required
-                placeholder="Your Message"
-                rows="4"
-                className="input input-alt"
-                style={{ resize: "none" }}
-              ></textarea>
-              <span className="input-border input-border-alt" />
-            </div>
-          </StyledWrapper>
-          <div className="flex justify-center mt-8">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 rounded-lg uppercase font-medium hover:opacity-90 transition-all duration-300 disabled:opacity-50"
+    <section id="newsletter">
+      <BackgroundPattern>
+        <div className="w-full dark:bg-dark-bg transition-colors duration-300">
+          <div className="max-w-[600px] mx-auto space-y-5 py-14">
+            <motion.h1
+              variants={SlideUp(0.2)}
+              initial="initial"
+              whileInView="animate"
+              className="text-3xl font-bold font-serif text-center dark:text-white"
             >
-              {isSubmitting ? "Sending..." : "Send Message"}
-            </button>
+              Contact Us
+            </motion.h1>
+            <motion.p
+              variants={SlideUp(0.4)}
+              initial="initial"
+              whileInView="animate"
+              className="max-w-[400px] mx-auto text-gray-500 dark:text-gray-400 text-sm text-center"
+            >
+              Have questions, ideas, or just want to say hello?
+              Fill out the form below and our team at Rangmanch will get back to you shortly.
+            </motion.p>
+            
+            {/* Success/Error Message */}
+            {submitStatus.submitted && (
+              <div className={`text-center p-4 rounded-lg ${submitStatus.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                {submitStatus.message}
+              </div>
+            )}
+            
+            {/* Contact Form */}
+            <motion.form
+              action={`https://formsubmit.co/rangmanchofficial30@gmail.com`}
+              method="POST"
+              variants={SlideUp(0.6)}
+              initial="initial"
+              whileInView="animate"
+              className="!mt-10 space-y-4"
+              onSubmit={handleSubmit}
+            >
+              {/* FormSubmit specific hidden fields */}
+              <input type="hidden" name="_subject" value="New Contact Form Submission from Rangmanch" />
+              <input type="hidden" name="_captcha" value="false" />
+              <input type="hidden" name="_template" value="table" />
+              <input type="hidden" name="_next" value={window.location.href} />
+              <input type="hidden" name="_replyto" value="" />
+              
+              <StyledWrapper>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="form-control">
+                    <input
+                      type="text"
+                      name="name"
+                      required
+                      placeholder="Your Name"
+                      className="input input-alt"
+                    />
+                    <span className="input-border input-border-alt" />
+                  </div>
+                  <div className="form-control">
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      placeholder="Your Email"
+                      className="input input-alt"
+                    />
+                    <span className="input-border input-border-alt" />
+                  </div>
+                </div>
+                <div className="form-control mt-4">
+                  <input
+                    type="text"
+                    name="subject"
+                    required
+                    placeholder="Subject"
+                    className="input input-alt"
+                  />
+                  <span className="input-border input-border-alt" />
+                </div>
+                <div className="form-control mt-4">
+                  <textarea
+                    name="message"
+                    required
+                    placeholder="Your Message"
+                    rows="4"
+                    className="input input-alt"
+                    style={{ resize: "none" }}
+                  ></textarea>
+                  <span className="input-border input-border-alt" />
+                </div>
+              </StyledWrapper>
+              <div className="flex justify-center mt-8">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 rounded-lg uppercase font-medium hover:opacity-90 transition-all duration-300 disabled:opacity-50"
+                >
+                  {isSubmitting ? "Sending..." : "Send Message"}
+                </button>
+              </div>
+            </motion.form>
           </div>
-        </motion.form>
-      </div>
-    </div>
+        </div>
+      </BackgroundPattern>
+    </section>
   );
 };
 

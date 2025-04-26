@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { motion } from "framer-motion";
 import { ThemeContext } from "../../context/ThemeContext";
 import styled from 'styled-components';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ProfileSidebar from './ProfileSidebar';
 import { FaBuilding } from 'react-icons/fa';
 import Icon from '../../assets/icon.png';
@@ -202,14 +202,18 @@ const NavLinks = [
 ];
 
 const NavLink = ({ href, children }) => {
+  const navigate = useNavigate();
+  
   const handleClick = (e) => {
+    e.preventDefault();
     if (href.startsWith('/#')) {
-      e.preventDefault();
       const elementId = href.substring(2);
       const element = document.getElementById(elementId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
+    } else {
+      navigate(href);
     }
   };
 
@@ -232,6 +236,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Check if we're on an auth page
   const isAuthPage = ['/login', '/signup', '/forgot-password'].includes(location.pathname);
@@ -285,8 +290,10 @@ const Navbar = () => {
             {!userLoggedIn && !businessUser && !isAuthPage && (
               <>
                 <AnimatedButton 
-                  to="/for-business"
+                  onClick={() => navigate('/for-business')}
                   variant="outline"
+                  size="sm"
+                  className="px-4 py-1.5"
                 >
                   For Business
                 </AnimatedButton>
@@ -300,19 +307,21 @@ const Navbar = () => {
             {!isAuthPage && (
               !userLoggedIn ? (
                 <AnimatedButton 
-                  to="/login"
+                  onClick={() => navigate('/login')}
                   variant="filled"
+                  size="sm"
+                  className="px-4 py-1.5"
                 >
                   Login / Sign Up
                 </AnimatedButton>
               ) : (
                 <div className="relative flex items-center gap-3">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">
+                  <span className="text-gray-700 dark:text-gray-300 font-medium text-sm">
                     Hey, {getFirstName()}
                   </span>
                   <button
                     onClick={() => setIsProfileOpen(true)}
-                    className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-purple-500 hover:border-purple-600 transition-colors duration-200"
+                    className="w-8 h-8 rounded-full overflow-hidden border-2 border-purple-500 hover:border-purple-600 transition-colors duration-200"
                   >
                     <img
                       src={getProfilePicture()}
@@ -328,10 +337,10 @@ const Navbar = () => {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="md:hidden p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <svg
-              className="w-6 h-6"
+              className="w-5 h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -367,54 +376,63 @@ const Navbar = () => {
             transition={{ duration: 0.2 }}
             className="mobile-menu"
           >
-            <div className="flex flex-col space-y-4">
-              <Link
-                to="/"
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                onClick={() => setIsMenuOpen(false)}
+            <div className="flex flex-col space-y-3">
+              <AnimatedButton 
+                onClick={() => {
+                  navigate('/');
+                  setIsMenuOpen(false);
+                }}
+                variant="text"
+                size="sm"
+                className="justify-start py-2"
               >
                 Home
-              </Link>
+              </AnimatedButton>
               {/* Only show For Business in mobile menu if no user is logged in */}
               {!userLoggedIn && !businessUser && (
-                <Link
-                  to="/for-business"
-                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
+                <AnimatedButton
+                  onClick={() => {
+                    navigate('/for-business');
+                    setIsMenuOpen(false);
+                  }}
+                  variant="text"
+                  size="sm"
+                  className="justify-start py-2"
                 >
                   For Business
-                </Link>
+                </AnimatedButton>
               )}
               {NavLinks.map((link) => (
-                <a
+                <NavLink
                   key={link.id}
                   href={link.link}
-                  className="menu-item block"
                   onClick={() => setIsMenuOpen(false)}
+                  className="py-2 text-sm"
                 >
                   {link.title}
-                </a>
+                </NavLink>
               ))}
+              {!isAuthPage && !userLoggedIn && (
+                <AnimatedButton
+                  onClick={() => {
+                    navigate('/login');
+                    setIsMenuOpen(false);
+                  }}
+                  variant="filled"
+                  size="sm"
+                  className="w-full py-2 mt-2"
+                >
+                  Login / Sign Up
+                </AnimatedButton>
+              )}
             </div>
-            {!isAuthPage && !userLoggedIn && (
-              <Link
-                to="/login"
-                className="mobile-login-btn block"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Login / Sign Up
-              </Link>
-            )}
           </motion.div>
         )}
       </MobileMenuWrapper>
 
-      {/* Profile Sidebar - Only show if user is logged in */}
-      {userLoggedIn && (
-        <ProfileSidebar 
-          isOpen={isProfileOpen} 
-          onClose={() => setIsProfileOpen(false)} 
-        />
+      {/* Profile Sidebar */}
+      {isProfileOpen && (
+        <ProfileSidebar onClose={() => setIsProfileOpen(false)} />
       )}
     </div>
   );
