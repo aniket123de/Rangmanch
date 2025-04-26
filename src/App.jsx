@@ -25,6 +25,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/authContext';
 import { BusinessAuthProvider } from './contexts/businessAuthContext';
 import ScrollToTopButton from "./components/common/ScrollToTopButton";
+import ChatbotButton from "./components/common/ChatbotButton";
 
 const Home = () => {
   return (
@@ -79,6 +80,7 @@ const App = () => {
                 </Routes>
                 <Footer />
                 <ScrollToTopButton />
+                <ChatbotButton />
               </main>
             </LoadingProvider>
           </BusinessAuthProvider>
