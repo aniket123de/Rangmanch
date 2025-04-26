@@ -253,7 +253,7 @@ const Navbar = () => {
     ? []
     : NavLinks;
 
-  const showBrandOnly = location.pathname === '/about';
+  const isCleanNavbar = ['/login', '/about'].includes(location.pathname);
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-6">
@@ -282,9 +282,7 @@ const Navbar = () => {
 
         {/* Link section - Desktop */}
         <div className="hidden md:flex items-center gap-8">
-          {showBrandOnly ? (
-            <span className="text-lg font-semibold dark:text-dark-text">Rangmanch</span>
-          ) : (
+          {isCleanNavbar ? null : (
             filteredNavLinks.map((link) => (
               <NavLink key={link.id} href={link.link}>
                 {link.title}
