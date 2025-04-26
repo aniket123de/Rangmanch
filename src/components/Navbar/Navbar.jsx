@@ -249,9 +249,11 @@ const Navbar = () => {
     return currentUser?.photoURL || 'https://via.placeholder.com/150';
   };
 
-  const filteredNavLinks = location.pathname === '/login' 
-    ? [{ id: 0, title: 'Home', link: '/' }] 
+  const filteredNavLinks = ['/login', '/about'].includes(location.pathname)
+    ? []
     : NavLinks;
+
+  const showBrandOnly = location.pathname === '/about';
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-6">
@@ -280,11 +282,15 @@ const Navbar = () => {
 
         {/* Link section - Desktop */}
         <div className="hidden md:flex items-center gap-8">
-          {filteredNavLinks.map((link) => (
-            <NavLink key={link.id} href={link.link}>
-              {link.title}
-            </NavLink>
-          ))}
+          {showBrandOnly ? (
+            <span className="text-lg font-semibold dark:text-dark-text">Rangmanch</span>
+          ) : (
+            filteredNavLinks.map((link) => (
+              <NavLink key={link.id} href={link.link}>
+                {link.title}
+              </NavLink>
+            ))
+          )}
         </div>
 
         {/* Right section - Login/Signup and Profile */}
