@@ -89,7 +89,11 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ suggestions });
   } catch (error) {
-    console.error('Error generating content:', error);
+    console.error('Error generating content:', {
+      message: error.message,
+      stack: error.stack,
+      details: error.response?.data || 'No additional details',
+    });
     return res.status(500).json({ error: 'Failed to generate suggestions' });
   }
 }
