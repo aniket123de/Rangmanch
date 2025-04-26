@@ -12,7 +12,7 @@ const BackgroundPattern = ({ children }) => {
           className="absolute inset-0"
           style={{
             backgroundImage: `radial-gradient(circle at 20px 20px, ${
-              isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+              isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'
             } 2px, transparent 0)`,
             backgroundSize: '40px 40px',
             transition: 'all 0.3s ease',
