@@ -20,6 +20,7 @@ import BusinessSignup from "./pages/business/BusinessSignup";
 import BusinessForgotPassword from "./pages/business/BusinessForgotPassword";
 import BusinessDashboard from "./pages/business/BusinessDashboard";
 import About from "./pages/About";
+import ContentSuggestion from "./pages/ContentSuggestion"; // Import the new page
 import { LoadingProvider } from './contexts/LoadingContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/authContext';
@@ -70,6 +71,7 @@ const App = () => {
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/email-verification" element={<EmailVerification />} />
+                  <Route path="/content-suggestion" element={<ContentSuggestion />} /> {/* Add the new route */}
                   
                   {/* Business Routes */}
                   <Route path="/for-business" element={<ForBusiness />} />

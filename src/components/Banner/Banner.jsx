@@ -87,7 +87,7 @@ const Banner = () => {
                 initial="initial"
                 whileInView="animate"
               >
-                <AnimatedButton2 onClick={() => window.location.href = '/ai-assistant'}>
+                <AnimatedButton2 onClick={() => window.location.href = '/content-suggestion'}>
                   Get AI Content Ideas
                 </AnimatedButton2>
               </motion.div>

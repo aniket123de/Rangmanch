@@ -1,0 +1,140 @@
+/* styles/ContentSuggestion.css */
+.content-suggestion-page {
+    background-color: #111420;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+    padding: 2rem 1rem;
+  }
+  
+  .content-suggestion-container {
+    max-width: 900px;
+    width: 100%;
+  }
+  
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+  }
+  
+  h1 .highlight {
+    color: #9d4edd;
+  }
+  
+  .subtitle {
+    color: #c77dff;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .input-section {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  
+  .input-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #ddff00;
+    font-weight: 500;
+  }
+  
+  input, textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #9d4edd;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    font-family: inherit;
+  }
+  
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: #ff9e00;
+    box-shadow: 0 0 0 2px rgba(255, 158, 0, 0.3);
+  }
+  
+  .generate-btn {
+    background: linear-gradient(135deg, #9d4edd, #c77dff);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+  }
+  
+  .generate-btn:hover {
+    background: linear-gradient(135deg, #c77dff, #9d4edd);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4);
+  }
+  
+  .generate-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .error-message {
+    color: #ff6b6b;
+    margin-top: 1rem;
+  }
+  
+  .suggestions-container {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    border-radius: 12px;
+  }
+  
+  .suggestions-container h2 {
+    color: #ff9e00;
+    margin-bottom: 1.5rem;
+  }
+  
+  .suggestions-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .suggestion-item {
+    background-color: rgba(157, 78, 221, 0.1);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #9d4edd;
+  }
+  
+  .suggestion-item h3 {
+    color: #ddff00;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .suggestion-meta {
+    display: flex;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .tag {
+    background-color: rgba(255, 158, 0, 0.2);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: #ff9e00;
+  }
