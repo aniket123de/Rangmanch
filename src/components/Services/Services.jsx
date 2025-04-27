@@ -51,9 +51,11 @@ const Services = () => {
         "Our platform acts as a smart mediator—connecting brands with the perfect creators for their campaigns. Brands can browse, filter, and directly collaborate with content creators for tailored promotions.",
       icon: <BiSolidDollarCircle />,
       link: () => {
-        if (!currentUser) {
-          navigate('/for-business');
+        if (currentUser) {
+          alert('You are already logged in and cannot access the For-Business section.');
+          return;
         }
+        navigate('/for-business');
       },
       delay: 0.6,
       gradient: {
