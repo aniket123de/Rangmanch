@@ -22,7 +22,7 @@ const generateSuggestions = async () => {
     
     try {
       // Use relative path which will work in both development and production
-      const response = await axios.post('https://backend-rang.onrender.com/api/generate-suggestions', {
+      const response = await axios.post('https://backend-rang-1.onrender.com/api/generate-suggestions', {
         creatorNiche,
         pastContent,
         audience
