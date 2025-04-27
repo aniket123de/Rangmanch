@@ -20,11 +20,16 @@ import BusinessSignup from "./pages/business/BusinessSignup";
 import BusinessForgotPassword from "./pages/business/BusinessForgotPassword";
 import BusinessDashboard from "./pages/business/BusinessDashboard";
 import About from "./pages/About";
-import ContentSuggestion from "./pages/ContentSuggestion"; // Import the new page
+import ContentSuggestion from "./pages/ContentSuggestion";
+
+// Import providers
 import { LoadingProvider } from './contexts/LoadingContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/authContext';
 import { BusinessAuthProvider } from './contexts/businessAuthContext';
+import { ChatbotProvider } from './context/ChatbotContext'; // Add this line
+
+// Import common components
 import ScrollToTopButton from "./components/common/ScrollToTopButton";
 import ChatbotButton from "./components/common/ChatbotButton";
 
@@ -50,7 +55,7 @@ const Home = () => {
 const NavbarWrapper = () => {
   const location = useLocation();
   const isBusinessRoute = location.pathname.startsWith('/business') || location.pathname === '/for-business';
-  
+   
   return isBusinessRoute ? <BusinessNavbar /> : <Navbar />;
 };
 
@@ -61,29 +66,31 @@ const App = () => {
         <AuthProvider>
           <BusinessAuthProvider>
             <LoadingProvider>
-              <main className="overflow-x-hidden">
-                <NavbarWrapper />
-                <Routes>
-                  {/* User Routes */}
-                  <Route path="/" element={<Home />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/email-verification" element={<EmailVerification />} />
-                  <Route path="/content-suggestion" element={<ContentSuggestion />} /> {/* Add the new route */}
-                  
-                  {/* Business Routes */}
-                  <Route path="/for-business" element={<ForBusiness />} />
-                  <Route path="/business/login" element={<BusinessLogin />} />
-                  <Route path="/business/signup" element={<BusinessSignup />} />
-                  <Route path="/business/forgot-password" element={<BusinessForgotPassword />} />
-                  <Route path="/business/dashboard" element={<BusinessDashboard />} />
-                </Routes>
-                <Footer />
-                <ScrollToTopButton />
-                <ChatbotButton />
-              </main>
+              <ChatbotProvider> {/* Add this wrapper */}
+                <main className="overflow-x-hidden">
+                  <NavbarWrapper />
+                  <Routes>
+                    {/* User Routes */}
+                    <Route path="/" element={<Home />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/email-verification" element={<EmailVerification />} />
+                    <Route path="/content-suggestion" element={<ContentSuggestion />} /> {/* Add the new route */}
+                     
+                    {/* Business Routes */}
+                    <Route path="/for-business" element={<ForBusiness />} />
+                    <Route path="/business/login" element={<BusinessLogin />} />
+                    <Route path="/business/signup" element={<BusinessSignup />} />
+                    <Route path="/business/forgot-password" element={<BusinessForgotPassword />} />
+                    <Route path="/business/dashboard" element={<BusinessDashboard />} />
+                  </Routes>
+                  <Footer />
+                  <ScrollToTopButton />
+                  <ChatbotButton />
+                </main>
+              </ChatbotProvider> {/* Close ChatbotProvider */}
             </LoadingProvider>
           </BusinessAuthProvider>
         </AuthProvider>
