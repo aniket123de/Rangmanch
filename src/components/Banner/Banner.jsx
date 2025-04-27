@@ -30,6 +30,7 @@ const Banner = () => {
   ];
 
   return (
+    <section id="banner">
     <BackgroundPattern>
       <div className="w-full dark:bg-dark-bg transition-colors duration-300 relative overflow-hidden">
         <div className="container py-14 relative z-10">
@@ -115,6 +116,7 @@ const Banner = () => {
         </div>
       </div>
     </BackgroundPattern>
+    </section>
   );
 };
 

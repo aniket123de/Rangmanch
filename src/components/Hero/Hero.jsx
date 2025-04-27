@@ -130,7 +130,7 @@ const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-4xl sm:text-6xl md:text-7xl lg:text-9xl xl:text-[14rem] font-bold text-center running-gradient font-['Lufga'] leading-tight"
+          className="text-6xl sm:text-6xl md:text-7xl lg:text-9xl xl:text-[14rem] font-bold text-center running-gradient font-['Lufga'] leading-tight"
         >
           Rangmanch
         </motion.h1>

@@ -191,8 +191,8 @@ const NavLinks = [
   },
   {
     id: 3,
-    title: "Projects",
-    link: "/#projects",
+    title: "Features",
+    link: "/#banner",
   },
   {
     id: 4,
@@ -329,7 +329,7 @@ const Navbar = () => {
                   </span>
                   <button
                     onClick={() => setIsProfileOpen(true)}
-                    className="w-8 h-8 rounded-full overflow-hidden border-2 border-purple-500 hover:border-purple-600 transition-colors duration-200"
+                    className="w-10 h-10 rounded-full overflow-hidden border-2 border-purple-500 hover:border-yellow-600 transition-colors duration-200"
                   >
                     <img
                       src={getProfilePicture()}
@@ -385,17 +385,6 @@ const Navbar = () => {
             className="mobile-menu"
           >
             <div className="flex flex-col space-y-3">
-              <AnimatedButton 
-                onClick={() => {
-                  navigate('/');
-                  setIsMenuOpen(false);
-                }}
-                variant="text"
-                size="sm"
-                className="justify-start py-2"
-              >
-                Home
-              </AnimatedButton>
               {/* Only show For Business in mobile menu if no user is logged in */}
               {!userLoggedIn && !businessUser && (
                 <AnimatedButton
@@ -410,7 +399,7 @@ const Navbar = () => {
                   For Business
                 </AnimatedButton>
               )}
-              {NavLinks.map((link) => (
+              {NavLinks.filter(link => link.title !== 'Home').map((link) => (
                 <NavLink
                   key={link.id}
                   href={link.link}
@@ -432,6 +421,18 @@ const Navbar = () => {
                 >
                   Login / Sign Up
                 </AnimatedButton>
+              )}
+              {userLoggedIn && (
+                <div className="flex items-center gap-3 mt-4">
+                  <img
+                    src={getProfilePicture()}
+                    alt="Profile"
+                    className="w-10 h-10 rounded-full border-2 border-purple-500"
+                  />
+                  <span className="text-gray-700 dark:text-gray-300 font-medium text-sm">
+                    Hey, {getFirstName()}
+                  </span>
+                </div>
               )}
             </div>
           </motion.div>

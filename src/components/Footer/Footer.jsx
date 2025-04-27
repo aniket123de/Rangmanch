@@ -25,7 +25,7 @@ const Footer = () => {
               <p className="text-xl font-semibold dark:text-white">Rangmanch</p>
             </div>
             <p className="dark:text-gray-300">Kolkata, West Bengal, India</p>
-            <p className="dark:text-gray-300">@ 2025 TCJ All rights reserved</p>
+            <p className="dark:text-gray-300">@ ERROR503 . All rights reserved</p>
           </div>
           {/* Footer Link */}
           <div className="grid grid-cols-2 gap-3">
@@ -70,7 +70,7 @@ const Footer = () => {
             <ul className="text-base font-semibold space-y-4">
               <li className="flex items-center space-x-3">
                 <FaPhone className="dark:text-gray-300" />
-                <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">+91 123456789</a>
+                <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">+91 9038903850</a>
               </li>
               <li className="flex items-center space-x-3">
                 <LuMessageSquare className="dark:text-gray-300" />
@@ -82,7 +82,7 @@ const Footer = () => {
 
         {/* bottom section */}
         <p className="text-center text-sm font-semibold border-t-2 border-gray-200 dark:border-gray-700 pt-5 mt-5 dark:text-gray-300">
-          &copy; 2023 TCJ. All rights reserved
+          &copy; 2025 ERROR503 . All rights reserved
         </p>
       </div>
     </motion.footer>

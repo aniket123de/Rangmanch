@@ -24,7 +24,7 @@ const StyledWrapper = styled.div`
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 16px 36px;
+    padding: 9px 36px;
     border: 4px solid;
     border-color: transparent;
     font-size: 16px;
@@ -40,7 +40,7 @@ const StyledWrapper = styled.div`
 
   .animated-button svg {
     position: absolute;
-    width: 24px;
+    width: 20px;
     fill: #9d4edd;
     z-index: 9;
     transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);

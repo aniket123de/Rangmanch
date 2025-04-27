@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ThemeContext } from '../context/ThemeContext';
 import { FaSun, FaMoon } from 'react-icons/fa';
 import { fadeIn, staggerContainer, slideIn, planetVariants, textVariant } from './motion';
+import Pattern from '../components/common/Pattern';
 
 const ForBusiness = () => {
   const { isDark } = useContext(ThemeContext);
@@ -43,8 +44,11 @@ const services = [
         initial="hidden"
         animate="show"
         variants={staggerContainer}
-        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-32 pt-40 relative overflow-hidden"
+        className="relative text-white py-32 pt-40 overflow-hidden"
       >
+        <div className="absolute inset-0">
+          <Pattern />
+        </div>
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
             variants={textVariant(0.2)}
