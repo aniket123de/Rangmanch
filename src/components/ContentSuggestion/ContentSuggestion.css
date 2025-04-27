@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 .content-suggestion-page {
-    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    background: #111420;
     min-height: 100vh;
     display: flex;
     justify-content: center;

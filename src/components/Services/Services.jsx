@@ -7,170 +7,180 @@ import { SlideUp } from "../../animation/animate";
 import { ThemeContext } from "../../context/ThemeContext";
 import styled from 'styled-components';
 import BackgroundPattern from "../common/BackgroundPattern";
-
-const ServiceCard = [
-  {
-    id: 1,
-    title: "Smart Content Creation",
-    description:
-      "Unlock high-quality blogs, emails, and scripts with custom tone and length. Let AI do the heavy lifting so you can focus on creativity.",
-    icon: <FaVectorSquare />,
-    link: "#",
-    delay: 0.2,
-    gradient: {
-      start: "#00ff75",
-      end: "#3700ff"
-    }
-  },
-  {
-    id: 2,
-    title: "Audience-Driven Insights",
-    description:
-      "Our ML-powered analyzer understands your target audience and recommends tone, style, and structure that truly resonates.",
-    icon: <FaPenToSquare />,
-    link: "#",
-    delay: 0.4,
-    gradient: {
-      start: "#ff9e00",
-      end: "#ff0080"
-    }
-  },
-  {
-    id: 3,
-    title: "Creator-Brand Marketplace",
-    description:
-      "Our platform acts as a smart mediator—connecting brands with the perfect creators for their campaigns. Brands can browse, filter, and directly collaborate with content creators for tailored promotions.",
-    icon: <BiSolidDollarCircle />,
-    link: "#",
-    delay: 0.6,
-    gradient: {
-      start: "#9d4edd",
-      end: "#c77dff"
-    }
-  },
-];
-
-const CardWrapper = styled.div`
-  .card {
-    width: 100%;
-    height: 320px;
-    background-image: ${props => `linear-gradient(163deg, ${props.gradientStart} 0%, ${props.gradientEnd} 100%)`};
-    border-radius: 20px;
-    transition: all 0.3s;
-  }
-
-  .card2 {
-    width: 100%;
-    height: 100%;
-    background-color: ${props => props.theme === 'dark' ? '#1a1a1a' : '#ffffff'};
-    border-radius: 20px;
-    transition: all 0.2s;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 16px;
-    border: ${props => props.theme === 'dark' ? 'none' : '1px solid rgba(0, 0, 0, 0.1)'};
-  }
-
-  .card2:hover {
-    transform: scale(0.98);
-    border-radius: 20px;
-  }
-
-  .card:hover {
-    box-shadow: ${props => `0px 0px 30px 1px ${props.gradientStart}50`};
-  }
-
-  .icon-wrapper {
-    font-size: 2.5rem;
-    color: ${props => props.gradientStart};
-    margin-bottom: auto;
-    transition: all 0.3s ease;
-  }
-
-  .heading {
-    font-size: 24px;
-    text-transform: capitalize;
-    font-weight: 700;
-    color: ${props => props.theme === 'dark' ? '#ffffff' : '#000000'};
-    transition: all 0.3s ease;
-  }
-
-  .description {
-    font-size: 14px;
-    color: ${props => props.theme === 'dark' ? '#cccccc' : '#666666'};
-    line-height: 1.5;
-    transition: all 0.3s ease;
-  }
-`;
-
-const StyledButton = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-top: auto;
-
-  .button {
-    line-height: 1;
-    text-decoration: none;
-    display: inline-flex;
-    border: none;
-    cursor: pointer;
-    align-items: center;
-    gap: 0.75rem;
-    background-color: ${props => props.gradientStart};
-    color: #fff;
-    border-radius: 10rem;
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    padding-left: 20px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: background-color 0.3s;
-  }
-
-  .button__icon-wrapper {
-    flex-shrink: 0;
-    width: 25px;
-    height: 25px;
-    position: relative;
-    color: ${props => props.gradientStart};
-    background-color: #fff;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-  }
-
-  .button:hover {
-    background-color: #000;
-  }
-
-  .button:hover .button__icon-wrapper {
-    color: #000;
-  }
-
-  .button__icon-svg--copy {
-    position: absolute;
-    transform: translate(-150%, 150%);
-  }
-
-  .button:hover .button__icon-svg:first-child {
-    transition: transform 0.3s ease-in-out;
-    transform: translate(150%, -150%);
-  }
-
-  .button:hover .button__icon-svg--copy {
-    transition: transform 0.3s ease-in-out 0.1s;
-    transform: translate(0);
-  }
-`;
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/authContext';
 
 const Services = () => {
   const { isDark } = useContext(ThemeContext);
+  const { currentUser } = useAuth(); // Access current user from AuthContext
+  const navigate = useNavigate();
+
+  console.log('Current User:', currentUser);
+
+  const ServiceCard = [
+    {
+      id: 1,
+      title: "Smart Content Creation",
+      description:
+        "Unlock high-quality blogs, emails, and scripts with custom tone and length. Let AI do the heavy lifting so you can focus on creativity.",
+      icon: <FaVectorSquare />,
+      link: () => navigate('/content-suggestion'), // Updated to use navigate
+      delay: 0.2,
+      gradient: {
+        start: "#00ff75",
+        end: "#3700ff"
+      }
+    },
+    {
+      id: 2,
+      title: "Audience-Driven Insights",
+      description:
+        "Our ML-powered analyzer understands your target audience and recommends tone, style, and structure that truly resonates.",
+      icon: <FaPenToSquare />,
+      link: "#",
+      delay: 0.4,
+      gradient: {
+        start: "#ff9e00",
+        end: "#ff0080"
+      }
+    },
+    {
+      id: 3,
+      title: "Creator-Brand Marketplace",
+      description:
+        "Our platform acts as a smart mediator—connecting brands with the perfect creators for their campaigns. Brands can browse, filter, and directly collaborate with content creators for tailored promotions.",
+      icon: <BiSolidDollarCircle />,
+      link: () => {
+        if (!currentUser) {
+          navigate('/for-business');
+        }
+      },
+      delay: 0.6,
+      gradient: {
+        start: "#9d4edd",
+        end: "#c77dff"
+      }
+    },
+  ];
+
+  const CardWrapper = styled.div`
+    .card {
+      width: 100%;
+      height: 320px;
+      background-image: ${props => `linear-gradient(163deg, ${props.gradientStart} 0%, ${props.gradientEnd} 100%)`};
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+
+    .card2 {
+      width: 100%;
+      height: 100%;
+      background-color: ${props => props.theme === 'dark' ? '#1a1a1a' : '#ffffff'};
+      border-radius: 20px;
+      transition: all 0.2s;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      border: ${props => props.theme === 'dark' ? 'none' : '1px solid rgba(0, 0, 0, 0.1)'};
+    }
+
+    .card2:hover {
+      transform: scale(0.98);
+      border-radius: 20px;
+    }
+
+    .card:hover {
+      box-shadow: ${props => `0px 0px 30px 1px ${props.gradientStart}50`};
+    }
+
+    .icon-wrapper {
+      font-size: 2.5rem;
+      color: ${props => props.gradientStart};
+      margin-bottom: auto;
+      transition: all 0.3s ease;
+    }
+
+    .heading {
+      font-size: 24px;
+      text-transform: capitalize;
+      font-weight: 700;
+      color: ${props => props.theme === 'dark' ? '#ffffff' : '#000000'};
+      transition: all 0.3s ease;
+    }
+
+    .description {
+      font-size: 14px;
+      color: ${props => props.theme === 'dark' ? '#cccccc' : '#666666'};
+      line-height: 1.5;
+      transition: all 0.3s ease;
+    }
+  `;
+
+  const StyledButton = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: auto;
+
+    .button {
+      line-height: 1;
+      text-decoration: none;
+      display: inline-flex;
+      border: none;
+      cursor: pointer;
+      align-items: center;
+      gap: 0.75rem;
+      background-color: ${props => props.gradientStart};
+      color: #fff;
+      border-radius: 10rem;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      padding-left: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background-color 0.3s;
+    }
+
+    .button__icon-wrapper {
+      flex-shrink: 0;
+      width: 25px;
+      height: 25px;
+      position: relative;
+      color: ${props => props.gradientStart};
+      background-color: #fff;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .button:hover {
+      background-color: #000;
+    }
+
+    .button:hover .button__icon-wrapper {
+      color: #000;
+    }
+
+    .button__icon-svg--copy {
+      position: absolute;
+      transform: translate(-150%, 150%);
+    }
+
+    .button:hover .button__icon-svg:first-child {
+      transition: transform 0.3s ease-in-out;
+      transform: translate(150%, -150%);
+    }
+
+    .button:hover .button__icon-svg--copy {
+      transition: transform 0.3s ease-in-out 0.1s;
+      transform: translate(0);
+    }
+  `;
 
   return (
     <section id="services">
@@ -218,7 +228,7 @@ const Services = () => {
                         <h3 className="heading">{card.title}</h3>
                         <p className="description">{card.description}</p>
                         <StyledButton gradientStart={card.gradient.start}>
-                          <button className="button">
+                          <button className="button" onClick={card.link}>
                             <span className="button__icon-wrapper">
                               <svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="button__icon-svg" width={10}>
                                 <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />

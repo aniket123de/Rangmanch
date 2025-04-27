@@ -202,11 +202,11 @@ const ContentSuggestionPage = () => {
                     <p className="suggestion-description">{suggestion.description}</p>
                     <div className="suggestion-meta">
                       <span className="tag engagement-tag">
-                        <span className="tag-icon">🔥</span> 
+                        <span className="tag-icon">🔥Engagement : </span> 
                         {suggestion.engagement}
                       </span>
                       <span className="tag difficulty-tag">
-                        <span className="tag-icon">⚙️</span> 
+                        <span className="tag-icon">Difficulty : </span> 
                         {suggestion.difficulty}
                       </span>
                     </div>
