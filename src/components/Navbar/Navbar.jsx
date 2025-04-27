@@ -4,7 +4,6 @@ import { ThemeContext } from "../../context/ThemeContext";
 import styled from 'styled-components';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ProfileSidebar from './ProfileSidebar';
-import { FaBuilding } from 'react-icons/fa';
 import Icon from '../../assets/icon.png';
 import { useAuth } from '../../contexts/authContext';
 import AnimatedButton from '../common/AnimatedButton';
@@ -269,7 +268,7 @@ const Navbar = () => {
             <img 
               src={Icon} 
               alt="Rangmanch" 
-              className="w-10 h-10 md:w-12 md:h-12 object-contain"
+              className="w-10 h-10 md:w-12 md:h-12 object-contain border border-gray-300 dark:border-gray-700 rounded-full"
             />
             <StyledWrapper theme={isDark ? 'dark' : 'light'}>
               <button className="button" data-text="RANGMANCH">
