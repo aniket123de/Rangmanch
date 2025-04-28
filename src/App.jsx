@@ -21,6 +21,11 @@ import BusinessForgotPassword from "./pages/business/BusinessForgotPassword";
 import BusinessDashboard from "./pages/business/BusinessDashboard";
 import About from "./pages/About";
 import ContentSuggestion from "./pages/ContentSuggestion";
+import FAQ from "./pages/FAQ";
+import TNC from "./pages/TNC";
+import PP from "./pages/PP";
+import Help from "./pages/Help";
+
 
 // Import providers
 import { LoadingProvider } from './contexts/LoadingContext';
@@ -78,6 +83,10 @@ const App = () => {
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/email-verification" element={<EmailVerification />} />
                     <Route path="/content-suggestion" element={<ContentSuggestion />} /> {/* Add the new route */}
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/tnc" element={<TNC />} />
+                    <Route path="/PP" element={<PP />} />
+                    <Route path="/help" element={<Help />} />
                      
                     {/* Business Routes */}
                     <Route path="/for-business" element={<ForBusiness />} />

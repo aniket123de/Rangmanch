@@ -34,16 +34,13 @@ const Footer = () => {
               <h1 className="text-xl font-semibold dark:text-white">About us</h1>
               <ul className="text-sm space-y-4">
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Our Story</a>
+                  <a href="/about" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Our Story</a>
                 </li>
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">The Vision</a>
+                  <a href="/about" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">The Vision</a>
                 </li>
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Team Rangmanch</a>
-                </li>
-                <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Careers</a>
+                  <a href="/about" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Team Rangmanch</a>
                 </li>
               </ul>
             </div>
@@ -51,16 +48,16 @@ const Footer = () => {
               <h1 className="text-xl font-semibold dark:text-white">Support</h1>
               <ul className="text-sm space-y-4">
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">FAQ's</a>
+                  <a href="/faq" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">FAQ's</a>
                 </li>
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Terms & Conditions</a>
+                  <a href="/tnc" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Terms & Conditions</a>
                 </li>
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Privacy Policy</a>
+                  <a href="/PP" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Privacy Policy</a>
                 </li>
                 <li>
-                  <a href="#" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Help Center</a>
+                  <a href="/help" className="dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-300">Help Center</a>
                 </li>
               </ul>
             </div>

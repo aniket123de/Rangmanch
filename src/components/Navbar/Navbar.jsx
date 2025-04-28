@@ -238,7 +238,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   // Check if we're on an auth page
-  const isAuthPage = ['/login', '/signup', '/forgot-password'].includes(location.pathname);
+  const isAuthPage = ['/login','/faq','/tnc', '/PP','/help','/signup', '/forgot-password'].includes(location.pathname);
 
   const getFirstName = () => {
     return currentUser?.displayName?.split(' ')[0] || 'User';
@@ -248,7 +248,7 @@ const Navbar = () => {
     return currentUser?.photoURL || 'https://via.placeholder.com/150';
   };
 
-  const isCleanNavbar = ['/login', '/about', '/content-suggestion'].includes(location.pathname);
+  const isCleanNavbar = ['/login','/faq','/tnc', '/PP', '/about','/help', '/content-suggestion'].includes(location.pathname);
 
   const filteredNavLinks = isCleanNavbar ? [] : NavLinks;
 
