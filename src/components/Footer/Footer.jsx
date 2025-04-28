@@ -1,13 +1,14 @@
 import React, { useContext } from "react";
 import Logo from "../../assets/icon.png";
-import { FaPhone } from "react-icons/fa6";
+import { FaPhone, FaSun, FaMoon } from "react-icons/fa6";
 import { LuMessageSquare } from "react-icons/lu";
 import { motion } from "framer-motion";
 import { SlideLeft } from "../../animation/animate";
 import { ThemeContext } from "../../context/ThemeContext";
+import StyledSwitch from "../Navbar/Switch";
 
 const Footer = () => {
-  const { isDark } = useContext(ThemeContext);
+  const { isDark, toggleTheme } = useContext(ThemeContext);
 
   return (
     <motion.footer
@@ -78,6 +79,13 @@ const Footer = () => {
               </li>
             </ul>
           </div>
+        </div>
+
+        {/* Theme toggle section */}
+        <div className="flex items-center mt-8">
+          <div className="flex items-center space-x-3">
+          </div>
+          <StyledSwitch isChecked={isDark} onChange={toggleTheme} />
         </div>
 
         {/* bottom section */}

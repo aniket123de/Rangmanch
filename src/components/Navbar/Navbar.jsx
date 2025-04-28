@@ -248,11 +248,9 @@ const Navbar = () => {
     return currentUser?.photoURL || 'https://via.placeholder.com/150';
   };
 
-  const filteredNavLinks = ['/login', '/about'].includes(location.pathname)
-    ? []
-    : NavLinks;
+  const isCleanNavbar = ['/login', '/about', '/content-suggestion'].includes(location.pathname);
 
-  const isCleanNavbar = ['/login', '/about'].includes(location.pathname);
+  const filteredNavLinks = isCleanNavbar ? [] : NavLinks;
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-6">
@@ -370,73 +368,98 @@ const Navbar = () => {
               )}
             </svg>
           </button>
+
+          {/* Mobile Profile Button */}
+          {userLoggedIn && (
+            <button
+              onClick={() => setIsProfileOpen(true)}
+              className="md:hidden p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              <img
+                src={getProfilePicture()}
+                alt="Profile"
+                className="w-8 h-8 rounded-full border-2 border-purple-500"
+              />
+            </button>
+          )}
         </div>
       </motion.div>
 
       {/* Mobile Menu */}
       <MobileMenuWrapper theme={isDark ? 'dark' : 'light'}>
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, scaleY: 0 }}
-            animate={{ opacity: 1, scaleY: 1 }}
-            exit={{ opacity: 0, scaleY: 0 }}
-            transition={{ duration: 0.2 }}
-            className="mobile-menu"
+  {isMenuOpen && (
+    <motion.div
+      initial={{ opacity: 0, scaleY: 0 }}
+      animate={{ opacity: 1, scaleY: 1 }}
+      exit={{ opacity: 0, scaleY: 0 }}
+      transition={{ duration: 0.2 }}
+      className="mobile-menu"
+    >
+      <div className="flex flex-col px-4 py-4 space-y-4">
+        {/* Navigation Links */}
+        {NavLinks.filter(link => link.title !== 'Home').map((link) => (
+          <NavLink
+            key={link.id}
+            href={link.link}
+            onClick={() => setIsMenuOpen(false)}
+            className="py-3 px-3 text-base font-medium rounded-lg transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <div className="flex flex-col space-y-3">
-              {/* Only show For Business in mobile menu if no user is logged in */}
-              {!userLoggedIn && !businessUser && (
-                <AnimatedButton
-                  onClick={() => {
-                    navigate('/for-business');
-                    setIsMenuOpen(false);
-                  }}
-                  variant="text"
-                  size="sm"
-                  className="justify-start py-2"
-                >
-                  For Business
-                </AnimatedButton>
-              )}
-              {NavLinks.filter(link => link.title !== 'Home').map((link) => (
-                <NavLink
-                  key={link.id}
-                  href={link.link}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="py-2 text-sm"
-                >
-                  {link.title}
-                </NavLink>
-              ))}
-              {!isAuthPage && !userLoggedIn && (
-                <AnimatedButton
-                  onClick={() => {
-                    navigate('/login');
-                    setIsMenuOpen(false);
-                  }}
-                  variant="filled"
-                  size="sm"
-                  className="w-full py-2 mt-2"
-                >
-                  Login / Sign Up
-                </AnimatedButton>
-              )}
-              {userLoggedIn && (
-                <div className="flex items-center gap-3 mt-4">
-                  <img
-                    src={getProfilePicture()}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full border-2 border-purple-500"
-                  />
-                  <span className="text-gray-700 dark:text-gray-300 font-medium text-sm">
-                    Hey, {getFirstName()}
-                  </span>
-                </div>
-              )}
-            </div>
-          </motion.div>
+            {link.title}
+          </NavLink>
+        ))}
+        
+        {/* For Business Button */}
+        {!userLoggedIn && !businessUser && (
+          <AnimatedButton
+            onClick={() => {
+              navigate('/for-business');
+              setIsMenuOpen(false);
+            }}
+            variant="text"
+            size="sm"
+            className="justify-start py-3 px-3 text-base font-medium rounded-lg transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            For Business
+          </AnimatedButton>
         )}
-      </MobileMenuWrapper>
+        
+        {/* Login/Signup Button */}
+        {!isAuthPage && !userLoggedIn && (
+          <AnimatedButton
+            onClick={() => {
+              navigate('/login');
+              setIsMenuOpen(false);
+            }}
+            variant="filled"
+            size="sm"
+            className="w-full py-3 text-base font-medium rounded-lg mt-2"
+          >
+            Login / Sign Up
+          </AnimatedButton>
+        )}
+        
+        {/* User Profile Section */}
+        {userLoggedIn && (
+          <div className="flex items-center gap-4 mt-6 px-3 py-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <img
+              src={getProfilePicture()}
+              alt="Profile"
+              className="w-12 h-12 rounded-full border-2 border-purple-500 object-cover"
+            />
+            <div>
+              <span className="text-gray-700 dark:text-gray-300 font-medium text-base block">
+                Hey, {getFirstName()}
+              </span>
+              <span className="text-gray-500 dark:text-gray-400 text-sm">
+                Welcome back!
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  )}
+</MobileMenuWrapper>
 
       {/* Profile Sidebar */}
       <ProfileSidebar 
