@@ -499,25 +499,25 @@ const BusinessDashboard = () => {
       <BusinessNavbar />
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8 mt-24">
-          <h1 className="text-7xl font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-transparent bg-clip-text">Business Dashboard</h1>
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-transparent bg-clip-text">Business Dashboard</h1>
         </div>
 
-        <div className="flex justify-center gap-4 mb-8">
+        <div className="flex flex-wrap justify-center gap-4 mb-8">
           <button 
             onClick={() => setActiveTab('overview')} 
-            className={`px-6 py-3 rounded-lg transition-transform transform ${activeTab === 'overview' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white scale-105' : 'bg-gray-200 text-gray-800 hover:scale-105'}`}
+            className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-transform transform ${activeTab === 'overview' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white scale-105' : 'bg-gray-200 text-gray-800 hover:scale-105'}`}
           >
             Overview
           </button>
           <button 
             onClick={() => setActiveTab('businessInfo')} 
-            className={`px-6 py-3 rounded-lg transition-transform transform ${activeTab === 'businessInfo' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white scale-105' : 'bg-gray-200 text-gray-800 hover:scale-105'}`}
+            className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-transform transform ${activeTab === 'businessInfo' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white scale-105' : 'bg-gray-200 text-gray-800 hover:scale-105'}`}
           >
             Business Info
           </button>
           <button 
             onClick={() => setActiveTab('pricing')} 
-            className={`px-6 py-3 rounded-lg transition-transform transform ${activeTab === 'pricing' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white scale-105' : 'bg-gray-200 text-gray-800 hover:scale-105'}`}
+            className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-transform transform ${activeTab === 'pricing' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white scale-105' : 'bg-gray-200 text-gray-800 hover:scale-105'}`}
           >
             Pricing
           </button>
