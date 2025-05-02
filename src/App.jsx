@@ -25,7 +25,7 @@ import FAQ from "./pages/FAQ";
 import TNC from "./pages/TNC";
 import PP from "./pages/PP";
 import Help from "./pages/Help";
-
+import ScrollProgressBar from './components/common/ScrollProgressBar';
 
 // Import providers
 import { LoadingProvider } from './contexts/LoadingContext';
@@ -72,7 +72,12 @@ const App = () => {
           <BusinessAuthProvider>
             <LoadingProvider>
               <ChatbotProvider> {/* Add this wrapper */}
+                
                 <main className="overflow-x-hidden">
+                  <ScrollProgressBar 
+                    color="#9d4edd" 
+                    height={4}
+                  />
                   <NavbarWrapper />
                   <Routes>
                     {/* User Routes */}

@@ -59,11 +59,6 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
       onClick: handleDashboardClick
     },
     { 
-      icon: <FaBell />, 
-      label: 'Notifications', 
-      link: '/notifications' 
-    },
-    { 
       icon: <FaBookmark />, 
       label: 'Saved Posts', 
       link: '/saved' 
