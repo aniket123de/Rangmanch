@@ -69,8 +69,8 @@ const ChatPopup = styled.div`
   position: fixed;
   bottom: 95px;
   left: 24px;
-  width: 380px;
-  height: 590px; /* Increased height to ensure all content fits */
+  width: 480px;
+  height: 490px; /* Increased height to ensure all content fits */
   background: linear-gradient(170deg, #1f1033, #120821);
   border-radius: 20px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
