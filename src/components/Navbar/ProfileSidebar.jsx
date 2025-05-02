@@ -69,11 +69,6 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
       link: '/saved' 
     },
     { 
-      icon: <FaHistory />, 
-      label: 'History', 
-      link: '/history' 
-    },
-    { 
       icon: <FaCog />, 
       label: 'Settings', 
       link: '/settings' 
