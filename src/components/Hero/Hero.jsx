@@ -30,8 +30,8 @@ const HeroWrapper = styled.div`
     right: 0;
     bottom: 0;
     background-image: ${props => props.theme === 'dark'
-      ? `linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-         linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      ? `linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+         linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
          linear-gradient(45deg, rgba(157, 78, 221, 0.07) 1px, transparent 1px),
          linear-gradient(-45deg, rgba(199, 125, 255, 0.07) 1px, transparent 1px)`
       : `linear-gradient(rgba(157, 78, 221, 0.07) 1px, transparent 1px),
@@ -70,7 +70,7 @@ const HeroWrapper = styled.div`
     right: 0;
     bottom: 0;
     background-image: ${props => props.theme === 'dark'
-      ? `radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)`
+      ? `radial-gradient(rgba(255, 255, 255, 0.17) 1px, transparent 1px)`
       : `radial-gradient(rgba(157, 78, 221, 0.15) 1px, transparent 1px)`
     };
     background-size: 20px 20px;
