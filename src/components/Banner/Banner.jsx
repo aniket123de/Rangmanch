@@ -9,7 +9,15 @@ import bannerImage from "../../assets/banner.png";
 
 const Banner = () => {
   const { isDark } = useContext(ThemeContext);
-  const [isHovered, setIsHovered] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
+  
+  const openVideo = () => {
+    setShowVideo(true);
+  };
+
+  const closeVideo = () => {
+    setShowVideo(false);
+  };
 
   const stats = [
     {
@@ -97,9 +105,7 @@ const Banner = () => {
             {/* Video Thumbnail Section */}
             <motion.div
               variants={SlideUp}
-              className="relative group cursor-pointer"
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
+              className="relative group"
             >
               <div className="relative rounded-lg overflow-hidden">
                 <img
@@ -107,8 +113,13 @@ const Banner = () => {
                   alt="Rangmanch Banner"
                   className="w-full h-full object-cover rounded-lg"
                 />
-                <div className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-                  <FaPlay className="text-4xl text-white" />
+                <div 
+                  className="absolute inset-0 bg-black/30 flex items-center justify-center cursor-pointer hover:bg-black/50 transition-colors duration-300"
+                  onClick={openVideo}
+                >
+                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700 transition-colors duration-300">
+                    <FaPlay className="text-2xl text-white ml-1" />
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -116,6 +127,26 @@ const Banner = () => {
         </div>
       </div>
     </BackgroundPattern>
+
+    {/* Video Modal */}
+    {showVideo && (
+      <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div className="relative w-full max-w-4xl aspect-video">
+          <button 
+            onClick={closeVideo}
+            className="absolute -top-10 right-0 text-white hover:text-gray-300 text-xl"
+          >
+            ✕
+          </button>
+          <iframe
+            src="https://www.youtube.com/embed/duGOA6ZiGtE?autoplay=1"
+            className="w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+      </div>
+    )}
     </section>
   );
 };
