@@ -46,7 +46,7 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
       // Get the current user's token
       const token = await currentUser.getIdToken();
       // Redirect to the new dashboard URL
-      window.location.href = `https://rangmanch-dashboard.vercel.app?token=${token}`;
+      window.location.href = `https://rangmanchdash-seven.vercel.app?token=${token}`;
     } catch (error) {
       console.error('Error getting token:', error);
     }
