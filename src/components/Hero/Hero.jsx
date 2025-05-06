@@ -148,7 +148,7 @@ const Hero = () => {
           <div className="relative inline-flex items-center justify-center gap-4 group w-full md:w-auto">
             <a 
               role="button" 
-              className="group relative inline-flex items-center justify-center text-base rounded-xl bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 px-6 sm:px-8 py-3 font-semibold text-white transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 hover:shadow-purple-500/30 w-full md:w-auto" 
+              className="group relative inline-flex items-center justify-center text-base rounded-xl bg-slate-800 px-6 sm:px-8 py-3 font-semibold text-white transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 hover:shadow-purple-500/30 w-full md:w-auto" 
               title="payment" 
               href="#services"
             >

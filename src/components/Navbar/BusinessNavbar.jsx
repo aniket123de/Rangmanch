@@ -213,7 +213,7 @@ const BusinessNavbar = () => {
               <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
             </Link>
             <Link to="/for-business" className="relative text-lg font-semibold dark:text-white group transition-colors duration-300">
-              <span className="relative z-10">For Business</span>
+              <span className="relative z-10">Business</span>
               <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
             </Link>
           </div>
