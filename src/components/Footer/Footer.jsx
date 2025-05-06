@@ -2,8 +2,6 @@ import React, { useContext } from "react";
 import Logo from "../../assets/icon.png";
 import { FaPhone, FaSun, FaMoon } from "react-icons/fa6";
 import { LuMessageSquare } from "react-icons/lu";
-import { motion } from "framer-motion";
-import { SlideLeft } from "../../animation/animate";
 import { ThemeContext } from "../../context/ThemeContext";
 import StyledSwitch from "../Navbar/Switch";
 
@@ -11,12 +9,7 @@ const Footer = () => {
   const { isDark, toggleTheme } = useContext(ThemeContext);
 
   return (
-    <motion.footer
-      variants={SlideLeft(0.2)}
-      initial="initial"
-      whileInView="animate"
-      className="w-full dark:bg-dark-bg transition-colors duration-300"
-    >
+    <footer className="w-full dark:bg-dark-bg transition-colors duration-300">
       <div className="container py-11">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Company info section */}
@@ -90,7 +83,7 @@ const Footer = () => {
           &copy; 2025 ERROR503 . All rights reserved
         </p>
       </div>
-    </motion.footer>
+    </footer>
   );
 };
 
