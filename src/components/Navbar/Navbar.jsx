@@ -266,7 +266,7 @@ const Navbar = () => {
             <img 
               src={Icon} 
               alt="Rangmanch" 
-              className="w-10 h-10 md:w-12 md:h-12 object-contain border border-gray-300 dark:border-gray-700 rounded-full"
+              className={`w-10 h-10 md:w-12 md:h-12 object-contain rounded-full ${isDark ? 'border border-gray-700' : 'bg-black'}`}
             />
             <StyledWrapper theme={isDark ? 'dark' : 'light'}>
               <button className="button" data-text="RANGMANCH">
