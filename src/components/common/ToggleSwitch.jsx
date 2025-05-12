@@ -1,17 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const ToggleSwitch = ({ isChecked, onChange }) => {
+const ToggleSwitch = ({ isChecked, onChange, id }) => {
   return (
     <StyledWrapper>
       <div className="toggle-border">
         <input 
-          id="one" 
+          id={`toggle-${id}`}
           type="checkbox" 
           checked={isChecked}
           onChange={(e) => onChange(e.target.checked)}
         />
-        <label htmlFor="one">
+        <label htmlFor={`toggle-${id}`}>
           <div className="handle" />
         </label>
       </div>

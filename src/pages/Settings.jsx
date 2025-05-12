@@ -160,6 +160,7 @@ const Settings = () => {
                 </p>
               </div>
               <ToggleSwitch
+                id={`notification-${key}`}
                 isChecked={value}
                 onChange={(checked) => setSettings({
                   ...settings,
@@ -183,7 +184,11 @@ const Settings = () => {
               Switch between light and dark theme
             </p>
           </div>
-          <ToggleSwitch isChecked={isDark} onChange={toggleTheme} />
+          <ToggleSwitch 
+            id="dark-mode"
+            isChecked={isDark} 
+            onChange={toggleTheme} 
+          />
         </div>
       </div>
     </div>
@@ -202,6 +207,7 @@ const Settings = () => {
               </p>
             </div>
             <ToggleSwitch
+              id="public-profile"
               isChecked={settings.privacy.profileVisibility === 'public'}
               onChange={(checked) => setSettings({
                 ...settings,
@@ -218,6 +224,7 @@ const Settings = () => {
               </p>
             </div>
             <ToggleSwitch
+              id="show-email"
               isChecked={settings.privacy.showEmail}
               onChange={(checked) => setSettings({
                 ...settings,
