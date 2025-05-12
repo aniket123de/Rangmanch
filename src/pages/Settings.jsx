@@ -2,8 +2,40 @@ import React, { useState, useContext } from 'react';
 import { motion } from 'framer-motion';
 import { ThemeContext } from '../context/ThemeContext';
 import { useAuth } from '../contexts/authContext';
-import { FaUser, FaBell, FaPalette, FaLock, FaGlobe, FaSave, FaCamera } from 'react-icons/fa';
+import { FaUser, FaBell, FaPalette, FaLock, FaGlobe, FaSave } from 'react-icons/fa';
 import ToggleSwitch from '../components/common/ToggleSwitch';
+import styled from 'styled-components';
+
+const SettingsContainer = styled.div`
+  background: #111420;
+  min-height: 100vh;
+  padding: 8rem 1rem 4rem;
+`;
+
+const GradientHeader = styled.h1`
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  background: linear-gradient(45deg, #9d4edd, #c77dff, #ff9e00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  letter-spacing: -1px;
+
+  @media (min-width: 768px) {
+    font-size: 4rem;
+    margin-bottom: 3rem;
+  }
+`;
+
+const SettingsContent = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #1a1a2e;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
 
 const Settings = () => {
   const { isDark, toggleTheme } = useContext(ThemeContext);
@@ -53,38 +85,21 @@ const Settings = () => {
   ];
 
   const renderProfileSettings = () => (
-    <div className="space-y-8">
-      <div className="flex flex-col items-center sm:flex-row sm:items-start sm:space-x-6">
-        <div className="relative group">
-          <img
-            src={currentUser?.photoURL || "https://i.pravatar.cc/150?img=1"}
-            alt="Profile"
-            className="w-28 h-28 rounded-full object-cover border-4 border-purple-600 shadow-lg transition-all duration-300 group-hover:opacity-80"
-          />
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <button className="p-2 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition-colors">
-              <FaCamera size={18} />
-            </button>
-          </div>
-        </div>
-        <div className="mt-4 sm:mt-0 flex-1">
-          <h3 className="text-xl font-bold text-purple-600 dark:text-purple-400">
-            {settings.profile.displayName || 'User'}
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
-            {settings.profile.email}
-          </p>
-          <div className="mt-3">
-            <button className="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-all shadow-md hover:shadow-lg">
-              Change Photo
-            </button>
-          </div>
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center space-x-4">
+        <img
+          src={currentUser?.photoURL || "https://i.pravatar.cc/150?img=1"}
+          alt="Profile"
+          className="w-24 h-24 rounded-full object-cover border-4 border-purple-500 p-1"
+        />
+        <button className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+          Change Photo
+        </button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="transition-all duration-300 hover:translate-y-[-2px]">
-          <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Display Name
           </label>
           <input
@@ -94,25 +109,24 @@ const Settings = () => {
               ...settings,
               profile: { ...settings.profile, displayName: e.target.value }
             })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all"
-            placeholder="Your name"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           />
         </div>
         
-        <div className="transition-all duration-300 hover:translate-y-[-2px]">
-          <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Email
           </label>
           <input
             type="email"
             value={settings.profile.email}
             disabled
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 cursor-not-allowed shadow-sm"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 cursor-not-allowed"
           />
         </div>
 
-        <div className="md:col-span-2 transition-all duration-300 hover:translate-y-[-2px]">
-          <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Bio
           </label>
           <textarea
@@ -122,24 +136,8 @@ const Settings = () => {
               profile: { ...settings.profile, bio: e.target.value }
             })}
             rows="4"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="Tell us about yourself..."
-          />
-        </div>
-        
-        <div className="transition-all duration-300 hover:translate-y-[-2px]">
-          <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
-            Location
-          </label>
-          <input
-            type="text"
-            value={settings.profile.location}
-            onChange={(e) => setSettings({
-              ...settings,
-              profile: { ...settings.profile, location: e.target.value }
-            })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all"
-            placeholder="Your location"
           />
         </div>
       </div>
@@ -148,11 +146,11 @@ const Settings = () => {
 
   const renderNotificationSettings = () => (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md transition-all duration-300 hover:shadow-lg">
-        <h3 className="text-lg font-semibold mb-6 text-purple-600 dark:text-purple-400">Email Notifications</h3>
-        <div className="space-y-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+        <h3 className="text-lg font-semibold mb-4">Email Notifications</h3>
+        <div className="space-y-4">
           {Object.entries(settings.notifications).map(([key, value]) => (
-            <div key={key} className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-4">
+            <div key={key} className="flex items-center justify-between">
               <div>
                 <h4 className="font-medium text-gray-700 dark:text-gray-300">
                   {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
@@ -163,12 +161,10 @@ const Settings = () => {
               </div>
               <ToggleSwitch
                 isChecked={value}
-                onChange={(checked) => {
-                  setSettings({
-                    ...settings,
-                    notifications: { ...settings.notifications, [key]: checked }
-                  });
-                }}
+                onChange={(checked) => setSettings({
+                  ...settings,
+                  notifications: { ...settings.notifications, [key]: checked }
+                })}
               />
             </div>
           ))}
@@ -179,34 +175,15 @@ const Settings = () => {
 
   const renderAppearanceSettings = () => (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md transition-all duration-300 hover:shadow-lg">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-purple-600 dark:text-purple-400">Dark Mode</h3>
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Dark Mode</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Switch between light and dark theme
             </p>
           </div>
-          <ToggleSwitch 
-            isChecked={isDark} 
-            onChange={toggleTheme} 
-          />
-        </div>
-        
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 transition-all hover:shadow-md">
-            <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Light Mode</h4>
-            <div className="h-24 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
-              <div className="w-3/4 bg-gray-100 h-4 rounded"></div>
-            </div>
-          </div>
-          
-          <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 transition-all hover:shadow-md">
-            <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Dark Mode</h4>
-            <div className="h-24 bg-gray-800 rounded-lg border border-gray-700 flex items-center justify-center">
-              <div className="w-3/4 bg-gray-700 h-4 rounded"></div>
-            </div>
-          </div>
+          <ToggleSwitch isChecked={isDark} onChange={toggleTheme} />
         </div>
       </div>
     </div>
@@ -214,10 +191,10 @@ const Settings = () => {
 
   const renderPrivacySettings = () => (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md transition-all duration-300 hover:shadow-lg">
-        <h3 className="text-lg font-semibold mb-6 text-purple-600 dark:text-purple-400">Profile Visibility</h3>
-        <div className="space-y-6">
-          <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+        <h3 className="text-lg font-semibold mb-4">Profile Visibility</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
             <div>
               <h4 className="font-medium text-gray-700 dark:text-gray-300">Public Profile</h4>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -233,7 +210,7 @@ const Settings = () => {
             />
           </div>
           
-          <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-4">
+          <div className="flex items-center justify-between">
             <div>
               <h4 className="font-medium text-gray-700 dark:text-gray-300">Show Email</h4>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -248,22 +225,6 @@ const Settings = () => {
               })}
             />
           </div>
-          
-          <div className="flex items-center justify-between pb-2">
-            <div>
-              <h4 className="font-medium text-gray-700 dark:text-gray-300">Show Location</h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Display your location on your profile
-              </p>
-            </div>
-            <ToggleSwitch
-              isChecked={settings.privacy.showLocation}
-              onChange={(checked) => setSettings({
-                ...settings,
-                privacy: { ...settings.privacy, showLocation: checked }
-              })}
-            />
-          </div>
         </div>
       </div>
     </div>
@@ -271,47 +232,44 @@ const Settings = () => {
 
   const renderPreferencesSettings = () => (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md transition-all duration-300 hover:shadow-lg">
-        <h3 className="text-lg font-semibold mb-6 text-purple-600 dark:text-purple-400">Your Preferences</h3>
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="transition-all duration-300 hover:translate-y-[-2px]">
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
-                Language
-              </label>
-              <select
-                value={settings.preferences.language}
-                onChange={(e) => setSettings({
-                  ...settings,
-                  preferences: { ...settings.preferences, language: e.target.value }
-                })}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all"
-              >
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
-              </select>
-            </div>
-            
-            <div className="transition-all duration-300 hover:translate-y-[-2px]">
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
-                Timezone
-              </label>
-              <select
-                value={settings.preferences.timezone}
-                onChange={(e) => setSettings({
-                  ...settings,
-                  preferences: { ...settings.preferences, timezone: e.target.value }
-                })}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all"
-              >
-                <option value="UTC">UTC</option>
-                <option value="EST">Eastern Time</option>
-                <option value="PST">Pacific Time</option>
-                <option value="GMT">GMT</option>
-              </select>
-            </div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Language
+            </label>
+            <select
+              value={settings.preferences.language}
+              onChange={(e) => setSettings({
+                ...settings,
+                preferences: { ...settings.preferences, language: e.target.value }
+              })}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Timezone
+            </label>
+            <select
+              value={settings.preferences.timezone}
+              onChange={(e) => setSettings({
+                ...settings,
+                preferences: { ...settings.preferences, timezone: e.target.value }
+              })}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="UTC">UTC</option>
+              <option value="EST">Eastern Time</option>
+              <option value="PST">Pacific Time</option>
+              <option value="GMT">GMT</option>
+            </select>
           </div>
         </div>
       </div>
@@ -335,88 +293,55 @@ const Settings = () => {
     }
   };
 
-  // Animation variants
-  const contentVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16 pb-12 px-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Keep the original header as requested */}
-        <h1 
-          className="text-4xl md:text-5xl text-center font-bold mb-12 bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 bg-clip-text text-transparent"
-          style={{ 
-            background: "linear-gradient(45deg, #9d4edd, #c77dff, #ff9e00)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            fontWeight: 700,
-            letterSpacing: "-1px"
-          }}
-        >
-          Settings
-        </h1>
+    <SettingsContainer>
+      <GradientHeader>Settings</GradientHeader>
+      <SettingsContent>
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Sidebar */}
+          <div className="w-full md:w-64 space-y-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-purple-500 text-white'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                <span className="text-lg">{tab.icon}</span>
+                <span className="font-medium">{tab.label}</span>
+              </button>
+            ))}
+          </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-xl">
-          <div className="flex flex-col lg:flex-row">
-            {/* Sidebar */}
-            <div className="lg:w-64 bg-gray-50 dark:bg-gray-900 p-4">
-              <div className="space-y-2">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 ${
-                      activeTab === tab.id
-                        ? 'bg-purple-600 text-white shadow-md'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm'
-                    }`}
-                  >
-                    <span className="text-lg">{tab.icon}</span>
-                    <span className="font-medium">{tab.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="flex-1 border-l border-gray-100 dark:border-gray-700">
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-8 border-b border-gray-100 dark:border-gray-700 pb-5">
-                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
-                    <span className="mr-3 text-purple-600 dark:text-purple-400">
-                      {tabs.find(tab => tab.id === activeTab)?.icon}
-                    </span>
-                    {tabs.find(tab => tab.id === activeTab)?.label} Settings
-                  </h2>
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className="flex items-center space-x-2 px-5 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-                  >
-                    <FaSave />
-                    <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
-                  </motion.button>
-                </div>
-                
-                <motion.div
-                  initial="hidden"
-                  animate="visible"
-                  variants={contentVariants}
-                  key={activeTab}
+          {/* Main Content */}
+          <div className="flex-1">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {tabs.find(tab => tab.id === activeTab)?.label} Settings
+                </h2>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="flex items-center space-x-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {renderContent()}
-                </motion.div>
+                  <FaSave />
+                  <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
+                </motion.button>
               </div>
+              
+              {renderContent()}
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </SettingsContent>
+    </SettingsContainer>
   );
 };
 
-export default Settings;
+export default Settings; 
