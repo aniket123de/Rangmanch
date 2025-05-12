@@ -7,7 +7,9 @@ import ToggleSwitch from '../components/common/ToggleSwitch';
 import styled from 'styled-components';
 
 const SettingsContainer = styled.div`
-  background: linear-gradient(155deg, #0f172a 0%, #1e293b 100%);
+  background: ${({ theme }) => theme === 'dark' 
+    ? 'linear-gradient(155deg, #0f172a 0%, #1e293b 100%)'
+    : 'linear-gradient(155deg, #ffffff 0%, #f8fafc 100%)'};
   min-height: 100vh;
   padding: 8rem 1rem 4rem;
 `;
@@ -31,12 +33,16 @@ const GradientHeader = styled.h1`
 const SettingsContent = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  background: rgba(23, 25, 35, 0.9);
+  background: ${({ theme }) => theme === 'dark' 
+    ? 'rgba(23, 25, 35, 0.9)'
+    : 'rgba(255, 255, 255, 0.9)'};
   backdrop-filter: blur(12px);
   border-radius: 20px;
   padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  border: 1px solid ${({ theme }) => theme === 'dark' 
+    ? 'rgba(255, 255, 255, 0.1)'
+    : 'rgba(0, 0, 0, 0.1)'};
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
 `;
 
 const StyledToggleSwitch = styled(ToggleSwitch)`
@@ -326,9 +332,9 @@ const Settings = () => {
   };
 
   return (
-    <SettingsContainer>
+    <SettingsContainer theme={isDark ? 'dark' : 'light'}>
       <GradientHeader>Settings</GradientHeader>
-      <SettingsContent>
+      <SettingsContent theme={isDark ? 'dark' : 'light'}>
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
           <div className="w-full md:w-64 space-y-1">
