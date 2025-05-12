@@ -248,7 +248,7 @@ const Navbar = () => {
     return currentUser?.photoURL || 'https://via.placeholder.com/150';
   };
 
-  const isCleanNavbar = ['/login','/faq','/tnc', '/PP', '/about','/help', '/content-suggestion'].includes(location.pathname);
+  const isCleanNavbar = ['/login','/faq','/tnc', '/PP', '/about','/help', '/content-suggestion', '/settings'].includes(location.pathname);
 
   const filteredNavLinks = isCleanNavbar ? [] : NavLinks;
 
