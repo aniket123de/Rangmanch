@@ -25,6 +25,7 @@ import FAQ from "./pages/FAQ";
 import TNC from "./pages/TNC";
 import PP from "./pages/PP";
 import Help from "./pages/Help";
+import Settings from "./pages/Settings";
 import ScrollProgressBar from './components/common/ScrollProgressBar';
 
 // Import providers
@@ -87,11 +88,12 @@ const App = () => {
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/email-verification" element={<EmailVerification />} />
-                    <Route path="/content-suggestion" element={<ContentSuggestion />} /> {/* Add the new route */}
+                    <Route path="/content-suggestion" element={<ContentSuggestion />} />
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/tnc" element={<TNC />} />
                     <Route path="/PP" element={<PP />} />
                     <Route path="/help" element={<Help />} />
+                    <Route path="/settings" element={<Settings />} />
                      
                     {/* Business Routes */}
                     <Route path="/for-business" element={<ForBusiness />} />
