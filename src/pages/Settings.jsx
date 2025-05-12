@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ThemeContext } from '../context/ThemeContext';
 import { useAuth } from '../contexts/authContext';
 import { FaUser, FaBell, FaPalette, FaLock, FaGlobe, FaSave } from 'react-icons/fa';
-import HeartSwitch from '../components/common/HeartSwitch';
+import ToggleSwitch from '../components/common/ToggleSwitch';
 import styled from 'styled-components';
 
 const SettingsContainer = styled.div`
@@ -159,7 +159,7 @@ const Settings = () => {
                   Receive notifications about {key.toLowerCase().replace(/([A-Z])/g, ' $1')}
                 </p>
               </div>
-              <HeartSwitch
+              <ToggleSwitch
                 isChecked={value}
                 onChange={(checked) => setSettings({
                   ...settings,
@@ -183,7 +183,7 @@ const Settings = () => {
               Switch between light and dark theme
             </p>
           </div>
-          <HeartSwitch isChecked={isDark} onChange={toggleTheme} />
+          <ToggleSwitch isChecked={isDark} onChange={toggleTheme} />
         </div>
       </div>
     </div>
@@ -201,7 +201,7 @@ const Settings = () => {
                 Anyone can view your profile
               </p>
             </div>
-            <HeartSwitch
+            <ToggleSwitch
               isChecked={settings.privacy.profileVisibility === 'public'}
               onChange={(checked) => setSettings({
                 ...settings,
@@ -217,7 +217,7 @@ const Settings = () => {
                 Display your email on your profile
               </p>
             </div>
-            <HeartSwitch
+            <ToggleSwitch
               isChecked={settings.privacy.showEmail}
               onChange={(checked) => setSettings({
                 ...settings,
