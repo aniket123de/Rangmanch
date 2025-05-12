@@ -7,7 +7,7 @@ import ToggleSwitch from '../components/common/ToggleSwitch';
 import styled from 'styled-components';
 
 const SettingsContainer = styled.div`
-  background: #111420;
+  background: linear-gradient(155deg, #0f172a 0%, #1e293b 100%);
   min-height: 100vh;
   padding: 8rem 1rem 4rem;
 `;
@@ -31,10 +31,21 @@ const GradientHeader = styled.h1`
 const SettingsContent = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  background: #1a1a2e;
-  border-radius: 15px;
+  background: rgba(23, 25, 35, 0.9);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+`;
+
+const StyledToggleSwitch = styled(ToggleSwitch)`
+  .toggle-track {
+    background: ${({ isChecked }) => isChecked ? 'linear-gradient(45deg, #8B5CF6, #6366F1)' : '#374151'};
+    &:hover {
+      background: ${({ isChecked }) => isChecked ? 'linear-gradient(45deg, #7C3AED, #4F46E5)' : '#3F4A5C'};
+    }
+  }
 `;
 
 const Settings = () => {
@@ -43,7 +54,6 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [isSaving, setIsSaving] = useState(false);
 
-  // Mock settings state
   const [settings, setSettings] = useState({
     profile: {
       displayName: currentUser?.displayName || '',
@@ -70,10 +80,8 @@ const Settings = () => {
 
   const handleSave = async () => {
     setIsSaving(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     setIsSaving(false);
-    // Show success message
   };
 
   const tabs = [
@@ -85,21 +93,28 @@ const Settings = () => {
   ];
 
   const renderProfileSettings = () => (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-4">
-        <img
-          src={currentUser?.photoURL || "https://i.pravatar.cc/150?img=1"}
-          alt="Profile"
-          className="w-24 h-24 rounded-full object-cover border-4 border-purple-500 p-1"
-        />
-        <button className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+    <div className="space-y-8">
+      <div className="flex flex-col items-center space-y-4 mb-8">
+        <motion.div 
+          whileHover={{ scale: 1.05 }}
+          className="relative group"
+        >
+          <img
+            src={currentUser?.photoURL || "https://i.pravatar.cc/150?img=1"}
+            alt="Profile"
+            className="w-32 h-32 rounded-full object-cover border-4 border-purple-500/30 p-1 shadow-xl group-hover:border-purple-500/60 transition-all"
+          />
+          <div className="absolute inset-0 bg-purple-500/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+        </motion.div>
+        <button className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2">
+          <FaLock className="text-xs" />
           Change Photo
         </button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Display Name
           </label>
           <input
@@ -109,24 +124,24 @@ const Settings = () => {
               ...settings,
               profile: { ...settings.profile, displayName: e.target.value }
             })}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-gray-900/50 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Email
           </label>
           <input
             type="email"
             value={settings.profile.email}
             disabled
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 cursor-not-allowed"
+            className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-gray-800/50 text-gray-400 cursor-not-allowed"
           />
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Bio
           </label>
           <textarea
@@ -136,7 +151,7 @@ const Settings = () => {
               profile: { ...settings.profile, bio: e.target.value }
             })}
             rows="4"
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-gray-900/50 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
             placeholder="Tell us about yourself..."
           />
         </div>
@@ -146,20 +161,23 @@ const Settings = () => {
 
   const renderNotificationSettings = () => (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-        <h3 className="text-lg font-semibold mb-4">Email Notifications</h3>
+      <div className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800 backdrop-blur-sm">
+        <h3 className="text-lg font-semibold mb-4 text-gray-200 flex items-center gap-2">
+          <FaBell className="text-purple-400" />
+          Email Notifications
+        </h3>
         <div className="space-y-4">
           {Object.entries(settings.notifications).map(([key, value]) => (
             <div key={key} className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium text-gray-700 dark:text-gray-300">
+                <h4 className="font-medium text-gray-300">
                   {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                 </h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-400">
                   Receive notifications about {key.toLowerCase().replace(/([A-Z])/g, ' $1')}
                 </p>
               </div>
-              <ToggleSwitch
+              <StyledToggleSwitch
                 id={`notification-${key}`}
                 isChecked={value}
                 onChange={(checked) => setSettings({
@@ -176,15 +194,18 @@ const Settings = () => {
 
   const renderAppearanceSettings = () => (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+      <div className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Dark Mode</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <h3 className="text-lg font-semibold text-gray-300 flex items-center gap-2">
+              <FaPalette className="text-purple-400" />
+              Dark Mode
+            </h3>
+            <p className="text-sm text-gray-400">
               Switch between light and dark theme
             </p>
           </div>
-          <ToggleSwitch 
+          <StyledToggleSwitch 
             id="dark-mode"
             isChecked={isDark} 
             onChange={toggleTheme} 
@@ -196,17 +217,20 @@ const Settings = () => {
 
   const renderPrivacySettings = () => (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-        <h3 className="text-lg font-semibold mb-4">Profile Visibility</h3>
+      <div className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800 backdrop-blur-sm">
+        <h3 className="text-lg font-semibold mb-4 text-gray-200 flex items-center gap-2">
+          <FaLock className="text-purple-400" />
+          Profile Visibility
+        </h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-medium text-gray-700 dark:text-gray-300">Public Profile</h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <h4 className="font-medium text-gray-300">Public Profile</h4>
+              <p className="text-sm text-gray-400">
                 Anyone can view your profile
               </p>
             </div>
-            <ToggleSwitch
+            <StyledToggleSwitch
               id="public-profile"
               isChecked={settings.privacy.profileVisibility === 'public'}
               onChange={(checked) => setSettings({
@@ -218,12 +242,12 @@ const Settings = () => {
           
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-medium text-gray-700 dark:text-gray-300">Show Email</h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <h4 className="font-medium text-gray-300">Show Email</h4>
+              <p className="text-sm text-gray-400">
                 Display your email on your profile
               </p>
             </div>
-            <ToggleSwitch
+            <StyledToggleSwitch
               id="show-email"
               isChecked={settings.privacy.showEmail}
               onChange={(checked) => setSettings({
@@ -239,10 +263,11 @@ const Settings = () => {
 
   const renderPreferencesSettings = () => (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+      <div className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800 backdrop-blur-sm">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+              <FaGlobe className="text-purple-400" />
               Language
             </label>
             <select
@@ -251,7 +276,7 @@ const Settings = () => {
                 ...settings,
                 preferences: { ...settings.preferences, language: e.target.value }
               })}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-gray-900/50 text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWNoZXZyb24tZG93biI+PHBhdGggZD0ibTYgOSA2IDYgNi02Ii8+PC9zdmc+')] bg-no-repeat bg-[right_1rem_center] bg-[length:1.2em]"
             >
               <option value="en">English</option>
               <option value="es">Spanish</option>
@@ -261,7 +286,7 @@ const Settings = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Timezone
             </label>
             <select
@@ -270,7 +295,7 @@ const Settings = () => {
                 ...settings,
                 preferences: { ...settings.preferences, timezone: e.target.value }
               })}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-gray-900/50 text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWNoZXZyb24tZG93biI+PHBhdGggZD0ibTYgOSA2IDYgNi02Ii8+PC9zdmc+')] bg-no-repeat bg-[right_1rem_center] bg-[length:1.2em]"
             >
               <option value="UTC">UTC</option>
               <option value="EST">Eastern Time</option>
@@ -311,23 +336,23 @@ const Settings = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
                   activeTab === tab.id
-                    ? 'bg-purple-500 text-white'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                 }`}
               >
-                <span className="text-lg">{tab.icon}</span>
-                <span className="font-medium">{tab.label}</span>
+                <span className="text-lg opacity-80">{tab.icon}</span>
+                <span className="font-medium text-sm">{tab.label}</span>
               </button>
             ))}
           </div>
 
           {/* Main Content */}
           <div className="flex-1">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
+            <div className="bg-gray-900/50 rounded-2xl shadow-sm p-6 border border-gray-800 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-2xl font-bold text-white">
                   {tabs.find(tab => tab.id === activeTab)?.label} Settings
                 </h2>
                 <motion.button
@@ -335,9 +360,9 @@ const Settings = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="flex items-center space-x-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
-                  <FaSave />
+                  <FaSave className="text-xs" />
                   <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
                 </motion.button>
               </div>
@@ -351,4 +376,4 @@ const Settings = () => {
   );
 };
 
-export default Settings; 
+export default Settings;
