@@ -3,7 +3,39 @@ import { motion } from 'framer-motion';
 import { ThemeContext } from '../context/ThemeContext';
 import { useAuth } from '../contexts/authContext';
 import { FaUser, FaBell, FaPalette, FaLock, FaGlobe, FaSave } from 'react-icons/fa';
-import Switch from '../components/Navbar/Switch';
+import HeartSwitch from '../components/common/HeartSwitch';
+import styled from 'styled-components';
+
+const SettingsContainer = styled.div`
+  background: #111420;
+  min-height: 100vh;
+  padding: 8rem 1rem 4rem;
+`;
+
+const GradientHeader = styled.h1`
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  background: linear-gradient(45deg, #9d4edd, #c77dff, #ff9e00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  letter-spacing: -1px;
+
+  @media (min-width: 768px) {
+    font-size: 4rem;
+    margin-bottom: 3rem;
+  }
+`;
+
+const SettingsContent = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #1a1a2e;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
 
 const Settings = () => {
   const { isDark, toggleTheme } = useContext(ThemeContext);
@@ -127,7 +159,7 @@ const Settings = () => {
                   Receive notifications about {key.toLowerCase().replace(/([A-Z])/g, ' $1')}
                 </p>
               </div>
-              <Switch
+              <HeartSwitch
                 isChecked={value}
                 onChange={(checked) => setSettings({
                   ...settings,
@@ -151,7 +183,7 @@ const Settings = () => {
               Switch between light and dark theme
             </p>
           </div>
-          <Switch isChecked={isDark} onChange={toggleTheme} />
+          <HeartSwitch isChecked={isDark} onChange={toggleTheme} />
         </div>
       </div>
     </div>
@@ -169,7 +201,7 @@ const Settings = () => {
                 Anyone can view your profile
               </p>
             </div>
-            <Switch
+            <HeartSwitch
               isChecked={settings.privacy.profileVisibility === 'public'}
               onChange={(checked) => setSettings({
                 ...settings,
@@ -185,7 +217,7 @@ const Settings = () => {
                 Display your email on your profile
               </p>
             </div>
-            <Switch
+            <HeartSwitch
               isChecked={settings.privacy.showEmail}
               onChange={(checked) => setSettings({
                 ...settings,
@@ -262,8 +294,9 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <SettingsContainer>
+      <GradientHeader>Settings</GradientHeader>
+      <SettingsContent>
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
           <div className="w-full md:w-64 space-y-1">
@@ -306,8 +339,8 @@ const Settings = () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </SettingsContent>
+    </SettingsContainer>
   );
 };
 
