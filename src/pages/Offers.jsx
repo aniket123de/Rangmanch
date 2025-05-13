@@ -223,15 +223,21 @@ const Offers = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        // Using top-headlines endpoint with business category
+        // Use HTTPS and proper endpoint with headers
         const response = await fetch(
-          `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${API_KEY}`
+          `https://newsapi.org/v2/everything?q=influencer+marketing&sortBy=publishedAt&apiKey=${API_KEY}`,
+          {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            }
+          }
         );
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
         
         if (data.articles && data.articles.length > 0) {
@@ -366,21 +372,33 @@ const Offers = () => {
 
   // Render news items
   const renderNews = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {news.length > 0 ? (
-        news.map((article, index) => (
+    <div className="mb-12">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+        Latest in Creator Economy
+      </h2>
+      
+      {loading && (
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900/20 border-l-4 border-red-500 text-red-700 dark:text-red-300 p-4 mb-6 rounded">
+          <p>Couldn't load latest news: {error}</p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {news.map((article, index) => (
           <NewsCard
             key={index}
             theme={isDark ? 'dark' : 'light'}
             whileHover={{ scale: 1.02 }}
-            onClick={() => {
-              if (article.url) {
-                window.open(article.url, '_blank');
-              }
-            }}
+            onClick={() => article.url && window.open(article.url, '_blank')}
           >
             <img
-              src={article.urlToImage || 'https://via.placeholder.com/300'}
+              src={article.urlToImage}
               alt={article.title}
               className="w-full h-48 object-cover rounded-lg"
             />
@@ -401,14 +419,8 @@ const Offers = () => {
               </div>
             </div>
           </NewsCard>
-        ))
-      ) : (
-        <div className="col-span-full text-center py-8">
-          <p className="text-gray-600 dark:text-gray-400">
-            Loading latest news...
-          </p>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 
