@@ -16,7 +16,7 @@ import {
 } from 'react-icons/fa';
 import { FaTiktok as FaTiktokBrand } from 'react-icons/fa6';
 
-const API_KEY = 'f474d4cc1e4344ee8057846580a84d86';
+const API_KEY = '8c7b42e244e1b2f7e09f9db8f895939e'; // Replace with your Gnews API key
 
 const OffersContainer = styled.div`
   background: ${({ theme }) => theme === 'dark' 
@@ -227,9 +227,9 @@ const Offers = () => {
       setLoading(true);
       setError(null);
       try {
-        // Using top-headlines endpoint which is available in free tier
+        // Using Gnews API which has better CORS support
         const response = await fetch(
-          `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${API_KEY}`
+          `https://gnews.io/api/v4/search?q=creator+economy+OR+influencer+marketing&lang=en&country=us&max=10&apikey=${API_KEY}`
         );
 
         if (!response.ok) {
@@ -239,26 +239,19 @@ const Offers = () => {
         const data = await response.json();
         
         if (data.articles && data.articles.length > 0) {
-          // Filter articles to be more relevant to creator economy
+          // Filter and format articles
           const relevantArticles = data.articles
             .filter(article => 
               article.title && 
               article.description && 
               article.url && 
-              article.urlToImage &&
-              (
-                article.title.toLowerCase().includes('creator') ||
-                article.title.toLowerCase().includes('influencer') ||
-                article.title.toLowerCase().includes('social media') ||
-                article.title.toLowerCase().includes('content') ||
-                article.title.toLowerCase().includes('digital marketing') ||
-                article.title.toLowerCase().includes('brand') ||
-                article.title.toLowerCase().includes('marketing') ||
-                article.title.toLowerCase().includes('startup') ||
-                article.title.toLowerCase().includes('tech') ||
-                article.title.toLowerCase().includes('business')
-              )
+              article.image
             )
+            .map(article => ({
+              ...article,
+              urlToImage: article.image,
+              source: { name: article.source.name }
+            }))
             .slice(0, 4);
 
           setNews(relevantArticles);
