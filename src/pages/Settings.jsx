@@ -55,9 +55,9 @@ const SettingsContent = styled.div`
 
 const StyledToggleSwitch = styled(ToggleSwitch)`
   .toggle-track {
-    background: ${({ isChecked }) => isChecked ? 'linear-gradient(45deg, #8B5CF6, #6366F1)' : '#374151'};
+    background: ${({ isChecked }) => isChecked ? 'linear-gradient(45deg, #8B5CF6,rgb(217, 241, 99))' : '#374151'};
     &:hover {
-      background: ${({ isChecked }) => isChecked ? 'linear-gradient(45deg, #7C3AED, #4F46E5)' : '#3F4A5C'};
+      background: ${({ isChecked }) => isChecked ? 'linear-gradient(45deg, #7C3AED, rgb(217, 241, 99)' : '#3F4A5C'};
     }
   }
 `;
