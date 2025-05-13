@@ -9,8 +9,12 @@ import {
   FaRegHeart, 
   FaBookmark,
   FaRegBookmark,
-  FaArrowRight
+  FaArrowRight,
+  FaInstagram,
+  FaYoutube,
+  FaTiktok
 } from 'react-icons/fa';
+import { FaTiktok as FaTiktokBrand } from 'react-icons/fa6';
 
 const API_KEY = 'f474d4cc1e4344ee8057846580a84d86';
 
@@ -99,7 +103,7 @@ const Offers = () => {
       description: 'Promote our new summer menu items through mouth-watering content and reviews.',
       budget: '$1,500 - $4,000',
       requirements: ['5K+ followers', 'Food content creators', 'US-based'],
-      platforms: [<FaInstagram />, <FaTiktok />],
+      platforms: [<FaInstagram />, <FaTiktokBrand />],
       deadline: '2024-05-30',
       image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=500&q=80'
     },
@@ -132,7 +136,7 @@ const Offers = () => {
       description: '30-day yoga challenge featuring our new athleisure collection.',
       budget: '$2,500 - $6,000',
       requirements: ['8K+ followers', 'Yoga/fitness focus', 'Daily content'],
-      platforms: [<FaInstagram />, <FaTiktok />],
+      platforms: [<FaInstagram />, <FaTiktokBrand />],
       deadline: '2024-05-25',
       image: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=500&q=80'
     },
@@ -165,7 +169,7 @@ const Offers = () => {
       description: 'Feature our products in your daily skincare routine content.',
       budget: '$1,800 - $3,500',
       requirements: ['Beauty creators', '7K+ followers', 'Authentic engagement'],
-      platforms: [<FaInstagram />, <FaTiktok />],
+      platforms: [<FaInstagram />, <FaTiktokBrand />],
       deadline: '2024-06-20',
       image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=500&q=80'
     },
