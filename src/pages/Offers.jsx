@@ -219,74 +219,63 @@ const Offers = () => {
     }
   ]);
 
-  // Sample news data for fallback
-  const fallbackNews = [
-    {
-      title: "The Rise of Creator Economy in 2024",
-      description: "How content creators are reshaping the digital landscape and creating new opportunities for brands and individuals alike.",
-      urlToImage: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=500&q=80",
-      source: { name: "Creator Economy News" },
-      url: "#"
-    },
-    {
-      title: "Brands Shift Focus to Micro-Influencers",
-      description: "Major brands are increasingly partnering with micro-influencers for more authentic and cost-effective marketing campaigns.",
-      urlToImage: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80",
-      source: { name: "Marketing Weekly" },
-      url: "#"
-    },
-    {
-      title: "New Tools for Content Creators",
-      description: "Latest software and platforms helping creators streamline their workflow and maximize their earnings.",
-      urlToImage: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=500&q=80",
-      source: { name: "Tech Creators" },
-      url: "#"
-    },
-    {
-      title: "The Future of Influencer Marketing",
-      description: "How AI and machine learning are transforming the way brands collaborate with content creators.",
-      urlToImage: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=500&q=80",
-      source: { name: "Digital Trends" },
-      url: "#"
-    }
-  ];
-
   // Fetch news data
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        // Using a different endpoint that's more reliable
-        const response = await fetch(
-          `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${API_KEY}`
+        // Using multiple queries to get relevant news about creator economy
+        const queries = [
+          'creator economy',
+          'influencer marketing',
+          'content creator',
+          'social media marketing'
+        ];
+        
+        // Fetch news for each query
+        const newsPromises = queries.map(query => 
+          fetch(`https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=publishedAt&language=en&apiKey=${API_KEY}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            })
         );
+
+        const results = await Promise.all(newsPromises);
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.articles && data.articles.length > 0) {
-          // Filter articles to be more relevant to creator economy
-          const relevantArticles = data.articles
-            .filter(article => 
-              article.title.toLowerCase().includes('creator') ||
-              article.title.toLowerCase().includes('influencer') ||
-              article.title.toLowerCase().includes('social media') ||
-              article.title.toLowerCase().includes('content')
-            )
-            .slice(0, 4);
-            
-          setNews(relevantArticles.length > 0 ? relevantArticles : fallbackNews);
-        } else {
-          setNews(fallbackNews);
-        }
+        // Combine and deduplicate articles
+        const allArticles = results
+          .flatMap(result => result.articles || [])
+          .filter(article => 
+            article.title && 
+            article.description && 
+            article.url && 
+            article.urlToImage
+          );
+
+        // Remove duplicates based on title
+        const uniqueArticles = Array.from(
+          new Map(allArticles.map(article => [article.title, article])).values()
+        );
+
+        // Sort by published date and take the most recent 4
+        const recentArticles = uniqueArticles
+          .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
+          .slice(0, 4);
+
+        setNews(recentArticles);
       } catch (error) {
         console.error('Error fetching news:', error);
-        setNews(fallbackNews);
+        // Show error state in the UI
+        setNews([]);
       }
     };
+
     fetchNews();
+    // Refresh news every 30 minutes
+    const interval = setInterval(fetchNews, 30 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   // Interaction handlers
@@ -386,36 +375,48 @@ const Offers = () => {
   // Render news items
   const renderNews = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {news.map((article, index) => (
-        <NewsCard
-          key={index}
-          theme={isDark ? 'dark' : 'light'}
-          whileHover={{ scale: 1.02 }}
-          onClick={() => window.open(article.url, '_blank')}
-        >
-          <img
-            src={article.urlToImage || 'https://via.placeholder.com/300'}
-            alt={article.title}
-            className="w-full h-48 object-cover rounded-lg"
-          />
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-              {article.title}
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-3">
-              {article.description}
-            </p>
-            <div className="mt-4 flex justify-between items-center">
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {article.source.name}
-              </span>
-              <span className="text-sm flex items-center gap-1 text-blue-500 dark:text-blue-400 read-more">
-                Read more <FaArrowRight className="text-xs" />
-              </span>
+      {news.length > 0 ? (
+        news.map((article, index) => (
+          <NewsCard
+            key={index}
+            theme={isDark ? 'dark' : 'light'}
+            whileHover={{ scale: 1.02 }}
+            onClick={() => {
+              if (article.url) {
+                window.open(article.url, '_blank');
+              }
+            }}
+          >
+            <img
+              src={article.urlToImage || 'https://via.placeholder.com/300'}
+              alt={article.title}
+              className="w-full h-48 object-cover rounded-lg"
+            />
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                {article.title}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-3">
+                {article.description}
+              </p>
+              <div className="mt-4 flex justify-between items-center">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  {article.source.name}
+                </span>
+                <span className="text-sm flex items-center gap-1 text-blue-500 dark:text-blue-400 read-more">
+                  Read more <FaArrowRight className="text-xs" />
+                </span>
+              </div>
             </div>
-          </div>
-        </NewsCard>
-      ))}
+          </NewsCard>
+        ))
+      ) : (
+        <div className="col-span-full text-center py-8">
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading latest news...
+          </p>
+        </div>
+      )}
     </div>
   );
 
