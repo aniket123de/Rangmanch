@@ -227,17 +227,10 @@ const Offers = () => {
       setLoading(true);
       setError(null);
       try {
-        // Using a CORS proxy to handle the request
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-        const apiUrl = `https://newsapi.org/v2/everything?q=influencer+marketing&sortBy=publishedAt&apiKey=${API_KEY}`;
-        
-        const response = await fetch(proxyUrl + apiUrl, {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Origin': 'https://rangmanch.vercel.app'
-          }
-        });
+        // Using top-headlines endpoint which is available in free tier
+        const response = await fetch(
+          `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${API_KEY}`
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -260,7 +253,10 @@ const Offers = () => {
                 article.title.toLowerCase().includes('content') ||
                 article.title.toLowerCase().includes('digital marketing') ||
                 article.title.toLowerCase().includes('brand') ||
-                article.title.toLowerCase().includes('marketing')
+                article.title.toLowerCase().includes('marketing') ||
+                article.title.toLowerCase().includes('startup') ||
+                article.title.toLowerCase().includes('tech') ||
+                article.title.toLowerCase().includes('business')
               )
             )
             .slice(0, 4);
