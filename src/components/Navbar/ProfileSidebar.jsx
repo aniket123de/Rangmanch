@@ -60,8 +60,8 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
     },
     { 
       icon: <FaBookmark />, 
-      label: 'Saved Posts', 
-      link: '/saved' 
+      label: 'Offers', 
+      link: '/offers' 
     },
     { 
       icon: <FaCog />, 

@@ -26,6 +26,7 @@ import TNC from "./pages/TNC";
 import PP from "./pages/PP";
 import Help from "./pages/Help";
 import Settings from "./pages/Settings";
+import Offers from "./pages/Offers";
 import ScrollProgressBar from './components/common/ScrollProgressBar';
 
 // Import providers
@@ -94,6 +95,7 @@ const App = () => {
                     <Route path="/PP" element={<PP />} />
                     <Route path="/help" element={<Help />} />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/offers" element={<Offers />} />
                      
                     {/* Business Routes */}
                     <Route path="/for-business" element={<ForBusiness />} />
