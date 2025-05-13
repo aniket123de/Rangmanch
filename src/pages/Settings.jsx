@@ -11,13 +11,17 @@ const SettingsContainer = styled.div`
     ? 'linear-gradient(155deg, #0f172a 0%, #1e293b 100%)'
     : 'linear-gradient(155deg, #ffffff 0%, #f8fafc 100%)'};
   min-height: 100vh;
-  padding: 8rem 1rem 4rem;
+  padding: 6rem 0.5rem 2rem;
+
+  @media (min-width: 768px) {
+    padding: 8rem 1rem 4rem;
+  }
 `;
 
 const GradientHeader = styled.h1`
-  font-size: 2.5rem;
+  font-size: 2rem;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   background: linear-gradient(45deg, #9d4edd, #c77dff, #ff9e00);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -38,11 +42,15 @@ const SettingsContent = styled.div`
     : 'rgba(255, 255, 255, 0.9)'};
   backdrop-filter: blur(12px);
   border-radius: 20px;
-  padding: 2rem;
+  padding: 1rem;
   border: 1px solid ${({ theme }) => theme === 'dark' 
     ? 'rgba(255, 255, 255, 0.1)'
     : 'rgba(0, 0, 0, 0.1)'};
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+
+  @media (min-width: 768px) {
+    padding: 2rem;
+  }
 `;
 
 const StyledToggleSwitch = styled(ToggleSwitch)`
@@ -99,8 +107,8 @@ const Settings = () => {
   ];
 
   const renderProfileSettings = () => (
-    <div className="space-y-8">
-      <div className="flex flex-col items-center space-y-4 mb-8">
+    <div className="space-y-6 md:space-y-8">
+      <div className="flex flex-col items-center space-y-4 mb-6 md:mb-8">
         <motion.div 
           whileHover={{ scale: 1.05 }}
           className="relative group"
@@ -108,17 +116,17 @@ const Settings = () => {
           <img
             src={currentUser?.photoURL || "https://i.pravatar.cc/150?img=1"}
             alt="Profile"
-            className="w-32 h-32 rounded-full object-cover border-4 border-purple-500/30 p-1 shadow-xl group-hover:border-purple-500/60 transition-all"
+            className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-purple-500/30 p-1 shadow-xl group-hover:border-purple-500/60 transition-all"
           />
           <div className="absolute inset-0 bg-purple-500/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         </motion.div>
-        <button className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2">
+        <button className="px-4 py-2 md:px-5 md:py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2">
           <FaLock className="text-xs" />
           Change Photo
         </button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
             Display Name
@@ -130,7 +138,7 @@ const Settings = () => {
               ...settings,
               profile: { ...settings.profile, displayName: e.target.value }
             })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-gray-900/50 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+            className="w-full px-3 py-2 md:px-4 md:py-3 rounded-xl border border-gray-700 bg-gray-900/50 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
           />
         </div>
         
@@ -142,7 +150,7 @@ const Settings = () => {
             type="email"
             value={settings.profile.email}
             disabled
-            className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-gray-800/50 text-gray-400 cursor-not-allowed"
+            className="w-full px-3 py-2 md:px-4 md:py-3 rounded-xl border border-gray-700 bg-gray-800/50 text-gray-400 cursor-not-allowed"
           />
         </div>
 
@@ -157,7 +165,7 @@ const Settings = () => {
               profile: { ...settings.profile, bio: e.target.value }
             })}
             rows="4"
-            className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-gray-900/50 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+            className="w-full px-3 py-2 md:px-4 md:py-3 rounded-xl border border-gray-700 bg-gray-900/50 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
             placeholder="Tell us about yourself..."
           />
         </div>
@@ -335,14 +343,14 @@ const Settings = () => {
     <SettingsContainer theme={isDark ? 'dark' : 'light'}>
       <GradientHeader>Settings</GradientHeader>
       <SettingsContent theme={isDark ? 'dark' : 'light'}>
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8">
           {/* Sidebar */}
           <div className="w-full md:w-64 space-y-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
+                className={`w-full flex items-center space-x-3 px-3 py-2 md:px-4 md:py-3 rounded-xl transition-all ${
                   activeTab === tab.id
                     ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
                     : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
@@ -356,9 +364,9 @@ const Settings = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            <div className="bg-gray-900/50 rounded-2xl shadow-sm p-6 border border-gray-800 backdrop-blur-sm">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-white">
+            <div className="bg-gray-900/50 rounded-2xl shadow-sm p-4 md:p-6 border border-gray-800 backdrop-blur-sm">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+                <h2 className="text-xl md:text-2xl font-bold text-white">
                   {tabs.find(tab => tab.id === activeTab)?.label} Settings
                 </h2>
                 <motion.button
@@ -366,7 +374,7 @@ const Settings = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="w-full md:w-auto flex items-center justify-center space-x-2 px-4 py-2 md:px-5 md:py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   <FaSave className="text-xs" />
                   <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
