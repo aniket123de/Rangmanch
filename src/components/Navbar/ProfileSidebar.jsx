@@ -59,8 +59,8 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
       onClick: handleDashboardClick
     },
     { 
-      icon: <FaBookmark />, 
-      label: 'Offers', 
+      icon: <FaNewspaper />, 
+      label: 'News Hub', 
       link: '/offers' 
     },
     { 

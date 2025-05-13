@@ -221,55 +221,54 @@ const Offers = () => {
     }
   ]);
 
+  // Add refresh function
+  const refreshNews = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `https://gnews.io/api/v4/search?q=creator+economy+OR+influencer+marketing&lang=en&country=us&max=10&apikey=${API_KEY}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.articles && data.articles.length > 0) {
+        const relevantArticles = data.articles
+          .filter(article => 
+            article.title && 
+            article.description && 
+            article.url && 
+            article.image
+          )
+          .map(article => ({
+            ...article,
+            urlToImage: article.image,
+            source: { name: article.source.name }
+          }))
+          .slice(0, 4);
+
+        setNews(relevantArticles);
+      } else {
+        setNews([]);
+      }
+    } catch (error) {
+      console.error('Error fetching news:', error);
+      setError(error.message);
+      setNews([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch news data
   useEffect(() => {
-    const fetchNews = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        // Using Gnews API which has better CORS support
-        const response = await fetch(
-          `https://gnews.io/api/v4/search?q=creator+economy+OR+influencer+marketing&lang=en&country=us&max=10&apikey=${API_KEY}`
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        if (data.articles && data.articles.length > 0) {
-          // Filter and format articles
-          const relevantArticles = data.articles
-            .filter(article => 
-              article.title && 
-              article.description && 
-              article.url && 
-              article.image
-            )
-            .map(article => ({
-              ...article,
-              urlToImage: article.image,
-              source: { name: article.source.name }
-            }))
-            .slice(0, 4);
-
-          setNews(relevantArticles);
-        } else {
-          setNews([]);
-        }
-      } catch (error) {
-        console.error('Error fetching news:', error);
-        setError(error.message);
-        setNews([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNews();
+    refreshNews();
     // Refresh news every 30 minutes
-    const interval = setInterval(fetchNews, 30 * 60 * 1000);
+    const interval = setInterval(refreshNews, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -370,8 +369,32 @@ const Offers = () => {
   // Render news items
   const renderNews = () => (
     <div className="mb-12">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+          Latest in Creator Economy
+        </h2>
+        <button
+          onClick={refreshNews}
+          disabled={loading}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+              Refreshing...
+            </>
+          ) : (
+            <>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+              </svg>
+              Refresh News
+            </>
+          )}
+        </button>
+      </div>
       
-      {loading && (
+      {loading && !news.length && (
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
         </div>
@@ -389,7 +412,7 @@ const Offers = () => {
             key={index}
             theme={isDark ? 'dark' : 'light'}
             whileHover={{ scale: 1.02 }}
-            onClick={() => article.url && window.open(article.url, '_blank')}
+            onClick={() => window.open(article.url || '#', '_blank')}
           >
             <img
               src={article.urlToImage}
@@ -489,9 +512,6 @@ const Offers = () => {
           </>
         ) : (
           <>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
-              Latest in Creator Economy
-            </h2>
             {renderNews()}
           </>
         )}
