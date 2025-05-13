@@ -24,9 +24,13 @@ const OffersContainer = styled.div`
     ? 'linear-gradient(155deg, #0f172a 0%, #1e293b 100%)'
     : 'linear-gradient(155deg, #ffffff 0%, #f8fafc 100%)'};
   min-height: 100vh;
-  padding: 6rem 0.5rem 2rem;
+  padding: 4rem 0.5rem 1rem;
 
   @media (min-width: 768px) {
+    padding: 6rem 1rem 2rem;
+  }
+
+  @media (min-width: 1024px) {
     padding: 8rem 1rem 4rem;
   }
 `;
@@ -46,6 +50,10 @@ const OffersContent = styled.div`
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
 
   @media (min-width: 768px) {
+    padding: 1.5rem;
+  }
+
+  @media (min-width: 1024px) {
     padding: 2rem;
   }
 `;
@@ -370,14 +378,14 @@ const Offers = () => {
   // Render news items
   const renderNews = () => (
     <div className="mb-12">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">
           Latest in Creator Economy
         </h2>
         <button
           onClick={refreshNews}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>
@@ -407,7 +415,7 @@ const Offers = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {news.map((article, index) => (
           <NewsCard
             key={index}
@@ -418,20 +426,20 @@ const Offers = () => {
             <img
               src={article.urlToImage}
               alt={article.title}
-              className="w-full h-48 object-cover rounded-lg"
+              className="w-full h-40 sm:h-48 object-cover rounded-lg"
             />
             <div className="mt-4">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white line-clamp-2">
                 {article.title}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-3">
                 {article.description}
               </p>
               <div className="mt-4 flex justify-between items-center">
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   {article.source.name}
                 </span>
-                <span className="text-sm flex items-center gap-1 text-blue-500 dark:text-blue-400 read-more">
+                <span className="text-xs sm:text-sm flex items-center gap-1 text-blue-500 dark:text-blue-400 read-more">
                   Read more <FaArrowRight className="text-xs" />
                 </span>
               </div>
@@ -450,29 +458,29 @@ const Offers = () => {
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent"
           >
             Creator Hub
           </motion.h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mt-4">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mt-4">
             Discover opportunities and stay updated with industry news
           </p>
         </div>
 
         {/* Search and Filter */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <div className="flex-1 relative">
             <input
               type="text"
               placeholder="Search offers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+              className="w-full pl-12 pr-4 py-2 sm:py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
             />
-            <FaSearch className="absolute left-4 top-4 text-gray-400 text-lg" />
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
           </div>
           <div className="flex gap-4">
-            <button className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 sm:py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
               <FaFilter />
               <span>Advanced Filters</span>
             </button>
@@ -480,10 +488,10 @@ const Offers = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-4 mb-8">
+        <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab('brand-offers')}
-            className={`px-6 py-3 rounded-xl font-medium transition-all ${
+            className={`whitespace-nowrap px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-medium transition-all ${
               activeTab === 'brand-offers'
                 ? 'bg-purple-600 text-white shadow-lg'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
@@ -493,7 +501,7 @@ const Offers = () => {
           </button>
           <button
             onClick={() => setActiveTab('news')}
-            className={`px-6 py-3 rounded-xl font-medium transition-all ${
+            className={`whitespace-nowrap px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-medium transition-all ${
               activeTab === 'news'
                 ? 'bg-purple-600 text-white shadow-lg'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
@@ -506,7 +514,7 @@ const Offers = () => {
         {/* Content */}
         {activeTab === 'brand-offers' ? (
           <>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-6">
               Featured Campaigns
             </h2>
             {renderBrandOffers()}
