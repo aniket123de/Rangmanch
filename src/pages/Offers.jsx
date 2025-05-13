@@ -81,6 +81,8 @@ const Offers = () => {
   const [activeTab, setActiveTab] = useState('brand-offers');
   const [searchQuery, setSearchQuery] = useState('');
   const [news, setNews] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [savedItems, setSavedItems] = useState([]);
   const [likedItems, setLikedItems] = useState([]);
 
@@ -222,17 +224,20 @@ const Offers = () => {
   // Fetch news data
   useEffect(() => {
     const fetchNews = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        // Use HTTPS and proper endpoint with headers
-        const response = await fetch(
-          `https://newsapi.org/v2/everything?q=influencer+marketing&sortBy=publishedAt&apiKey=${API_KEY}`,
-          {
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-            }
+        // Using a CORS proxy to handle the request
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        const apiUrl = `https://newsapi.org/v2/everything?q=influencer+marketing&sortBy=publishedAt&apiKey=${API_KEY}`;
+        
+        const response = await fetch(proxyUrl + apiUrl, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Origin': 'https://rangmanch.vercel.app'
           }
-        );
+        });
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -266,7 +271,10 @@ const Offers = () => {
         }
       } catch (error) {
         console.error('Error fetching news:', error);
+        setError(error.message);
         setNews([]);
+      } finally {
+        setLoading(false);
       }
     };
 
