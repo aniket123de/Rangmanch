@@ -223,51 +223,43 @@ const Offers = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        // Using multiple queries to get relevant news about creator economy
-        const queries = [
-          'creator economy',
-          'influencer marketing',
-          'content creator',
-          'social media marketing'
-        ];
-        
-        // Fetch news for each query
-        const newsPromises = queries.map(query => 
-          fetch(`https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=publishedAt&language=en&apiKey=${API_KEY}`)
-            .then(response => {
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              return response.json();
-            })
+        // Using top-headlines endpoint with business category
+        const response = await fetch(
+          `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${API_KEY}`
         );
-
-        const results = await Promise.all(newsPromises);
         
-        // Combine and deduplicate articles
-        const allArticles = results
-          .flatMap(result => result.articles || [])
-          .filter(article => 
-            article.title && 
-            article.description && 
-            article.url && 
-            article.urlToImage
-          );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.articles && data.articles.length > 0) {
+          // Filter articles to be more relevant to creator economy
+          const relevantArticles = data.articles
+            .filter(article => 
+              article.title && 
+              article.description && 
+              article.url && 
+              article.urlToImage &&
+              (
+                article.title.toLowerCase().includes('creator') ||
+                article.title.toLowerCase().includes('influencer') ||
+                article.title.toLowerCase().includes('social media') ||
+                article.title.toLowerCase().includes('content') ||
+                article.title.toLowerCase().includes('digital marketing') ||
+                article.title.toLowerCase().includes('brand') ||
+                article.title.toLowerCase().includes('marketing')
+              )
+            )
+            .slice(0, 4);
 
-        // Remove duplicates based on title
-        const uniqueArticles = Array.from(
-          new Map(allArticles.map(article => [article.title, article])).values()
-        );
-
-        // Sort by published date and take the most recent 4
-        const recentArticles = uniqueArticles
-          .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
-          .slice(0, 4);
-
-        setNews(recentArticles);
+          setNews(relevantArticles);
+        } else {
+          setNews([]);
+        }
       } catch (error) {
         console.error('Error fetching news:', error);
-        // Show error state in the UI
         setNews([]);
       }
     };
