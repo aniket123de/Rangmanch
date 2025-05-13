@@ -13,6 +13,7 @@ import {
   FaHistory,
   FaQuestionCircle,
   FaSun,
+  FaNewspaper,
   FaMoon
 } from 'react-icons/fa';
 import Switch from './Switch';
