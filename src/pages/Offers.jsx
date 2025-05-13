@@ -219,17 +219,71 @@ const Offers = () => {
     }
   ]);
 
+  // Sample news data for fallback
+  const fallbackNews = [
+    {
+      title: "The Rise of Creator Economy in 2024",
+      description: "How content creators are reshaping the digital landscape and creating new opportunities for brands and individuals alike.",
+      urlToImage: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=500&q=80",
+      source: { name: "Creator Economy News" },
+      url: "#"
+    },
+    {
+      title: "Brands Shift Focus to Micro-Influencers",
+      description: "Major brands are increasingly partnering with micro-influencers for more authentic and cost-effective marketing campaigns.",
+      urlToImage: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80",
+      source: { name: "Marketing Weekly" },
+      url: "#"
+    },
+    {
+      title: "New Tools for Content Creators",
+      description: "Latest software and platforms helping creators streamline their workflow and maximize their earnings.",
+      urlToImage: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=500&q=80",
+      source: { name: "Tech Creators" },
+      url: "#"
+    },
+    {
+      title: "The Future of Influencer Marketing",
+      description: "How AI and machine learning are transforming the way brands collaborate with content creators.",
+      urlToImage: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=500&q=80",
+      source: { name: "Digital Trends" },
+      url: "#"
+    }
+  ];
+
   // Fetch news data
   useEffect(() => {
     const fetchNews = async () => {
       try {
+        // Using a different endpoint that's more reliable
         const response = await fetch(
-          `https://newsapi.org/v2/everything?q=influencer+marketing&sortBy=publishedAt&apiKey=${API_KEY}`
+          `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${API_KEY}`
         );
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
-        setNews(data.articles.slice(0, 4));
+        
+        if (data.articles && data.articles.length > 0) {
+          // Filter articles to be more relevant to creator economy
+          const relevantArticles = data.articles
+            .filter(article => 
+              article.title.toLowerCase().includes('creator') ||
+              article.title.toLowerCase().includes('influencer') ||
+              article.title.toLowerCase().includes('social media') ||
+              article.title.toLowerCase().includes('content')
+            )
+            .slice(0, 4);
+            
+          setNews(relevantArticles.length > 0 ? relevantArticles : fallbackNews);
+        } else {
+          setNews(fallbackNews);
+        }
       } catch (error) {
         console.error('Error fetching news:', error);
+        setNews(fallbackNews);
       }
     };
     fetchNews();
