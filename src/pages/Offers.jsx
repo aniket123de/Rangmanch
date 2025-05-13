@@ -370,9 +370,6 @@ const Offers = () => {
   // Render news items
   const renderNews = () => (
     <div className="mb-12">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
-        Latest in Creator Economy
-      </h2>
       
       {loading && (
         <div className="flex justify-center items-center py-12">
