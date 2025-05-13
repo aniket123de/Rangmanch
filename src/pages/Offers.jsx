@@ -12,7 +12,8 @@ import {
   FaArrowRight,
   FaInstagram,
   FaYoutube,
-  FaTiktok
+  FaTiktok,
+  FaNewspaper
 } from 'react-icons/fa';
 import { FaTiktok as FaTiktokBrand } from 'react-icons/fa6';
 
