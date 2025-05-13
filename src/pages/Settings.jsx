@@ -174,15 +174,15 @@ const Settings = () => {
   );
 
   const renderNotificationSettings = () => (
-    <div className="space-y-6">
-      <div className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800 backdrop-blur-sm">
+    <div className="space-y-4 md:space-y-6">
+      <div className="bg-gray-900/50 rounded-2xl p-4 md:p-6 border border-gray-800 backdrop-blur-sm">
         <h3 className="text-lg font-semibold mb-4 text-gray-200 flex items-center gap-2">
           <FaBell className="text-purple-400" />
           Email Notifications
         </h3>
         <div className="space-y-4">
           {Object.entries(settings.notifications).map(([key, value]) => (
-            <div key={key} className="flex items-center justify-between">
+            <div key={key} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <h4 className="font-medium text-gray-300">
                   {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
