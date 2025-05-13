@@ -120,7 +120,7 @@ const Settings = () => {
           />
           <div className="absolute inset-0 bg-purple-500/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         </motion.div>
-        <button className="px-4 py-2 md:px-5 md:py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2">
+        <button className="px-4 py-2 md:px-5 md:py-2.5 bg-gradient-to-r from-purple-600 to-yellow-600 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2">
           <FaLock className="text-xs" />
           Change Photo
         </button>
@@ -374,7 +374,7 @@ const Settings = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="w-full md:w-auto flex items-center justify-center space-x-2 px-4 py-2 md:px-5 md:py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="w-full md:w-auto flex items-center justify-center space-x-2 px-4 py-2 md:px-5 md:py-2.5 bg-gradient-to-r from-purple-600 to-yellow-600 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   <FaSave className="text-xs" />
                   <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
