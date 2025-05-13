@@ -27,6 +27,7 @@ import PP from "./pages/PP";
 import Help from "./pages/Help";
 import Settings from "./pages/Settings";
 import Offers from "./pages/Offers";
+import SentimentAnalysis from "./pages/SentimentAnalysis";
 import ScrollProgressBar from './components/common/ScrollProgressBar';
 
 // Import providers
@@ -96,6 +97,7 @@ const App = () => {
                     <Route path="/help" element={<Help />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/offers" element={<Offers />} />
+                    <Route path="/sentiment-analysis" element={<SentimentAnalysis />} />
                      
                     {/* Business Routes */}
                     <Route path="/for-business" element={<ForBusiness />} />
