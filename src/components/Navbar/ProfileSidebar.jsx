@@ -1,7 +1,7 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeContext } from '../../context/ThemeContext';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { doSignOut } from '../../firebase/auth';
 import { useAuth } from '../../contexts/authContext';
 import { 
@@ -22,14 +22,6 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
   const { isDark, toggleTheme } = useContext(ThemeContext);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Close sidebar when route changes
-  useEffect(() => {
-    if (isOpen) {
-      onClose();
-    }
-  }, [location.pathname, isOpen, onClose]);
 
   // Function to get user's first name
   const getFirstName = () => {
@@ -70,20 +62,17 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
     { 
       icon: <FaNewspaper />, 
       label: 'News Hub', 
-      link: '/offers',
-      onClick: onClose
+      link: '/offers' 
     },
     { 
       icon: <FaCog />, 
       label: 'Settings', 
-      link: '/settings',
-      onClick: onClose
+      link: '/settings' 
     },
     { 
       icon: <FaQuestionCircle />, 
       label: 'Help & Support', 
-      link: '/help',
-      onClick: onClose
+      link: '/help' 
     },
   ];
 
@@ -181,7 +170,6 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
                     ) : (
                       <Link
                         to={item.link}
-                        onClick={item.onClick}
                         className="flex items-center space-x-4 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-gray-800 group transition-all duration-200"
                       >
                         <span className="text-lg text-purple-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{item.icon}</span>
