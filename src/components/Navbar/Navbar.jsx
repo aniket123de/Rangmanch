@@ -248,6 +248,10 @@ const Navbar = () => {
     return currentUser?.photoURL || 'https://via.placeholder.com/150';
   };
 
+  const handleProfileClick = () => {
+    setIsProfileOpen(true);
+  };
+
   const isCleanNavbar = ['/login','/faq','/tnc', '/PP', '/about','/help', '/content-suggestion', '/settings', '/sentiment-analysis','/offers'].includes(location.pathname);
 
   const filteredNavLinks = isCleanNavbar ? [] : NavLinks;
@@ -325,7 +329,7 @@ const Navbar = () => {
                     Hey, {getFirstName()}
                   </span>
                   <button
-                    onClick={() => setIsProfileOpen(true)}
+                    onClick={handleProfileClick}
                     className="w-10 h-10 rounded-full overflow-hidden border-2 border-purple-500 hover:border-yellow-600 transition-colors duration-200"
                   >
                     <img
@@ -372,7 +376,7 @@ const Navbar = () => {
           {/* Mobile Profile Button */}
           {userLoggedIn && (
             <button
-              onClick={() => setIsProfileOpen(true)}
+              onClick={handleProfileClick}
               className="md:hidden p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               <img
