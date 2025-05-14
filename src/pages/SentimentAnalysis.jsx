@@ -24,7 +24,7 @@ const SentimentAnalysis = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/analyze-sentiment', {
+      const response = await fetch('https://sentiment-api-iop3.onrender.com/api/analyze-sentiment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

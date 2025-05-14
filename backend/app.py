@@ -10,7 +10,7 @@ from requests.exceptions import RequestException
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/api/*": {"origins": ["https://rangmanch.vercel.app", "http://localhost:3000"]}})
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
