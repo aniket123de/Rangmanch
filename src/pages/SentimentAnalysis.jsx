@@ -8,33 +8,70 @@ const SentimentAnalysis = () => {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: Implement backend API call here
-    // For now, we'll simulate a response
-    setTimeout(() => {
-      setResults({
-        overallSentiment: 'positive',
-        sentimentScore: 78,
-        comments: [
-          { text: "Love this post! ❤️", sentiment: "positive", author: "user1" },
-          { text: "Not bad", sentiment: "neutral", author: "user2" },
-          { text: "Could be better", sentiment: "negative", author: "user3" },
-        ]
-      });
+    setError(null);
+
+    // Validate Instagram URL format
+    const instagramUrlRegex = /https:\/\/www\.instagram\.com\/(p|reel)\/[A-Za-z0-9_-]+/;
+    if (!instagramUrlRegex.test(url)) {
+      setError('Please enter a valid Instagram post or reel URL');
       setIsLoading(false);
-    }, 2000);
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/analyze-sentiment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ post_url: url }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `API request failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Transform the Python API response to match our React component's expected format
+      const transformedResults = {
+        overallSentiment: (data.stats?.sentiment_strength || '').toLowerCase().includes('positive') ? 'positive' :
+                          (data.stats?.sentiment_strength || '').toLowerCase().includes('negative') ? 'negative' : 'neutral',
+        sentimentScore: Math.round((data.stats?.positive_pct || 0) * 100) / 100,
+        totalComments: data.stats?.total_comments || 0,
+        comments: (data.comments || []).map(comment => ({
+          text: comment.text || '',
+          sentiment: (comment.sentiment || 'Neutral').toLowerCase(),
+          author: comment.username || 'Unknown'
+        }))
+      };
+
+      setResults(transformedResults);
+    } catch (err) {
+      console.error('Error analyzing sentiment:', err);
+      setError(err.message || 'Failed to analyze sentiment. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getSentimentIcon = (sentiment) => {
     switch (sentiment) {
-      case "positive":
+      case 'positive':
         return <FaSmile className="text-green-500 text-xl" />;
-      case "neutral":
+      case 'neutral':
         return <FaMeh className="text-yellow-500 text-xl" />;
-      case "negative":
+      case 'negative':
         return <FaFrown className="text-red-500 text-xl" />;
       default:
         return null;
@@ -90,6 +127,16 @@ const SentimentAnalysis = () => {
                 </AnimatedButton2>
               </form>
 
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-lg border border-red-100 dark:border-red-900/30"
+                >
+                  {error}
+                </motion.div>
+              )}
+
               {results && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -139,7 +186,7 @@ const SentimentAnalysis = () => {
                       </div>
                       <div className="flex flex-col">
                         <span className="text-4xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent">
-                          {results.comments.length}
+                          {results.totalComments}
                         </span>
                         <span className="text-sm text-gray-500 dark:text-gray-400">
                           Total comments processed
@@ -155,51 +202,57 @@ const SentimentAnalysis = () => {
                     </h3>
                     
                     <div className="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-                      {results.comments.map((comment, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          whileHover={{ scale: 1.01, x: 4 }}
-                          transition={{ delay: index * 0.1 }}
-                          className={`
-                            rounded-xl p-5 shadow-md border
-                            ${comment.sentiment === 'positive' 
-                              ? 'bg-gradient-to-r from-green-50 to-green-100/50 dark:from-green-900/20 dark:to-green-800/10 border-green-100 dark:border-green-900/30' 
-                              : comment.sentiment === 'neutral'
-                                ? 'bg-gradient-to-r from-yellow-50 to-yellow-100/50 dark:from-yellow-900/20 dark:to-yellow-800/10 border-yellow-100 dark:border-yellow-900/30'
-                                : 'bg-gradient-to-r from-red-50 to-red-100/50 dark:from-red-900/20 dark:to-red-800/10 border-red-100 dark:border-red-900/30'
-                            }
-                          `}
-                        >
-                          <div className="flex items-start gap-4">
-                            <div className={`
-                              p-3 rounded-full
+                      {results.comments.length === 0 ? (
+                        <div className="text-center text-gray-500 dark:text-gray-400">
+                          No comments available for analysis
+                        </div>
+                      ) : (
+                        results.comments.map((comment, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            whileHover={{ scale: 1.01, x: 4 }}
+                            transition={{ delay: index * 0.1 }}
+                            className={`
+                              rounded-xl p-5 shadow-md border
                               ${comment.sentiment === 'positive' 
-                                ? 'bg-green-500/10 text-green-500' 
+                                ? 'bg-gradient-to-r from-green-50 to-green-100/50 dark:from-green-900/20 dark:to-green-800/10 border-green-100 dark:border-green-900/30' 
                                 : comment.sentiment === 'neutral'
-                                  ? 'bg-yellow-500/10 text-yellow-500'
-                                  : 'bg-red-500/10 text-red-500'
+                                  ? 'bg-gradient-to-r from-yellow-50 to-yellow-100/50 dark:from-yellow-900/20 dark:to-yellow-800/10 border-yellow-100 dark:border-yellow-900/30'
+                                  : 'bg-gradient-to-r from-red-50 to-red-100/50 dark:from-red-900/20 dark:to-red-800/10 border-red-100 dark:border-red-900/30'
                               }
-                            `}>
-                              {getSentimentIcon(comment.sentiment)}
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-gray-800 dark:text-gray-200 font-medium">
-                                {comment.text}
-                              </p>
-                              <div className="flex items-center mt-2">
-                                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs font-bold">
-                                  {comment.author.charAt(0).toUpperCase()}
+                            `}
+                          >
+                            <div className="flex items-start gap-4">
+                              <div className={`
+                                p-3 rounded-full
+                                ${comment.sentiment === 'positive' 
+                                  ? 'bg-green-500/10 text-green-500' 
+                                  : comment.sentiment === 'neutral'
+                                    ? 'bg-yellow-500/10 text-yellow-500'
+                                    : 'bg-red-500/10 text-red-500'
+                                }
+                              `}>
+                                {getSentimentIcon(comment.sentiment)}
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-gray-800 dark:text-gray-200 font-medium">
+                                  {comment.text}
+                                </p>
+                                <div className="flex items-center mt-2">
+                                  <div className="h-6 w-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs font-bold">
+                                    {comment.author.charAt(0).toUpperCase()}
+                                  </div>
+                                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+                                    {comment.author}
+                                  </span>
                                 </div>
-                                <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
-                                  {comment.author}
-                                </span>
                               </div>
                             </div>
-                          </div>
-                        </motion.div>
-                      ))}
+                          </motion.div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </motion.div>
