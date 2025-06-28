@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getAllCreators } from '../firebase/firestore';
 import { useTheme } from '../contexts/ThemeContext';
+import { FaInstagram, FaYoutube, FaLinkedin } from 'react-icons/fa';
 
 const statusColors = {
   Engaged: 'bg-purple-700 text-purple-100',
@@ -52,9 +53,9 @@ const CreatorsNetwork = () => {
           <thead>
             <tr className="border-b border-gray-700">
               <th className="py-2 text-left">CREATOR</th>
-              <th className="py-2 text-left">NICHE</th>
+              <th className="py-2 text-left">SOCIAL LINKS</th>
+              <th className="py-2 text-left">GMAIL</th>
               <th className="py-2 text-left">AUDIENCE</th>
-              <th className="py-2 text-left">STATUS</th>
             </tr>
           </thead>
           <tbody>
@@ -69,13 +70,33 @@ const CreatorsNetwork = () => {
                     <img src={creator.profileImage || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(creator.name)} alt={creator.name} className="w-10 h-10 rounded-full object-cover" />
                     <span className="font-semibold">{creator.name}</span>
                   </td>
-                  <td>{creator.niche}</td>
-                  <td>{creator.audience || '--'}</td>
-                  <td>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[creator.status] || 'bg-gray-600 text-gray-100'}`}>
-                      {creator.status || 'Available'}
-                    </span>
+                  <td className="py-3">
+                    <div className="flex gap-3">
+                      {creator.socials?.instagram ? (
+                        <a href={creator.socials.instagram} target="_blank" rel="noopener noreferrer" title="Instagram">
+                          <FaInstagram className="text-pink-500 hover:text-pink-600 text-xl" />
+                        </a>
+                      ) : (
+                        <FaInstagram className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="Instagram not provided" />
+                      )}
+                      {creator.socials?.youtube ? (
+                        <a href={creator.socials.youtube} target="_blank" rel="noopener noreferrer" title="YouTube">
+                          <FaYoutube className="text-red-500 hover:text-red-600 text-xl" />
+                        </a>
+                      ) : (
+                        <FaYoutube className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="YouTube not provided" />
+                      )}
+                      {creator.socials?.linkedin ? (
+                        <a href={creator.socials.linkedin} target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                          <FaLinkedin className="text-blue-600 hover:text-blue-700 text-xl" />
+                        </a>
+                      ) : (
+                        <FaLinkedin className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="LinkedIn not provided" />
+                      )}
+                    </div>
                   </td>
+                  <td className="py-3">{creator.email || '--'}</td>
+                  <td className="py-3">{creator.audience || '--'}</td>
                 </tr>
               ))
             )}
