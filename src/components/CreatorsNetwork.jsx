@@ -54,7 +54,6 @@ const CreatorsNetwork = () => {
             <tr className="border-b border-gray-700">
               <th className="py-2 text-left">CREATOR</th>
               <th className="py-2 text-left">SOCIAL LINKS</th>
-              <th className="py-2 text-left">GMAIL</th>
               <th className="py-2 text-left">AUDIENCE</th>
             </tr>
           </thead>
@@ -95,7 +94,6 @@ const CreatorsNetwork = () => {
                       )}
                     </div>
                   </td>
-                  <td className="py-3">{creator.email || '--'}</td>
                   <td className="py-3">{creator.audience || '--'}</td>
                 </tr>
               ))
