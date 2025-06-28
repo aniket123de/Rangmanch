@@ -8,6 +8,7 @@ import Overview from './Overview';
 import BusinessInfo from './BusinessInfo';
 import Pricing from './Pricing';
 import BusinessCalendar from './BusinessCalendar';
+import CreatorsNetwork from '../../components/CreatorsNetwork';
 import { 
   FaChartBar, 
   FaUsers, 
@@ -70,7 +71,9 @@ const BusinessDashboard = () => {
         {activeTab === 'overview' && <Overview />}
         {activeTab === 'businessInfo' && <BusinessInfo />}
         {activeTab === 'pricing' && <Pricing />}
-              
+
+        {/* Show creators network below the tabs */}
+        
       </div>
     </div>
   );

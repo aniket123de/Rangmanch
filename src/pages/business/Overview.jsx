@@ -3,6 +3,7 @@ import { getAuth } from 'firebase/auth';
 import { getBrandProfile } from '../../firebase/firestore';
 import { FaChartBar, FaUsers, FaBullhorn, FaCheckCircle, FaFileInvoiceDollar, FaPlus, FaSearch } from 'react-icons/fa';
 import BusinessCalendar from './BusinessCalendar';
+import CreatorsNetwork from '../../components/CreatorsNetwork';
 
 const Overview = ({ setActiveTab }) => {
   const [brand, setBrand] = useState(null);
@@ -33,13 +34,6 @@ const Overview = ({ setActiveTab }) => {
     { label: 'Creators Engaged', value: 47, icon: <FaUsers />, color: 'from-[#c77dff] to-[#9d4edd]' },
     { label: 'Audience Reach', value: '2.4M', icon: <FaChartBar />, color: 'from-[#ff9e00] to-[#ddff00]' },
     { label: 'Conversion Rate', value: '3.2%', icon: <FaCheckCircle />, color: 'from-[#ddff00] to-[#ff9e00]' }
-  ];
-
-  const recentCreators = [
-    { name: 'Priya Sharma', niche: 'Fashion & Beauty', followers: '278K', status: 'Engaged', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
-    { name: 'Rahul Khanna', niche: 'Tech Reviews', followers: '156K', status: 'Pending', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-    { name: 'Alisha Patel', niche: 'Lifestyle', followers: '492K', status: 'Engaged', avatar: 'https://randomuser.me/api/portraits/women/68.jpg' },
-    { name: 'Vikram Singh', niche: 'Gaming', followers: '327K', status: 'Available', avatar: 'https://randomuser.me/api/portraits/men/75.jpg' }
   ];
 
   const upcomingSchedule = [
@@ -133,63 +127,8 @@ const Overview = ({ setActiveTab }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Creators */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Creator Network</h3>
-            <div className="flex gap-2">
-              <div className="relative">
-                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="Search creators..." 
-                  className="pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#9d4edd]"
-                />
-              </div>
-              <button className="text-sm text-white bg-gradient-to-r from-[#9d4edd] to-[#c77dff] px-3 py-2 rounded-lg hover:opacity-90 transition-opacity flex items-center gap-1">
-                <FaPlus size={12} /> Find Creators
-              </button>
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="text-gray-500 dark:text-gray-400 text-xs uppercase border-b border-gray-100 dark:border-gray-700">
-                  <th className="px-3 py-3 text-left">Creator</th>
-                  <th className="px-3 py-3 text-left">Niche</th>
-                  <th className="px-3 py-3 text-left">Audience</th>
-                  <th className="px-3 py-3 text-left">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                {recentCreators.map((creator, index) => (
-                  <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="px-3 py-3 text-gray-800 dark:text-gray-200 font-medium">
-                      <div className="flex items-center gap-3">
-                        <img src={creator.avatar} alt={creator.name} className="w-8 h-8 rounded-full object-cover" />
-                        {creator.name}
-                      </div>
-                    </td>
-                    <td className="px-3 py-3 text-gray-600 dark:text-gray-400">{creator.niche}</td>
-                    <td className="px-3 py-3 text-gray-600 dark:text-gray-400">{creator.followers}</td>
-                    <td className="px-3 py-3">
-                      <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                        creator.status === 'Engaged' 
-                          ? 'bg-[#9d4edd]/10 text-[#9d4edd] dark:bg-[#9d4edd]/20 dark:text-[#c77dff]' 
-                          : creator.status === 'Pending' 
-                          ? 'bg-[#ff9e00]/10 text-[#ff9e00] dark:bg-[#ff9e00]/20 dark:text-[#ff9e00]'
-                          : 'bg-[#ddff00]/10 text-[#9d4edd] dark:bg-[#ddff00]/20 dark:text-[#c77dff]'
-                      }`}>
-                        {creator.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
+        {/* Recent Creators - replaced with real data */}
+        <CreatorsNetwork />
         {/* Upcoming Schedule */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex justify-between items-center mb-6">
