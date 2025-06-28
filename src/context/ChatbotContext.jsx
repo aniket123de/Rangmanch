@@ -9,29 +9,33 @@ import {
   getConversationHistory 
 } from '../services/aiService';
 
-// Focused training data for relevant topics only (SEO removed)
+// Updated training data without topic restrictions
 const initialTrainingData = [
   // Greetings
-  { input: "hello", response: "Hi! I specialize in content creation and plagiarism checking. How can I help you with these topics today?" },
-  { input: "hi", response: "Hello! I'm here to assist with content creation and plagiarism checking. What would you like help with?" },
+  { input: "hello", response: "Hi! I'm your AI assistant. I specialize in content creation and plagiarism checking, but I'm happy to help with any questions you have. How can I assist you today?" },
+  { input: "hi", response: "Hello! I'm here to help with content creation, plagiarism checking, and any other questions you might have. What would you like to know?" },
   
   // Capabilities
-  { input: "what can you do", response: "I provide assistance with: 1) Content creation and writing 2) Plagiarism detection and originality checking. Please ask questions related to these areas." },
-  { input: "help", response: "I'm specialized in content creation and plagiarism checking. Ask me about writing, content strategy, or originality verification." },
+  { input: "what can you do", response: "I can help with content creation, plagiarism checking, answer general questions, provide explanations, assist with research, and much more. I'm here to be helpful with whatever you need!" },
+  { input: "help", response: "I'm an AI assistant ready to help! I'm particularly good at content creation and plagiarism checking, but I can assist with various topics. What do you need help with?" },
   
   // Content creation
-  { input: "write content", response: "I can help create various content types: articles, blog posts, marketing copy, social media content, and more. What specific content do you need?" },
-  { input: "content ideas", response: "I'll suggest content ideas based on your niche, audience, and goals. Share your topic or industry for targeted content suggestions." },
+  { input: "write content", response: "I'd be happy to help create content! I can write articles, blog posts, marketing copy, social media content, emails, and more. What type of content do you need?" },
+  { input: "content ideas", response: "I'll suggest creative content ideas based on your niche, audience, and goals. Share your topic, industry, or target audience for personalized content suggestions." },
   
   // Plagiarism
-  { input: "check plagiarism", response: "I analyze content for originality, similarity detection, citation needs, and provide rewriting suggestions. Paste your content for plagiarism analysis." },
-  { input: "originality", response: "I'll evaluate content originality, identify potential issues, and suggest improvements to ensure unique, authentic content. Share your text for analysis." },
+  { input: "check plagiarism", response: "I can analyze content for originality, detect potential similarity issues, suggest proper citations, and provide rewriting recommendations. Share your content for a thorough analysis." },
+  { input: "originality", response: "I'll evaluate your content's originality, identify potential issues, and suggest improvements to ensure it's unique and authentic. Feel free to share your text for analysis." },
+  
+  // General helpfulness
+  { input: "explain", response: "I'm great at explaining complex topics in simple terms! Whether it's science, technology, history, or any other subject, I can break it down clearly. What would you like me to explain?" },
+  { input: "question", response: "I'm here to answer your questions on virtually any topic! From factual information to creative problems, I'll do my best to provide helpful, accurate responses." },
   
   // Goodbyes
-  { input: "goodbye", response: "Goodbye! Feel free to return for content creation or plagiarism checking assistance anytime." },
-  { input: "bye", response: "Bye! I'm here whenever you need help with content or plagiarism checking." },
-  { input: "thank you", response: "You're welcome! Happy to help with content creation or plagiarism checking anytime." },
-  { input: "thanks", response: "Glad I could help! Return anytime for content or plagiarism assistance." }
+  { input: "goodbye", response: "Goodbye! Feel free to return anytime for help with content creation, plagiarism checking, or any other questions you might have." },
+  { input: "bye", response: "Bye! I'm here whenever you need assistance with anything - content creation, research, general questions, or just a friendly chat." },
+  { input: "thank you", response: "You're very welcome! I'm always happy to help with any questions or tasks you have. Don't hesitate to ask if you need anything else!" },
+  { input: "thanks", response: "My pleasure! I'm here to help with whatever you need, so feel free to ask about anything anytime." }
 ];
 
 const ChatbotContext = createContext();
@@ -41,7 +45,7 @@ export const useChatbot = () => useContext(ChatbotContext);
 export const ChatbotProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { type: 'bot', text: 'Hello! 👋 I\'m your specialized AI assistant for content creation and plagiarism checking. I provide precise, 100-word responses within these expertise areas. How can I assist you today?' }
+    { type: 'bot', text: 'Hello! 👋 I\'m your AI assistant specializing in content creation and plagiarism checking, but I\'m happy to help with any topic. I provide precise, helpful responses. How can I assist you today?' }
   ]);
   const [trainingData, setTrainingData] = useState(() => {
     // Try to load saved training data from memory
@@ -55,12 +59,14 @@ export const ChatbotProvider = ({ children }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [conversationContext, setConversationContext] = useState('');
   const [activeMode, setActiveMode] = useState('general'); // general, content, plagiarism
+  const [hasStartedConversation, setHasStartedConversation] = useState(false);
 
   // Load conversation history on mount
   useEffect(() => {
     const history = getConversationHistory();
     if (history.length > 0) {
       setMessages(history);
+      setHasStartedConversation(true);
     }
   }, []);
 
@@ -78,24 +84,8 @@ export const ChatbotProvider = ({ children }) => {
     }
   }, [trainingData]);
 
-  // Helper function to check if input is relevant
-  const isRelevantInput = (input) => {
-    const relevantKeywords = [
-      'content', 'write', 'create', 'plagiarism', 'original',
-      'article', 'blog', 'copy', 'text', 'check', 'help', 'hello',
-      'hi', 'thanks', 'thank you', 'bye', 'goodbye', 'what', 'how', 'can you'
-    ];
-    
-    const lowerInput = input.toLowerCase();
-    return relevantKeywords.some(keyword => lowerInput.includes(keyword));
-  };
-
-  // Enhanced function to find local responses with relevance checking
+  // Enhanced function to find local responses without restrictions
   const findLocalResponse = (userInput) => {
-    if (!isRelevantInput(userInput)) {
-      return "I specialize in content creation and plagiarism checking. Please ask questions related to these topics for helpful assistance.";
-    }
-
     const normalizedInput = userInput.toLowerCase().trim();
     
     // Try exact match
@@ -116,11 +106,8 @@ export const ChatbotProvider = ({ children }) => {
     return null;
   };
 
-  // Function to learn from relevant interactions only
+  // Function to learn from interactions
   const learnFromInteraction = (userInput, botResponse) => {
-    // Only learn from relevant interactions
-    if (!isRelevantInput(userInput)) return;
-
     const existingEntryIndex = trainingData.findIndex(item => 
       item.input.toLowerCase() === userInput.toLowerCase()
     );
@@ -130,12 +117,18 @@ export const ChatbotProvider = ({ children }) => {
       updatedTrainingData[existingEntryIndex].response = botResponse;
       setTrainingData(updatedTrainingData);
     } else {
-      setTrainingData(prev => [...prev, { input: userInput, response: botResponse }]);
+      // Only add to training data if it's a meaningful interaction
+      if (userInput.length > 2 && botResponse.length > 10) {
+        setTrainingData(prev => [...prev, { input: userInput, response: botResponse }]);
+      }
     }
   };
 
   const sendMessage = async (userInput) => {
     if (!userInput.trim()) return;
+    
+    // Mark that conversation has started
+    setHasStartedConversation(true);
     
     // Add user message to chat
     const userMessage = { type: 'user', text: userInput };
@@ -172,28 +165,26 @@ export const ChatbotProvider = ({ children }) => {
       setTimeout(() => {
         setIsTyping(false);
         setMessages(prev => [...prev, { type: 'bot', text: response }]);
-        // Update conversation context with relevant interactions only
-        if (isRelevantInput(userInput)) {
-          setConversationContext(prev => `${prev}\nUser: ${userInput}\nAssistant: ${response}`.slice(-1000)); // Keep last 1000 chars
-        }
+        // Update conversation context
+        setConversationContext(prev => `${prev}\nUser: ${userInput}\nAssistant: ${response}`.slice(-1500)); // Keep last 1500 chars
       }, 800);
     } catch (error) {
       console.error('Error in sendMessage:', error);
       setIsTyping(false);
       setMessages(prev => [...prev, { 
         type: 'bot', 
-        text: 'Sorry, I encountered an error. Please try again with questions about content creation or plagiarism checking.' 
+        text: 'Sorry, I encountered an error. Please try again and I\'ll do my best to help!' 
       }]);
     }
   };
 
   const setMode = (mode) => {
-    // Only allow specific modes (removed SEO)
+    // Allow the three main modes
     if (!['general', 'content', 'plagiarism'].includes(mode)) return;
     setActiveMode(mode);
     
     const modeMessages = {
-      general: 'Switched to General mode. I can help with content creation and plagiarism checking. What do you need assistance with?',
+      general: 'Switched to General mode. I can help with any questions or topics you\'d like to discuss. What can I help you with?',
       content: 'Switched to Content Creation mode. I\'ll help you create articles, blogs, marketing copy, and other written content. What content do you need?',
       plagiarism: 'Switched to Plagiarism Checking mode. I\'ll analyze content for originality and provide improvement suggestions. Share your content for analysis.'
     };
@@ -206,10 +197,11 @@ export const ChatbotProvider = ({ children }) => {
 
   const resetChat = () => {
     setMessages([
-      { type: 'bot', text: 'Hello! 👋 I\'m your specialized AI assistant for content creation and plagiarism checking. I provide precise, 100-word responses within these expertise areas. How can I assist you today?' }
+      { type: 'bot', text: 'Hello! 👋 I\'m your AI assistant specializing in content creation and plagiarism checking, but I\'m happy to help with any topic. I provide precise, helpful responses. How can I assist you today?' }
     ]);
     setConversationContext('');
     setActiveMode('general');
+    setHasStartedConversation(false);
   };
 
   const value = {
@@ -222,7 +214,8 @@ export const ChatbotProvider = ({ children }) => {
     trainingData,
     setTrainingData,
     activeMode,
-    setMode
+    setMode,
+    hasStartedConversation
   };
 
   return (

@@ -21,33 +21,18 @@ const truncateToWordCount = (text, maxWords = 100) => {
   return words.slice(0, maxWords).join(' ') + '...';
 };
 
-// Helper function to check if query is relevant to allowed topics
-const isRelevantQuery = (message) => {
-  if (!message || typeof message !== 'string') return false;
-  
-  const allowedTopics = [
-    // Content creation keywords
-    'content', 'write', 'create', 'article', 'blog', 'post', 'text', 'copy', 'draft',
-    'generate', 'compose', 'writing', 'story', 'essay', 'paragraph', 'headline',
-    'title', 'description', 'marketing', 'social media', 'email', 'newsletter',
-    
-    // Plagiarism keywords
-    'plagiarism', 'originality', 'duplicate', 'copy', 'citation', 'reference',
-    'similarity', 'unique', 'original', 'check', 'verify', 'authenticity',
-    
-    // General AI assistance keywords
-    'help', 'assist', 'question', 'answer', 'explain', 'clarify', 'understand',
-    'how', 'what', 'why', 'when', 'where', 'can you', 'please', 'thanks', 'hello',
-    'hi', 'goodbye', 'bye', 'thank you'
-  ];
-  
-  const lowerMessage = message.toLowerCase();
-  return allowedTopics.some(topic => lowerMessage.includes(topic));
-};
+// Track if this is the first interaction
+let hasHadFirstInteraction = false;
 
-// Standard response for irrelevant queries
-const getIrrelevantResponse = () => {
-  return "I specialize in content creation and plagiarism checking. Please ask questions related to these topics, and I'll provide helpful assistance within my expertise areas.";
+// Helper function to check if this is a first-time interaction needing introduction
+const needsIntroduction = (message) => {
+  if (hasHadFirstInteraction) return false;
+  
+  const greetings = ['hello', 'hi', 'hey', 'start', 'begin'];
+  const lowerMessage = message.toLowerCase().trim();
+  
+  return greetings.some(greeting => lowerMessage.includes(greeting)) || 
+         lowerMessage.length < 20; // Short messages might be initial queries
 };
 
 // Enhanced error handling wrapper
@@ -85,19 +70,23 @@ export const getAIResponse = async (message, context = '', maxWords = 100) => {
   }
 
   return handleAIRequest(async () => {
-    // Check if the query is relevant
-    if (!isRelevantQuery(message)) {
-      return getIrrelevantResponse();
+    // Check if we need to provide introduction for first-time users
+    if (needsIntroduction(message)) {
+      hasHadFirstInteraction = true;
+      return "Hello! I'm your AI assistant specializing in content creation and plagiarism checking, but I'm happy to help with other topics too. How can I assist you today?";
     }
+    
+    // Mark that we've had an interaction
+    hasHadFirstInteraction = true;
 
-    // Enhanced instruction for precise word limit
+    // Create a helpful, unrestricted prompt
     const summaryInstruction = `
-    CRITICAL INSTRUCTIONS:
+    INSTRUCTIONS:
     1. Your response must be EXACTLY ${maxWords} words or less
-    2. Focus only on content creation or plagiarism checking topics
+    2. Be helpful, knowledgeable, and answer any question the user asks
     3. Be concise, clear, and directly answer the question
     4. Do not exceed ${maxWords} words under any circumstances
-    5. If the topic is outside your expertise (content, plagiarism), politely redirect
+    5. You can discuss any topic - don't restrict yourself to specific domains
     6. Count your words carefully and stay within the limit
     `;
     
@@ -107,9 +96,9 @@ export const getAIResponse = async (message, context = '', maxWords = 100) => {
 
     const generationConfig = {
       maxOutputTokens: Math.min(maxWords * 2, 200), // Approximate token limit
-      temperature: 0.3, // Lower for more controlled responses
-      topK: 20,
-      topP: 0.8,
+      temperature: 0.7, // Slightly higher for more natural responses
+      topK: 40,
+      topP: 0.9,
       candidateCount: 1
     };
 
@@ -128,7 +117,7 @@ export const getAIResponse = async (message, context = '', maxWords = 100) => {
     responseText = truncateToWordCount(responseText, maxWords);
     
     return responseText;
-  }, "Sorry, I encountered a technical issue. Please try again with questions about content creation or plagiarism checking.");
+  }, "Sorry, I encountered a technical issue. Please try again.");
 };
 
 /**
@@ -143,27 +132,22 @@ export const generateContent = async (prompt, options = {}) => {
   }
 
   return handleAIRequest(async () => {
-    // Check if the query is relevant to content creation
-    if (!isRelevantQuery(prompt)) {
-      return getIrrelevantResponse();
-    }
-
     const maxWords = options.maxWords || 100;
     const enhancedPrompt = `
     Create content based on: ${prompt}
     
     REQUIREMENTS:
     - Response must be EXACTLY ${maxWords} words or less
-    - Focus on content creation assistance
+    - Be creative and helpful with content creation
     - Be practical and actionable
     - Maintain high quality despite word limit
     - Count words carefully to stay within limit
     `;
 
     const generationConfig = {
-      temperature: options.temperature || 0.6,
-      topK: options.topK || 25,
-      topP: options.topP || 0.85,
+      temperature: options.temperature || 0.8,
+      topK: options.topK || 40,
+      topP: options.topP || 0.9,
       maxOutputTokens: options.maxOutputTokens || Math.min(maxWords * 2, 200),
       candidateCount: 1
     };
@@ -271,6 +255,7 @@ export const clearConversationHistory = () => {
   try {
     if (typeof window !== 'undefined') {
       window.chatbotHistory = [];
+      hasHadFirstInteraction = false; // Reset interaction tracking
     }
   } catch (error) {
     console.error('Error clearing conversation history:', error);
