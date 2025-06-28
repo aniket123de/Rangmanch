@@ -67,7 +67,13 @@ const CreatorsNetwork = () => {
               filteredCreators.map(creator => (
                 <tr key={creator.id} className="border-b border-gray-700 hover:bg-gray-700/20 transition">
                   <td className="flex items-center gap-3 py-3">
-                    <img src={creator.profileImage || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(creator.name)} alt={creator.name} className="w-10 h-10 rounded-full object-cover" />
+                    {creator.avatarUrl ? (
+                      <img src={creator.avatarUrl} alt={creator.name} className="w-10 h-10 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-bold text-lg">
+                        {creator.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}
+                      </div>
+                    )}
                     <span className="font-semibold">{creator.name}</span>
                   </td>
                   <td className="py-3">{creator.niche || '--'}</td>
