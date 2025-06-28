@@ -6,8 +6,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ProfileSidebar from './ProfileSidebar';
 import Icon from '../../assets/icon.png';
 import { useAuth } from '../../contexts/authContext';
-import AnimatedButton from '../common/AnimatedButton';
-import { useBusinessAuth } from '../../pages/business/businessAuthContext'; 
+import AnimatedButton from '../common/AnimatedButton'; 
 
 const StyledWrapper = styled.div`
   /* === removing default button style ===*/
@@ -231,7 +230,6 @@ const NavLink = ({ href, children }) => {
 const Navbar = () => {
   const { isDark } = useContext(ThemeContext);
   const { userLoggedIn, currentUser } = useAuth();
-  const { currentUser: businessUser } = useBusinessAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
@@ -295,8 +293,8 @@ const Navbar = () => {
         {/* Right section - Login/Signup and Profile */}
         <div className="flex items-center gap-4 md:gap-6">
           <div className="hidden md:flex items-center gap-4">
-            {/* For Business Button - Only show if no user is logged in (business or regular) */}
-            {!userLoggedIn && !businessUser && !isAuthPage && (
+            {/* For Business Button */}
+            {!isAuthPage && (
               <>
                 <AnimatedButton 
                   onClick={() => navigate('/for-business')}
@@ -321,7 +319,7 @@ const Navbar = () => {
                   size="sm"
                   className="px-4 py-1.5"
                 >
-                  Login / Sign Up
+                  For Creator
                 </AnimatedButton>
               ) : (
                 <div className="relative flex items-center gap-3">
@@ -413,19 +411,17 @@ const Navbar = () => {
         ))}
         
         {/* For Business Button */}
-        {!userLoggedIn && !businessUser && (
-          <AnimatedButton
-            onClick={() => {
-              navigate('/for-business');
-              setIsMenuOpen(false);
-            }}
-            variant="text"
-            size="sm"
-            className="justify-start py-3 px-3 text-base font-medium rounded-lg transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            For Business
-          </AnimatedButton>
-        )}
+        <AnimatedButton
+          onClick={() => {
+            navigate('/for-business');
+            setIsMenuOpen(false);
+          }}
+          variant="text"
+          size="sm"
+          className="justify-start py-3 px-3 text-base font-medium rounded-lg transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          For Business
+        </AnimatedButton>
         
         {/* Login/Signup Button */}
         {!isAuthPage && !userLoggedIn && (
@@ -438,7 +434,7 @@ const Navbar = () => {
             size="sm"
             className="w-full py-3 text-base font-medium rounded-lg mt-2"
           >
-            Login / Sign Up
+            For Creator
           </AnimatedButton>
         )}
         
