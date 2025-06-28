@@ -1,13 +1,12 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { ThemeContext } from '../../context/ThemeContext';
-import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { useBusinessAuth } from './businessAuthContext';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import BusinessNavbar from '../../components/Navbar/BusinessNavbar';
+import { signIn } from '../../firebase/auth';
 
 const BusinessLogin = () => {
   const { isDark } = useContext(ThemeContext);
-  const { login, currentUser, loading: authLoading } = useBusinessAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -17,16 +16,11 @@ const BusinessLogin = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (location.state && location.state.signupSuccess) {
-      setSuccessMessage('Account created! Please check your email to confirm, then log in.');
+      setSuccessMessage('Account created! You can now log in.');
     }
   }, [location.state]);
-
-  // Redirect if already logged in
-  if (!authLoading && currentUser) {
-    return <Navigate to="/business/dashboard" replace={true} />;
-  }
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -34,32 +28,15 @@ const BusinessLogin = () => {
       try {
         setIsSigningIn(true);
         setErrorMessage('');
-        await login(email, password);
-        // Redirect to dashboard after successful login
+        await signIn(email, password);
         navigate('/business/dashboard', { replace: true });
       } catch (error) {
-        // Handle Supabase-specific errors
-        if (error.message.includes('Invalid login credentials')) {
-          setErrorMessage('Invalid email or password. Please try again.');
-        } else if (error.message.includes('Email not confirmed')) {
-          setErrorMessage('Please verify your email before logging in.');
-        } else {
-          setErrorMessage(error.message || 'An error occurred during login. Please try again.');
-        }
+        setErrorMessage(error.message || 'An error occurred during login. Please try again.');
       } finally {
         setIsSigningIn(false);
       }
     }
   };
-
-  // Show loading state while auth context is initializing
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-white dark:from-gray-900 dark:to-black">
-        <p className="text-gray-600 dark:text-gray-400">Loading...</p>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -86,13 +63,6 @@ const BusinessLogin = () => {
               )}
 
               <form onSubmit={onSubmit} className="space-y-6">
-                {/* Hidden role field with fixed value */}
-                <input
-                  type="hidden"
-                  name="role"
-                  value="brand"
-                />
-
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 mb-2">Business Email</label>
                   <input
@@ -117,22 +87,19 @@ const BusinessLogin = () => {
                   />
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <label className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                      Remember me
-                    </label>
-                  </div>
-                  <Link
-                    to="/business/forgot-password"
-                    className="text-sm text-purple-600 hover:text-purple-500"
-                  >
-                    Forgot password?
-                  </Link>
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 mb-2">Role</label>
+                  <input
+                    type="hidden"
+                    value="brand"
+                    disabled
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none dark:bg-gray-700 dark:text-white"
+                    style={{ 
+                      backgroundColor: '#f5f5f5',
+                      cursor: 'not-allowed',
+                      opacity: 0.7
+                    }}
+                  />
                 </div>
 
                 <button
@@ -140,7 +107,7 @@ const BusinessLogin = () => {
                   disabled={isSigningIn}
                   className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50"
                 >
-                  {isSigningIn ? 'Signing in...' : 'Sign In'}
+                  {isSigningIn ? 'Logging in...' : 'Login'}
                 </button>
               </form>
 
