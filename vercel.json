@@ -7,23 +7,39 @@
     {
       "source": "/api/(.*)",
       "destination": "https://backend-rang-1.onrender.com/api/$1"
+    },
+    {
+      "source": "/((?!assets/).*)",
+      "destination": "/index.html"
     }
   ],
-  "routes": [
+  "headers": [
     {
-      "src": "/assets/(.*)",
-      "headers": { "cache-control": "public, max-age=31536000, immutable" },
-      "dest": "/assets/$1"
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "cache-control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     },
     {
-      "src": "/(.*)\\.(.+)$",
-      "headers": { "cache-control": "public, max-age=31536000, immutable" },
-      "dest": "/$1.$2"
+      "source": "/(.*)\\.(.+)$",
+      "headers": [
+        {
+          "key": "cache-control", 
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html",
-      "headers": { "cache-control": "public, max-age=0, must-revalidate" }
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "cache-control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
     }
   ]
 }
