@@ -37,7 +37,7 @@ const Services = () => {
       description:
         "Our ML-powered analyzer understands your target audience and recommends tone, style, and structure that truly resonates.",
       icon: <FaPenToSquare />,
-      link: "#",
+      link: () => navigate('/sentiment-analysis'),
       delay: 0.4,
       gradient: {
         start: "#ff9e00",
