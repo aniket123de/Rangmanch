@@ -24,6 +24,13 @@ export default defineConfig({
   server: {
     port: 3000,
     strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'https://backend-rang-1.onrender.com',
+        changeOrigin: true,
+        secure: true,
+      }
+    }
   },
   preview: {
     port: 3000,

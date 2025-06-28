@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
+import { getApiUrl } from '../../config/api';
 import './ContentSuggestion.css';
 
 const StyledInputContainer = styled.div`
@@ -90,7 +91,7 @@ const ContentSuggestionPage = () => {
     setError('');
     
     try {
-      const response = await axios.post('https://backend-rang-1.onrender.com/api/generate-suggestions', {
+      const response = await axios.post(getApiUrl('/generate-suggestions'), {
         creatorNiche,
         pastContent,
         audience

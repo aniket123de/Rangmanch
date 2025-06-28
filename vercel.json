@@ -3,11 +3,13 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/generate-suggestions",
-      "dest": "api/generate-suggestions.js"
-    },
+      "source": "/api/(.*)",
+      "destination": "https://backend-rang-1.onrender.com/api/$1"
+    }
+  ],
+  "routes": [
     {
       "src": "/assets/(.*)",
       "headers": { "cache-control": "public, max-age=31536000, immutable" },
