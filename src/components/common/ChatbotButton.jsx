@@ -461,12 +461,33 @@ const ChatbotButton = () => {
     }
   };
 
+  const summarizeText = (text, wordLimit = 100) => {
+    const words = text.split(/\s+/);
+    if (words.length <= wordLimit) return text;
+    // Try to summarize by keeping the first 50 and last 50 words
+    return words.slice(0, 50).join(' ') + ' ... ' + words.slice(-50).join(' ');
+  };
+
   const handleSendMessage = async () => {
     if (!input.trim()) return;
-    
     const userInput = input;
     setInput('');
     await sendMessage(userInput);
+    setTimeout(() => {
+      setMessages(prevMessages => {
+        const newMessages = [...prevMessages];
+        for (let i = newMessages.length - 1; i >= 0; i--) {
+          if (newMessages[i].type === 'bot') {
+            newMessages[i] = {
+              ...newMessages[i],
+              text: summarizeText(newMessages[i].text, 100)
+            };
+            break;
+          }
+        }
+        return newMessages;
+      });
+    }, 600);
   };
 
   const handleKeyDown = (e) => {
@@ -499,22 +520,16 @@ const ChatbotButton = () => {
         
         <ModeSelector>
           <ModeButton 
-            active={activeMode === 'chat'} 
-            onClick={() => setMode('chat')}
+            active={activeMode === 'general'} 
+            onClick={() => setMode('general')}
           >
-            Chat
+            General
           </ModeButton>
           <ModeButton 
             active={activeMode === 'content'} 
             onClick={() => setMode('content')}
           >
             Content
-          </ModeButton>
-          <ModeButton 
-            active={activeMode === 'seo'} 
-            onClick={() => setMode('seo')}
-          >
-            SEO
           </ModeButton>
           <ModeButton 
             active={activeMode === 'plagiarism'} 
