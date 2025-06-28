@@ -95,6 +95,24 @@ const ChatPopup = styled.div`
   border: 1px solid rgba(199, 125, 255, 0.3);
   display: flex;
   flex-direction: column; /* Ensure proper layout flow */
+
+  @media (max-width: 600px) {
+    left: 50%;
+    top: 50%;
+    bottom: unset;
+    width: 90vw;
+    aspect-ratio: 5 / 4;
+    max-width: 100vw;
+    max-height: 100dvh;
+    border-radius: 16px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.25);
+    border: none;
+    padding-bottom: 0;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
 `;
 
 const ChatHeader = styled.div`
@@ -378,7 +396,6 @@ const ChatbotButton = () => {
     isOpen, 
     setIsOpen, 
     messages, 
-    setMessages, // <-- added setMessages from context
     sendMessage, 
     resetChat, 
     activeMode, 
@@ -501,22 +518,7 @@ const ChatbotButton = () => {
     const userInput = input;
     setInput('');
     await sendMessage(userInput);
-    setTimeout(() => {
-      setMessages(prevMessages => {
-        const newMessages = [...prevMessages];
-        for (let i = newMessages.length - 1; i >= 0; i--) {
-          if (newMessages[i].type === 'bot') {
-            newMessages[i] = {
-              ...newMessages[i],
-              text: summarizeText(newMessages[i].text, 100)
-            };
-            break;
-          }
-        }
-        return newMessages;
-      });
-      setIsSending(false);
-    }, 600);
+    setIsSending(false);
   };
 
   const handleKeyDown = (e) => {
