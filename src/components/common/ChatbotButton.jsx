@@ -27,6 +27,17 @@ const gradientAnimation = keyframes`
   100% { background-position: 0% 50%; }
 `;
 
+const botEntry = keyframes`
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+`;
+
 const ChatButton = styled.button`
   position: fixed;
   bottom: 20px;
@@ -162,6 +173,9 @@ const Message = styled.div`
 `;
 
 const BotMessage = styled(Message)`
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  animation: ${fadeIn} 0.4s ease forwards;
   background: linear-gradient(135deg, #362855, #3a2257);
   color: #f0e6ff;
   border-left: 3px solid #9d4edd;
@@ -248,6 +262,13 @@ const MessageInput = styled.input`
   }
 `;
 
+const sendingAnimation = keyframes`
+  0% { transform: scale(1) rotate(0deg); }
+  30% { transform: scale(1.15) rotate(-10deg); }
+  60% { transform: scale(0.95) rotate(8deg); }
+  100% { transform: scale(1) rotate(0deg); }
+`;
+
 const SendButton = styled.button`
   width: 44px;
   height: 44px;
@@ -270,6 +291,10 @@ const SendButton = styled.button`
   
   &:active {
     transform: scale(0.95);
+  }
+
+  &.sending {
+    animation: ${sendingAnimation} 0.5s linear;
   }
   
   svg {
@@ -362,6 +387,7 @@ const ChatbotButton = () => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [trainingData, setTrainingData] = useState(initialTrainingData);
+  const [isSending, setIsSending] = useState(false);
   
   const chatRef = useRef();
   const bodyRef = useRef();
@@ -471,6 +497,7 @@ const ChatbotButton = () => {
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
+    setIsSending(true);
     const userInput = input;
     setInput('');
     await sendMessage(userInput);
@@ -488,6 +515,7 @@ const ChatbotButton = () => {
         }
         return newMessages;
       });
+      setIsSending(false);
     }, 600);
   };
 
@@ -543,9 +571,13 @@ const ChatbotButton = () => {
         <ChatBody ref={bodyRef}>
           {messages.map((message, index) => (
             message.type === 'bot' ? (
-              <BotMessage key={index}><ReactMarkdown>{message.text}</ReactMarkdown></BotMessage>
+              <BotMessage key={`bot-${index}-${message.text}`}>
+                <ReactMarkdown>{message.text}</ReactMarkdown>
+              </BotMessage>
             ) : (
-              <UserMessage key={index}>{message.text}</UserMessage>
+              <UserMessage key={`user-${index}-${message.text}`}>
+                {message.text}
+              </UserMessage>
             )
           ))}
           
@@ -566,7 +598,7 @@ const ChatbotButton = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <SendButton onClick={handleSendMessage}>
+          <SendButton onClick={handleSendMessage} className={isSending || isTyping ? 'sending' : ''} disabled={isSending || isTyping}>
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M22 2L11 13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
