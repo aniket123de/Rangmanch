@@ -353,6 +353,7 @@ const ChatbotButton = () => {
     isOpen, 
     setIsOpen, 
     messages, 
+    setMessages, // <-- added setMessages from context
     sendMessage, 
     resetChat, 
     activeMode, 

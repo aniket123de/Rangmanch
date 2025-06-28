@@ -4,39 +4,34 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { 
   getAIResponse, 
   generateContent, 
-  getSEOSuggestions, 
   checkPlagiarism,
   storeConversationHistory, 
   getConversationHistory 
 } from '../services/aiService';
 
-// Focused training data for relevant topics only
+// Focused training data for relevant topics only (SEO removed)
 const initialTrainingData = [
   // Greetings
-  { input: "hello", response: "Hi! I specialize in content creation, SEO optimization, and plagiarism checking. How can I help you with these topics today?" },
-  { input: "hi", response: "Hello! I'm here to assist with content creation, SEO, and plagiarism checking. What would you like help with?" },
+  { input: "hello", response: "Hi! I specialize in content creation and plagiarism checking. How can I help you with these topics today?" },
+  { input: "hi", response: "Hello! I'm here to assist with content creation and plagiarism checking. What would you like help with?" },
   
   // Capabilities
-  { input: "what can you do", response: "I provide assistance with: 1) Content creation and writing 2) SEO optimization strategies 3) Plagiarism detection and originality checking. Please ask questions related to these areas." },
-  { input: "help", response: "I'm specialized in content creation, SEO optimization, and plagiarism checking. Ask me about writing, keywords, content strategy, or originality verification." },
+  { input: "what can you do", response: "I provide assistance with: 1) Content creation and writing 2) Plagiarism detection and originality checking. Please ask questions related to these areas." },
+  { input: "help", response: "I'm specialized in content creation and plagiarism checking. Ask me about writing, content strategy, or originality verification." },
   
   // Content creation
   { input: "write content", response: "I can help create various content types: articles, blog posts, marketing copy, social media content, and more. What specific content do you need?" },
   { input: "content ideas", response: "I'll suggest content ideas based on your niche, audience, and goals. Share your topic or industry for targeted content suggestions." },
-  
-  // SEO
-  { input: "seo help", response: "I provide SEO assistance including keyword research, meta descriptions, title optimization, content structure, and ranking strategies. What SEO aspect needs attention?" },
-  { input: "keywords", response: "I can help with keyword research, analysis, and optimization strategies. Share your content or topic for specific keyword recommendations." },
   
   // Plagiarism
   { input: "check plagiarism", response: "I analyze content for originality, similarity detection, citation needs, and provide rewriting suggestions. Paste your content for plagiarism analysis." },
   { input: "originality", response: "I'll evaluate content originality, identify potential issues, and suggest improvements to ensure unique, authentic content. Share your text for analysis." },
   
   // Goodbyes
-  { input: "goodbye", response: "Goodbye! Feel free to return for content creation, SEO, or plagiarism checking assistance anytime." },
-  { input: "bye", response: "Bye! I'm here whenever you need help with content, SEO, or plagiarism checking." },
-  { input: "thank you", response: "You're welcome! Happy to help with content creation, SEO optimization, or plagiarism checking anytime." },
-  { input: "thanks", response: "Glad I could help! Return anytime for content, SEO, or plagiarism assistance." }
+  { input: "goodbye", response: "Goodbye! Feel free to return for content creation or plagiarism checking assistance anytime." },
+  { input: "bye", response: "Bye! I'm here whenever you need help with content or plagiarism checking." },
+  { input: "thank you", response: "You're welcome! Happy to help with content creation or plagiarism checking anytime." },
+  { input: "thanks", response: "Glad I could help! Return anytime for content or plagiarism assistance." }
 ];
 
 const ChatbotContext = createContext();
@@ -46,7 +41,7 @@ export const useChatbot = () => useContext(ChatbotContext);
 export const ChatbotProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { type: 'bot', text: 'Hello! 👋 I\'m your specialized AI assistant for content creation, SEO optimization, and plagiarism checking. I provide precise, 100-word responses within these expertise areas. How can I assist you today?' }
+    { type: 'bot', text: 'Hello! 👋 I\'m your specialized AI assistant for content creation and plagiarism checking. I provide precise, 100-word responses within these expertise areas. How can I assist you today?' }
   ]);
   const [trainingData, setTrainingData] = useState(() => {
     // Try to load saved training data from memory
@@ -59,7 +54,7 @@ export const ChatbotProvider = ({ children }) => {
   });
   const [isTyping, setIsTyping] = useState(false);
   const [conversationContext, setConversationContext] = useState('');
-  const [activeMode, setActiveMode] = useState('general'); // general, content, seo, plagiarism
+  const [activeMode, setActiveMode] = useState('general'); // general, content, plagiarism
 
   // Load conversation history on mount
   useEffect(() => {
@@ -86,8 +81,8 @@ export const ChatbotProvider = ({ children }) => {
   // Helper function to check if input is relevant
   const isRelevantInput = (input) => {
     const relevantKeywords = [
-      'content', 'write', 'create', 'seo', 'keyword', 'plagiarism', 'original',
-      'article', 'blog', 'copy', 'text', 'optimize', 'check', 'help', 'hello',
+      'content', 'write', 'create', 'plagiarism', 'original',
+      'article', 'blog', 'copy', 'text', 'check', 'help', 'hello',
       'hi', 'thanks', 'thank you', 'bye', 'goodbye', 'what', 'how', 'can you'
     ];
     
@@ -162,9 +157,6 @@ export const ChatbotProvider = ({ children }) => {
           case 'content':
             response = await generateContent(userInput);
             break;
-          case 'seo':
-            response = await getSEOSuggestions(userInput);
-            break;
           case 'plagiarism':
             response = await checkPlagiarism(userInput);
             break;
@@ -190,18 +182,18 @@ export const ChatbotProvider = ({ children }) => {
       setIsTyping(false);
       setMessages(prev => [...prev, { 
         type: 'bot', 
-        text: 'Sorry, I encountered an error. Please try again with questions about content creation, SEO optimization, or plagiarism checking.' 
+        text: 'Sorry, I encountered an error. Please try again with questions about content creation or plagiarism checking.' 
       }]);
     }
   };
 
   const setMode = (mode) => {
-    // Only allow specific modes
-    if (!['general', 'content', 'seo', 'plagiarism'].includes(mode)) return;
+    // Only allow specific modes (removed SEO)
+    if (!['general', 'content', 'plagiarism'].includes(mode)) return;
     setActiveMode(mode);
     
     const modeMessages = {
-      general: 'Switched to General mode. I can help with content creation, SEO optimization, and plagiarism checking. What do you need assistance with?',
+      general: 'Switched to General mode. I can help with content creation and plagiarism checking. What do you need assistance with?',
       content: 'Switched to Content Creation mode. I\'ll help you create articles, blogs, marketing copy, and other written content. What content do you need?',
       plagiarism: 'Switched to Plagiarism Checking mode. I\'ll analyze content for originality and provide improvement suggestions. Share your content for analysis.'
     };
@@ -214,7 +206,7 @@ export const ChatbotProvider = ({ children }) => {
 
   const resetChat = () => {
     setMessages([
-      { type: 'bot', text: 'Hello! 👋 I\'m your specialized AI assistant for content creation, and plagiarism checking. I provide precise, 100-word responses within these expertise areas. How can I assist you today?' }
+      { type: 'bot', text: 'Hello! 👋 I\'m your specialized AI assistant for content creation and plagiarism checking. I provide precise, 100-word responses within these expertise areas. How can I assist you today?' }
     ]);
     setConversationContext('');
     setActiveMode('general');
