@@ -7,6 +7,7 @@ import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { auth } from '../firebase/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 const statusColors = {
   Engaged: 'bg-purple-700 text-purple-100',
@@ -26,6 +27,7 @@ const CreatorsNetwork = () => {
   const [sending, setSending] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
   const [brandProfile, setBrandProfile] = useState(null);
+  const [creatorNotificationMap, setCreatorNotificationMap] = useState({});
 
   // Listen for Firebase Auth user
   useEffect(() => {
@@ -66,6 +68,33 @@ const CreatorsNetwork = () => {
     };
     fetchBrandProfile();
   }, [user]);
+
+  // Fetch notifications sent by this brand
+  useEffect(() => {
+    const fetchBrandNotifications = async () => {
+      if (!user || !user.uid) return;
+      try {
+        const q = query(
+          collection(db, 'notifications'),
+          where('senderId', '==', user.uid)
+        );
+        const querySnapshot = await getDocs(q);
+        const notifMap = {};
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          // Only keep the latest notification per creator (by createdAt)
+          const prev = notifMap[data.receiverId];
+          if (!prev || (data.createdAt?.toMillis?.() || 0) > (prev.createdAt?.toMillis?.() || 0)) {
+            notifMap[data.receiverId] = data;
+          }
+        });
+        setCreatorNotificationMap(notifMap);
+      } catch (err) {
+        console.error('Error fetching notifications:', err);
+      }
+    };
+    fetchBrandNotifications();
+  }, [user, sending, showModal]);
 
   const filteredCreators = creators.filter(c =>
     c.name?.toLowerCase().includes(search.toLowerCase())
@@ -173,65 +202,87 @@ const CreatorsNetwork = () => {
             ) : filteredCreators.length === 0 ? (
               <tr><td colSpan={5} className="text-center py-8">No creators found.</td></tr>
             ) : (
-              filteredCreators.map(creator => (
-                <tr key={creator.id} className="border-b border-gray-700 hover:bg-gray-700/20 transition">
-                  <td className="flex items-center gap-3 py-3">
-                    {creator.avatarUrl ? (
-                      <img src={creator.avatarUrl} alt={creator.name} className="w-10 h-10 rounded-full object-cover" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-bold text-lg">
-                        {creator.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}
+              filteredCreators.map(creator => {
+                // Determine button state
+                const notif = creatorNotificationMap[creator.id];
+                let buttonText = 'Connect';
+                let buttonColor = 'bg-blue-500 hover:bg-blue-600';
+                let buttonDisabled = false;
+                if (notif) {
+                  if (notif.status === 'accepted') {
+                    buttonText = 'Connected';
+                    buttonColor = 'bg-green-600';
+                    buttonDisabled = true;
+                  } else if (notif.status === 'rejected') {
+                    buttonText = 'Rejected';
+                    buttonColor = 'bg-red-600';
+                    buttonDisabled = true;
+                  } else if (notif.status === 'new' || notif.status === 'viewed') {
+                    buttonText = 'Sent';
+                    buttonColor = 'bg-gray-400';
+                    buttonDisabled = true;
+                  }
+                }
+                return (
+                  <tr key={creator.id} className="border-b border-gray-700 hover:bg-gray-700/20 transition">
+                    <td className="flex items-center gap-3 py-3">
+                      {creator.avatarUrl ? (
+                        <img src={creator.avatarUrl} alt={creator.name} className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-bold text-lg">
+                          {creator.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}
+                        </div>
+                      )}
+                      <span className="font-semibold">{creator.name}</span>
+                    </td>
+                    <td className="py-3">{creator.niche || '--'}</td>
+                    <td className="py-3">
+                      <div className="flex gap-3">
+                        {creator.socials?.instagram ? (
+                          <a href={creator.socials.instagram} target="_blank" rel="noopener noreferrer" title="Instagram">
+                            <FaInstagram className="text-pink-500 hover:text-pink-600 text-xl" />
+                          </a>
+                        ) : (
+                          <FaInstagram className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="Instagram not provided" />
+                        )}
+                        {creator.socials?.youtube ? (
+                          <a href={creator.socials.youtube} target="_blank" rel="noopener noreferrer" title="YouTube">
+                            <FaYoutube className="text-red-500 hover:text-red-600 text-xl" />
+                          </a>
+                        ) : (
+                          <FaYoutube className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="YouTube not provided" />
+                        )}
+                        {creator.socials?.linkedin ? (
+                          <a href={creator.socials.linkedin} target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                            <FaLinkedin className="text-blue-600 hover:text-blue-700 text-xl" />
+                          </a>
+                        ) : (
+                          <FaLinkedin className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="LinkedIn not provided" />
+                        )}
+                        {creator.email ? (
+                          <a href={`mailto:${creator.email}`} title="Email">
+                            <FaEnvelope className="text-green-500 hover:text-green-600 text-xl" />
+                          </a>
+                        ) : (
+                          <FaEnvelope className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="Email not provided" />
+                        )}
                       </div>
-                    )}
-                    <span className="font-semibold">{creator.name}</span>
-                  </td>
-                  <td className="py-3">{creator.niche || '--'}</td>
-                  <td className="py-3">
-                    <div className="flex gap-3">
-                      {creator.socials?.instagram ? (
-                        <a href={creator.socials.instagram} target="_blank" rel="noopener noreferrer" title="Instagram">
-                          <FaInstagram className="text-pink-500 hover:text-pink-600 text-xl" />
-                        </a>
-                      ) : (
-                        <FaInstagram className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="Instagram not provided" />
-                      )}
-                      {creator.socials?.youtube ? (
-                        <a href={creator.socials.youtube} target="_blank" rel="noopener noreferrer" title="YouTube">
-                          <FaYoutube className="text-red-500 hover:text-red-600 text-xl" />
-                        </a>
-                      ) : (
-                        <FaYoutube className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="YouTube not provided" />
-                      )}
-                      {creator.socials?.linkedin ? (
-                        <a href={creator.socials.linkedin} target="_blank" rel="noopener noreferrer" title="LinkedIn">
-                          <FaLinkedin className="text-blue-600 hover:text-blue-700 text-xl" />
-                        </a>
-                      ) : (
-                        <FaLinkedin className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="LinkedIn not provided" />
-                      )}
-                      {creator.email ? (
-                        <a href={`mailto:${creator.email}`} title="Email">
-                          <FaEnvelope className="text-green-500 hover:text-green-600 text-xl" />
-                        </a>
-                      ) : (
-                        <FaEnvelope className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="Email not provided" />
-                      )}
-                    </div>
-                  </td>
-                  <td className="py-3">
-                    {creator.tariff ? `₹${creator.tariff}` : '--'}
-                  </td>
-                  <td className="py-3">
-                    <button
-                      onClick={() => handleConnect(creator)}
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
-                      disabled={sending}
-                    >
-                      {sending && selectedCreator?.id === creator.id ? 'Sending...' : 'Connect'}
-                    </button>
-                  </td>
-                </tr>
-              ))
+                    </td>
+                    <td className="py-3">
+                      {creator.tariff ? `₹${creator.tariff}` : '--'}
+                    </td>
+                    <td className="py-3">
+                      <button
+                        onClick={() => handleConnect(creator)}
+                        className={`${buttonColor} text-white px-4 py-2 rounded-lg font-semibold transition-colors ${buttonDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        disabled={buttonDisabled || sending}
+                      >
+                        {buttonText}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
