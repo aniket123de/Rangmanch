@@ -86,6 +86,13 @@ const BusinessLogin = () => {
               )}
 
               <form onSubmit={onSubmit} className="space-y-6">
+                {/* Hidden role field with fixed value */}
+                <input
+                  type="hidden"
+                  name="role"
+                  value="brand"
+                />
+
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 mb-2">Business Email</label>
                   <input
