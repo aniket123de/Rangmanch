@@ -381,6 +381,29 @@ const ModeButton = styled.button`
   }
 `;
 
+const TypingText = styled.span`
+  display: inline-block;
+  overflow: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+`;
+
+const cursorBlink = keyframes`
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+`;
+
+const TypingCursor = styled.span`
+  display: inline-block;
+  width: 3px;
+  height: 1.2em;
+  background-color: #c77dff;
+  margin-left: 2px;
+  animation: ${cursorBlink} 1s infinite;
+  vertical-align: text-bottom;
+  box-shadow: 0 0 5px rgba(199, 125, 255, 0.5);
+`;
+
 // Sample training data - you can expand this
 const initialTrainingData = [
   { input: "hello", response: "Hi I'm BolBacchan AI, how can I help you today?" },
@@ -391,6 +414,11 @@ const initialTrainingData = [
   { input: "bye", response: "Bye! Have a great day!" }
 ];
 
+// Persistent cache for displayed bot messages
+const botMessageDisplayCache = new Map();
+// Persistent set for currently animating messages
+const botMessageAnimatingSet = new Set();
+
 const ChatbotButton = () => {
   const { 
     isOpen, 
@@ -399,16 +427,103 @@ const ChatbotButton = () => {
     sendMessage, 
     resetChat, 
     activeMode, 
-    setMode 
+    setMode,
+    isTyping: contextIsTyping
   } = useChatbot();
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const [trainingData, setTrainingData] = useState(initialTrainingData);
   const [isSending, setIsSending] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const typingMessagesRef = useRef(new Set());
   
   const chatRef = useRef();
   const bodyRef = useRef();
   const API_KEY = 'AIzaSyDwC9ycT1bAbTgeSLmI7sk_AaUjM6IZCTA'; // Your Google API key
+
+  // Typing animation component
+  const TypingMessage = ({ message, index }) => {
+    const [displayedText, setDisplayedText] = useState(() => {
+      const messageId = `bot-${index}-${message.text}`;
+      // If this message was already animated, show it immediately
+      if (botMessageDisplayCache.has(messageId)) {
+        return botMessageDisplayCache.get(messageId);
+      }
+      return '';
+    });
+    const [isTypingComplete, setIsTypingComplete] = useState(() => {
+      const messageId = `bot-${index}-${message.text}`;
+      return botMessageDisplayCache.has(messageId);
+    });
+    const messageId = `bot-${index}-${message.text}`;
+
+    // Identify system/initial messages
+    const isInitialMessage = index === 0 && message.type === 'bot';
+    const isSystemMessage = message.text.startsWith('Switched to') || 
+                           message.text.startsWith('Set to') || 
+                           message.text.startsWith('Tone set to') ||
+                           message.text.startsWith('I apologize, but I encountered a technical issue');
+
+    useEffect(() => {
+      // If already cached, do nothing (prevents animation/blank on remount)
+      if (botMessageDisplayCache.has(messageId)) return;
+      // Mark as animating
+      botMessageAnimatingSet.add(messageId);
+      if (typingMessagesRef.current.has(messageId)) {
+        return; // Already typing this message
+      }
+      // For the initial message or system messages, show them immediately without animation
+      if (isInitialMessage || isSystemMessage) {
+        setDisplayedText(message.text);
+        setIsTypingComplete(true);
+        botMessageDisplayCache.set(messageId, message.text);
+        botMessageAnimatingSet.delete(messageId);
+        return;
+      }
+      typingMessagesRef.current.add(messageId);
+      let currentIndex = 0;
+      const text = message.text;
+      const typingSpeed = 20; // milliseconds per character - faster typing speed
+      const typeNextChar = () => {
+        if (currentIndex < text.length) {
+          setDisplayedText(text.slice(0, currentIndex + 1));
+          currentIndex++;
+          // Scroll to bottom during typing animation
+          if (bodyRef.current) {
+            bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
+          }
+          setTimeout(typeNextChar, typingSpeed);
+        } else {
+          setDisplayedText(text);
+          setIsTypingComplete(true);
+          typingMessagesRef.current.delete(messageId);
+          botMessageDisplayCache.set(messageId, text);
+          botMessageAnimatingSet.delete(messageId);
+          // Final scroll to bottom when typing is complete
+          if (bodyRef.current) {
+            bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
+          }
+        }
+      };
+      // Start typing after a small delay
+      setTimeout(typeNextChar, 100);
+      // Cleanup: remove from animating set if unmounted
+      return () => {
+        botMessageAnimatingSet.delete(messageId);
+      };
+    }, [message.text, index, messageId]);
+
+    if (!displayedText && isTypingComplete && !isInitialMessage && !isSystemMessage) {
+      return null;
+    }
+    return (
+      <BotMessage key={`bot-${index}`}>
+        <TypingText>
+          {displayedText}
+        </TypingText>
+        {!isTypingComplete && <TypingCursor />}
+      </BotMessage>
+    );
+  };
 
   // Function to scroll to the bottom of the chat
   const scrollToBottom = () => {
@@ -419,8 +534,27 @@ const ChatbotButton = () => {
 
   // Effect to scroll down whenever messages change
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    // Only scroll if there are messages, we're not in the middle of typing, and input is not focused
+    if (messages.length > 0 && !contextIsTyping && !isInputFocused) {
+      // Use a small delay to ensure the DOM has updated
+      const timeoutId = setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [messages.length, contextIsTyping, isInputFocused]);
+
+  // Additional effect to scroll during typing animation
+  useEffect(() => {
+    if (contextIsTyping) {
+      const intervalId = setInterval(() => {
+        scrollToBottom();
+      }, 100);
+      
+      return () => clearInterval(intervalId);
+    }
+  }, [contextIsTyping]);
 
   const toggleChatbot = (e) => {
     e.stopPropagation();
@@ -477,7 +611,7 @@ const ChatbotButton = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_KEY}`
+          'Authorization': Bearer ${API_KEY}
         },
         body: JSON.stringify({
           contents: [{ parts: [{ text: userInput }] }]
@@ -527,6 +661,11 @@ const ChatbotButton = () => {
     }
   };
 
+  const handlePaste = (e) => {
+    // Prevent any default paste behavior that might cause scrolling
+    e.stopPropagation();
+  };
+
   return (
     <>
       <ChatButton onClick={toggleChatbot} aria-label="Open chat">
@@ -572,18 +711,16 @@ const ChatbotButton = () => {
         
         <ChatBody ref={bodyRef}>
           {messages.map((message, index) => (
-            message.type === 'bot' ? (
-              <BotMessage key={`bot-${index}-${message.text}`}>
-                <ReactMarkdown>{message.text}</ReactMarkdown>
-              </BotMessage>
-            ) : (
-              <UserMessage key={`user-${index}-${message.text}`}>
+            message.type === 'bot' && message.text.trim() !== '' ? (
+              <TypingMessage key={`bot-${index}`} message={message} index={index} />
+            ) : message.type === 'user' ? (
+              <UserMessage key={`user-${index}`}>
                 {message.text}
               </UserMessage>
-            )
+            ) : null
           ))}
           
-          {isTyping && (
+          {contextIsTyping && (
             <TypingIndicator>
               <span></span>
               <span></span>
@@ -599,8 +736,11 @@ const ChatbotButton = () => {
             value={input} 
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
+            onFocus={() => setIsInputFocused(true)}
+            onBlur={() => setIsInputFocused(false)}
           />
-          <SendButton onClick={handleSendMessage} className={isSending || isTyping ? 'sending' : ''} disabled={isSending || isTyping}>
+          <SendButton onClick={handleSendMessage} className={isSending || contextIsTyping ? 'sending' : ''} disabled={isSending || contextIsTyping}>
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M22 2L11 13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
