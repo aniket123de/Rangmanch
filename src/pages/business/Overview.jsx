@@ -1,31 +1,31 @@
 import React, { useEffect, useState } from 'react';
+import { getAuth } from 'firebase/auth';
+import { getBrandProfile } from '../../firebase/firestore';
 import { FaChartBar, FaUsers, FaBullhorn, FaCheckCircle, FaFileInvoiceDollar, FaPlus, FaSearch } from 'react-icons/fa';
-import { supabase } from './supabaseClient';
-import { useBusinessAuth } from './businessAuthContext';
 import BusinessCalendar from './BusinessCalendar';
 
 const Overview = ({ setActiveTab }) => {
-  const { currentUser } = useBusinessAuth();
-  const [businessProfile, setBusinessProfile] = useState(null);
+  const [brand, setBrand] = useState(null);
   const [loading, setLoading] = useState(true);
+  const user = getAuth().currentUser;
 
   useEffect(() => {
-    const fetchBusinessProfile = async () => {
-      if (!currentUser) {
+    const fetchBrand = async () => {
+      if (!user) {
         setLoading(false);
         return;
       }
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('business_profiles')
-        .select('business_name, industry, location')
-        .eq('user_id', currentUser.id)
-        .single();
-      if (data) setBusinessProfile(data);
-      setLoading(false);
+      try {
+        const data = await getBrandProfile(user.uid);
+        setBrand(data);
+      } catch (e) {
+        setBrand(null);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchBusinessProfile();
-  }, [currentUser]);
+    fetchBrand();
+  }, [user]);
 
   // Sample data for dashboard components
   const campaignStats = [
@@ -55,24 +55,25 @@ const Overview = ({ setActiveTab }) => {
   ];
 
   if (loading) {
-    return <div className="text-center py-10 text-lg text-gray-500 dark:text-gray-300">Loading business info...</div>;
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  if (!user) {
+    return <div className="min-h-screen flex items-center justify-center">Please log in to view your overview.</div>;
   }
 
   return (
-    <>
-      {/* Business Info Header */}
-      {businessProfile && (
-        <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow flex flex-col md:flex-row md:items-center md:justify-between border border-gray-100 dark:border-gray-700">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{businessProfile.business_name}</h2>
-            <div className="text-gray-600 dark:text-gray-400 text-base">
-              {businessProfile.industry} &bull; {businessProfile.location}
-            </div>
-          </div>
-        </div>
-      )}
+    <div className="container mx-auto pt-32 px-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+        <h2 className="text-2xl font-bold mb-4">Brand Overview</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-2">Name: {brand?.name || user.email}</p>
+        <p className="text-gray-600 dark:text-gray-400 mb-2">Industry: {brand?.industry || 'N/A'}</p>
+        <p className="text-gray-600 dark:text-gray-400 mb-2">Location: {brand?.location || 'N/A'}</p>
+        <p className="text-gray-600 dark:text-gray-400 mb-2">Business Size: {brand?.businessSize || 'N/A'}</p>
+        <p className="text-gray-600 dark:text-gray-400 mb-2">Years in Business: {brand?.yearsInBusiness || 'N/A'}</p>
+        <p className="text-gray-600 dark:text-gray-400 mb-2">Website: {brand?.website || 'N/A'}</p>
+      </div>
 
-      {/* Key Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {campaignStats.map((stat, index) => (
           <div 
@@ -205,7 +206,7 @@ const Overview = ({ setActiveTab }) => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

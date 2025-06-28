@@ -2,7 +2,8 @@ import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { ThemeContext } from '../context/ThemeContext';
 import { Link } from 'react-router-dom';
-import { doSendPasswordResetEmail } from '../firebase/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../firebase/firebase';
 
 const ForgotPassword = () => {
   const { isDark } = useContext(ThemeContext);
@@ -17,7 +18,7 @@ const ForgotPassword = () => {
     try {
       setIsLoading(true);
       setMessage({ type: '', text: '' });
-      await doSendPasswordResetEmail(email);
+      await sendPasswordResetEmail(auth, email);
       setMessage({
         type: 'success',
         text: 'Password reset link has been sent to your email!'

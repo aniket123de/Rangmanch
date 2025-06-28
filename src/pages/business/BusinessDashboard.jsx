@@ -1,7 +1,8 @@
-import React, { useContext, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Navigate, useNavigate, Link } from 'react-router-dom';
 import { ThemeContext } from '../../context/ThemeContext';
-import { useBusinessAuth } from './businessAuthContext';
+import { getAuth } from 'firebase/auth';
+import { getBrandProfile } from '../../firebase/firestore';
 import BusinessNavbar from '../../components/Navbar/BusinessNavbar';
 import Overview from './Overview';
 import BusinessInfo from './BusinessInfo';
@@ -27,23 +28,14 @@ import {
 
 const BusinessDashboard = () => {
   const { isDark } = useContext(ThemeContext);
-  const { currentUser, businessData, logout } = useBusinessAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const user = getAuth().currentUser;
 
   // Protect the route - redirect to login if not authenticated
-  if (!currentUser) {
+  if (!user) {
     return <Navigate to="/business/login" replace={true} />;
   }
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/business/login');
-    } catch (error) {
-      console.error('Failed to logout:', error);
-    }
-  };
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>

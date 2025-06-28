@@ -5,8 +5,7 @@ import styled from 'styled-components';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaBuilding } from 'react-icons/fa';
 import Icon from '../../assets/icon.png';
-import { useBusinessAuth } from '../../pages/business/businessAuthContext';
-import { useAuth } from '../../contexts/authContext';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 
 const StyledWrapper = styled.div`
   /* === removing default button style ===*/
@@ -86,78 +85,23 @@ const NavLink = ({ href, children }) => {
 };
 
 const BusinessNavbar = () => {
-  const { isDark } = useContext(ThemeContext);
-  const { currentUser: businessUser, logout: businessLogout } = useBusinessAuth();
-  const { userLoggedIn } = useAuth();
+  const { isDark, toggleTheme } = useContext(ThemeContext);
+  const [user, setUser] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
 
-  // Check if we're on a business auth page
-  const isBusinessAuthPage = ['/business/login', '/business/signup', '/business/forgot-password'].includes(location.pathname);
-  const showLoginButton = !isBusinessAuthPage && !businessUser;
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleLogout = async () => {
-    try {
-      await businessLogout();
-      navigate('/business/login');
-    } catch (error) {
-      console.error('Failed to logout:', error);
-    }
+    await signOut(getAuth());
+    navigate('/business/login');
   };
-
-  // Handle back button and page visibility
-  useEffect(() => {
-    // Check if window is defined (client-side)
-    if (typeof window !== 'undefined') {
-      // Handle back button
-      const handlePopState = async () => {
-        if (businessUser) {
-          await handleLogout();
-        }
-      };
-
-      // Handle page visibility change
-      const handleVisibilityChange = async () => {
-        // Remove the automatic logout on page visibility change
-        // This was causing the constant logout issue
-      };
-
-      // Add event listeners
-      window.addEventListener('popstate', handlePopState);
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-
-      // Cleanup function
-      return () => {
-        window.removeEventListener('popstate', handlePopState);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-      };
-    }
-  }, [businessUser]); // Only re-run effect if businessUser changes
-
-  // Prevent accessing business pages directly after logout
-  useEffect(() => {
-    const protectedRoutes = ['/business/dashboard', '/business/profile', '/business/settings'];
-    if (!businessUser && protectedRoutes.some(route => location.pathname.startsWith(route))) {
-      navigate('/business/login');
-    }
-  }, [businessUser, location.pathname, navigate]);
-
-  // Handle page refresh or close
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      // Remove the automatic logout on page refresh
-      // This was causing unnecessary logouts
-    };
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener('beforeunload', handleBeforeUnload);
-
-      return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-      };
-    }
-  }, [businessUser]);
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-6">
@@ -169,7 +113,7 @@ const BusinessNavbar = () => {
       >
         {/* Logo section */}
         <div className="flex items-center gap-3">
-          {businessUser ? (
+          {user ? (
             // When logged in, clicking logo triggers logout
             <button 
               onClick={handleLogout}
@@ -206,7 +150,7 @@ const BusinessNavbar = () => {
         </div>
 
         {/* Link section - Only show when not logged in */}
-        {!businessUser && !userLoggedIn && (
+        {!user && (
           <div className="hidden md:flex items-center gap-8">
             <Link to="/" className="relative text-lg font-semibold dark:text-white group transition-colors duration-300">
               <span className="relative z-10">Home</span>
@@ -222,25 +166,25 @@ const BusinessNavbar = () => {
         {/* Right section - Login/Logout */}
         <div className="flex items-center gap-4 md:gap-6">
           <div className="hidden md:flex items-center gap-4">
-            {showLoginButton ? (
-              <Link 
-                to="/business/login" 
-                className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
-              >
-                Business Login
-              </Link>
-            ) : businessUser && (
+            {user ? (
               <button 
                 onClick={handleLogout}
                 className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
               >
                 Logout
               </button>
+            ) : (
+              <Link 
+                to="/business/login" 
+                className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
+              >
+                Business Login
+              </Link>
             )}
           </div>
 
           {/* Mobile menu button - Only show when not logged in */}
-          {!businessUser && (
+          {!user && (
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -272,7 +216,7 @@ const BusinessNavbar = () => {
           )}
 
           {/* Mobile Logout Button - Show when logged in */}
-          {businessUser && (
+          {user && (
             <button
               onClick={handleLogout}
               className="md:hidden px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 hover:-translate-y-0.5"
@@ -284,7 +228,7 @@ const BusinessNavbar = () => {
       </motion.div>
 
       {/* Mobile Menu - Only show when not logged in */}
-      {isMenuOpen && !businessUser && !userLoggedIn && (
+      {isMenuOpen && !user && (
         <motion.div
           initial={{ opacity: 0, scaleY: 0 }}
           animate={{ opacity: 1, scaleY: 1 }}

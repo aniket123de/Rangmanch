@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { ThemeContext } from '../context/ThemeContext';
-import { Link, Navigate } from 'react-router-dom';
-import { doSignInWithGoogle, doSignInWithEmailAndPassword } from '../firebase/auth';
+import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { signInWithGoogle, signIn } from '../firebase/auth';
 import { useAuth } from '../contexts/authContext';
 
 const Login = () => {
@@ -20,7 +20,7 @@ const Login = () => {
       try {
         setIsSigningIn(true);
         setErrorMessage('');
-        await doSignInWithEmailAndPassword(email, password);
+        await signIn(email, password);
       } catch (error) {
         setErrorMessage(error.message);
       } finally {
@@ -35,7 +35,7 @@ const Login = () => {
       try {
         setIsSigningIn(true);
         setErrorMessage('');
-        await doSignInWithGoogle();
+        await signInWithGoogle();
       } catch (error) {
         setErrorMessage(error.message);
       } finally {

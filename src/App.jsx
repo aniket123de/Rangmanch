@@ -34,7 +34,6 @@ import ScrollProgressBar from './components/common/ScrollProgressBar';
 import { LoadingProvider } from './contexts/LoadingContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/authContext';
-import { BusinessAuthProvider } from './pages/business/businessAuthContext';
 import { ChatbotProvider } from './context/ChatbotContext'; // Add this line
 
 // Import common components
@@ -72,47 +71,45 @@ const App = () => {
     <Router>
       <ThemeProvider>
         <AuthProvider>
-          <BusinessAuthProvider>
-            <LoadingProvider>
-              <ChatbotProvider> {/* Add this wrapper */}
-                
-                <main className="overflow-x-hidden">
-                  <ScrollProgressBar 
-                    color="#9d4edd" 
-                    height={4}
-                  />
-                  <NavbarWrapper />
-                  <Routes>
-                    {/* User Routes */}
-                    <Route path="/" element={<Home />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/email-verification" element={<EmailVerification />} />
-                    <Route path="/content-suggestion" element={<ContentSuggestion />} />
-                    <Route path="/faq" element={<FAQ />} />
-                    <Route path="/tnc" element={<TNC />} />
-                    <Route path="/PP" element={<PP />} />
-                    <Route path="/help" element={<Help />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/offers" element={<Offers />} />
-                    <Route path="/sentiment-analysis" element={<SentimentAnalysis />} />
-                     
-                    {/* Business Routes */}
-                    <Route path="/for-business" element={<ForBusiness />} />
-                    <Route path="/business/login" element={<BusinessLogin />} />
-                    <Route path="/business/signup" element={<BusinessSignup />} />
-                    <Route path="/business/forgot-password" element={<BusinessForgotPassword />} />
-                    <Route path="/business/dashboard" element={<BusinessDashboard />} />
-                  </Routes>
-                  <Footer />
-                  <ScrollToTopButton />
-                  <ChatbotButton />
-                </main>
-              </ChatbotProvider> {/* Close ChatbotProvider */}
-            </LoadingProvider>
-          </BusinessAuthProvider>
+          <LoadingProvider>
+            <ChatbotProvider> {/* Add this wrapper */}
+              
+              <main className="overflow-x-hidden">
+                <ScrollProgressBar 
+                  color="#9d4edd" 
+                  height={4}
+                />
+                <NavbarWrapper />
+                <Routes>
+                  {/* User Routes */}
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/email-verification" element={<EmailVerification />} />
+                  <Route path="/content-suggestion" element={<ContentSuggestion />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/tnc" element={<TNC />} />
+                  <Route path="/PP" element={<PP />} />
+                  <Route path="/help" element={<Help />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/offers" element={<Offers />} />
+                  <Route path="/sentiment-analysis" element={<SentimentAnalysis />} />
+                   
+                  {/* Business Routes */}
+                  <Route path="/for-business" element={<ForBusiness />} />
+                  <Route path="/business/login" element={<BusinessLogin />} />
+                  <Route path="/business/signup" element={<BusinessSignup />} />
+                  <Route path="/business/forgot-password" element={<BusinessForgotPassword />} />
+                  <Route path="/business/dashboard" element={<BusinessDashboard />} />
+                </Routes>
+                <Footer />
+                <ScrollToTopButton />
+                <ChatbotButton />
+              </main>
+            </ChatbotProvider> {/* Close ChatbotProvider */}
+          </LoadingProvider>
         </AuthProvider>
       </ThemeProvider>
     </Router>

@@ -1,13 +1,13 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { ThemeContext } from '../../context/ThemeContext';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { useBusinessAuth } from './businessAuthContext';
 import BusinessNavbar from '../../components/Navbar/BusinessNavbar';
-import { supabase } from './supabaseClient';
+import { signUp } from '../../firebase/auth';
+import { createOrUpdateBrandProfile } from '../../firebase/firestore';
+import { getAuth, signOut } from 'firebase/auth';
 
 const BusinessSignup = () => {
   const { isDark } = useContext(ThemeContext);
-  const { signup, currentUser, loading: authLoading } = useBusinessAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -25,174 +25,71 @@ const BusinessSignup = () => {
     yearsInBusiness: ''
   });
 
-  const [passwordStrength, setPasswordStrength] = useState({
-    score: 0,
-    hasLength: false,
-    hasUppercase: false,
-    hasLowercase: false,
-    hasNumber: false,
-    hasSpecial: false
-  });
-
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [cooldown, setCooldown] = useState(0);
 
-  const checkPasswordStrength = (password) => {
-    const strength = {
-      score: 0,
-      hasLength: password.length >= 8 && password.length <= 16,
-      hasUppercase: /[A-Z]/.test(password),
-      hasLowercase: /[a-z]/.test(password),
-      hasNumber: /[0-9]/.test(password),
-      hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-    };
-
-    if (strength.hasLength) strength.score++;
-    if (strength.hasUppercase) strength.score++;
-    if (strength.hasLowercase) strength.score++;
-    if (strength.hasNumber) strength.score++;
-    if (strength.hasSpecial) strength.score++;
-
-    setPasswordStrength(strength);
-  };
-
-  const getPasswordStrengthColor = () => {
-    const { score } = passwordStrength;
-    if (score <= 2) return '#ef4444';
-    if (score <= 4) return '#eab308';
-    return '#22c55e';
-  };
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const user = getAuth().currentUser;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-
-    if (name === 'password') {
-      checkPasswordStrength(value);
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
-  useEffect(() => {
-    let timer;
-    if (cooldown > 0) {
-      timer = setInterval(() => {
-        setCooldown(prev => prev - 1);
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [cooldown]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (isSigningUp || cooldown > 0) {
+    setErrorMessage('');
+    setSuccessMessage('');
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage('Passwords do not match.');
       return;
     }
-
-    if (formData.email && formData.password) {
-      if (!validateEmail(formData.email)) {
-        setErrorMessage('Please enter a valid email address.');
-        return;
-      }
-
-      if (formData.password !== formData.confirmPassword) {
-        setErrorMessage('Passwords do not match');
-        return;
-      }
-
-      if (formData.password.length < 6) {
-        setErrorMessage('Password must be at least 6 characters long.');
-        return;
-      }
-
-      try {
-        setIsSigningUp(true);
-        setErrorMessage('');
-        setSuccessMessage('');
-
-        const businessInfo = {
-          businessName: formData.businessName,
-          industry: formData.industry,
-          location: formData.location,
-          website: formData.website,
-          linkedin: formData.linkedin,
-          instagram: formData.instagram,
-          twitter: formData.twitter,
-          businessSize: formData.businessSize,
-          yearsInBusiness: formData.yearsInBusiness
-        };
-
-        // Create user in Supabase Auth
-        const user = await signup(formData.email, formData.password, businessInfo);
-
-        // Get the user ID (from returned user or from session)
-        let userId = user?.id;
-        if (!userId) {
-          const { data: { session } } = await supabase.auth.getSession();
-          userId = session?.user?.id;
-        }
-
-        // Insert business info into business_profiles table
-        if (userId) {
-          await supabase.from('business_profiles').upsert({
-            user_id: userId,
-            business_name: formData.businessName,
-            industry: formData.industry,
-            location: formData.location,
-            website: formData.website,
-            linkedin: formData.linkedin,
-            instagram: formData.instagram,
-            twitter: formData.twitter,
-            business_size: formData.businessSize,
-            years_in_business: formData.yearsInBusiness,
-            email: formData.email
-          });
-        }
-
-        if (!userId) {
-          setSuccessMessage('Account created! Please check your email to confirm, then log in.');
-        } else {
-          setSuccessMessage('Account created! Please check your email to confirm, then log in.');
-          setTimeout(() => {
-            navigate('/business/login', { state: { signupSuccess: true } });
-          }, 2000);
-        }
-      } catch (error) {
-        if (error.message.includes('Email rate limit exceeded')) {
-          setErrorMessage(`Too many signup attempts. Please try again in ${cooldown || 14} seconds.`);
-          setCooldown(14);
-        } else if (error.message.includes('User already registered')) {
-          setErrorMessage('This email is already registered. Please log in instead.');
-        } else if (error.message.includes('Password should be at least 6 characters')) {
-          setErrorMessage('Password must be at least 6 characters long.');
-        } else if (error.message.includes('invalid')) {
-          setErrorMessage('Please enter a valid email address.');
-        } else {
-          setErrorMessage(error.message || 'An error occurred during signup. Please try again.');
-        }
-      } finally {
-        setIsSigningUp(false);
-      }
+    setIsSigningUp(true);
+    try {
+      // Sign up with Firebase Auth
+      const { user } = await signUp(formData.email, formData.password, formData.businessName);
+      // Create brand profile in Firestore
+      await createOrUpdateBrandProfile(user.uid, {
+        name: formData.businessName,
+        industry: formData.industry,
+        location: formData.location,
+        website: formData.website,
+        linkedin: formData.linkedin,
+        instagram: formData.instagram,
+        twitter: formData.twitter,
+        businessSize: formData.businessSize,
+        yearsInBusiness: formData.yearsInBusiness,
+        email: formData.email
+      });
+      setSuccessMessage('Account created! You can now log in.');
+      setTimeout(() => {
+        navigate('/business/login', { state: { signupSuccess: true } });
+      }, 2000);
+    } catch (error) {
+      setErrorMessage(error.message || 'An error occurred during signup. Please try again.');
+    } finally {
+      setIsSigningUp(false);
     }
   };
 
-  if (!authLoading && currentUser) {
-    return <Navigate to="/business/dashboard" replace={true} />;
-  }
+  const handleLogout = async () => {
+    await signOut(getAuth());
+    window.location.href = '/business/login';
+  };
 
-  if (authLoading) {
+  if (user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-white dark:from-gray-900 dark:to-black">
-        <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+          <p className="mb-4">You are already logged in as {user.email}.</p>
+          <button
+            onClick={handleLogout}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all duration-200"
+          >
+            Logout
+          </button>
+        </div>
       </div>
     );
   }
@@ -236,7 +133,6 @@ const BusinessSignup = () => {
                       disabled={isSigningUp || cooldown > 0}
                     />
                   </div>
-
                   <div>
                     <label className="block text-gray-700 dark:text-gray-300 mb-2">Industry</label>
                     <input
@@ -250,7 +146,6 @@ const BusinessSignup = () => {
                       disabled={isSigningUp || cooldown > 0}
                     />
                   </div>
-
                   <div>
                     <label className="block text-gray-700 dark:text-gray-300 mb-2">Location</label>
                     <input
@@ -264,88 +159,22 @@ const BusinessSignup = () => {
                       disabled={isSigningUp || cooldown > 0}
                     />
                   </div>
-
-                  <div>
-                    <label className="block text-gray-700 dark:text-gray-300 mb-2">Business Email</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter your business email"
-                      required
-                      disabled={isSigningUp || cooldown > 0}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-700 dark:text-gray-300 mb-2">Password</label>
-                    <input
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                      placeholder="Create a password"
-                      required
-                      disabled={isSigningUp || cooldown > 0}
-                    />
-                    {formData.password && (
-                      <div className="mt-2">
-                        <div className="h-2 bg-gray-200 rounded-full">
-                          <div
-                            className="h-2 rounded-full transition-all duration-300"
-                            style={{
-                              width: `${(passwordStrength.score / 5) * 100}%`,
-                              backgroundColor: getPasswordStrengthColor()
-                            }}
-                          />
-                        </div>
-                        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                          <ul className="list-disc list-inside">
-                            <li className={passwordStrength.hasLength ? 'text-green-500' : ''}>8-16 characters</li>
-                            <li className={passwordStrength.hasUppercase ? 'text-green-500' : ''}>One uppercase letter</li>
-                            <li className={passwordStrength.hasLowercase ? 'text-green-500' : ''}>One lowercase letter</li>
-                            <li className={passwordStrength.hasNumber ? 'text-green-500' : ''}>One number</li>
-                            <li className={passwordStrength.hasSpecial ? 'text-green-500' : ''}>One special character</li>
-                          </ul>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-700 dark:text-gray-300 mb-2">Confirm Password</label>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                      placeholder="Confirm your password"
-                      required
-                      disabled={isSigningUp || cooldown > 0}
-                    />
-                  </div>
-
                   <div>
                     <label className="block text-gray-700 dark:text-gray-300 mb-2">Website</label>
                     <input
-                      type="url"
+                      type="text"
                       name="website"
                       value={formData.website}
                       onChange={handleChange}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter your website URL"
+                      placeholder="Enter your website"
                       disabled={isSigningUp || cooldown > 0}
                     />
                   </div>
-
                   <div>
                     <label className="block text-gray-700 dark:text-gray-300 mb-2">LinkedIn</label>
                     <input
-                      type="url"
+                      type="text"
                       name="linkedin"
                       value={formData.linkedin}
                       onChange={handleChange}
@@ -354,7 +183,6 @@ const BusinessSignup = () => {
                       disabled={isSigningUp || cooldown > 0}
                     />
                   </div>
-
                   <div>
                     <label className="block text-gray-700 dark:text-gray-300 mb-2">Instagram</label>
                     <input
@@ -367,7 +195,6 @@ const BusinessSignup = () => {
                       disabled={isSigningUp || cooldown > 0}
                     />
                   </div>
-
                   <div>
                     <label className="block text-gray-700 dark:text-gray-300 mb-2">Twitter</label>
                     <input
@@ -380,26 +207,18 @@ const BusinessSignup = () => {
                       disabled={isSigningUp || cooldown > 0}
                     />
                   </div>
-
                   <div>
                     <label className="block text-gray-700 dark:text-gray-300 mb-2">Business Size</label>
-                    <select
+                    <input
+                      type="text"
                       name="businessSize"
                       value={formData.businessSize}
                       onChange={handleChange}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                      required
+                      placeholder="Enter your business size"
                       disabled={isSigningUp || cooldown > 0}
-                    >
-                      <option value="">Select business size</option>
-                      <option value="1-10">1-10 employees</option>
-                      <option value="11-50">11-50 employees</option>
-                      <option value="51-200">51-200 employees</option>
-                      <option value="201-500">201-500 employees</option>
-                      <option value="501+">501+ employees</option>
-                    </select>
+                    />
                   </div>
-
                   <div>
                     <label className="block text-gray-700 dark:text-gray-300 mb-2">Years in Business</label>
                     <select
@@ -420,6 +239,62 @@ const BusinessSignup = () => {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                      placeholder="Enter your email"
+                      required
+                      disabled={isSigningUp || cooldown > 0}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 dark:text-gray-300 mb-2">Password</label>
+                    <input
+                      type="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                      placeholder="Enter your password"
+                      required
+                      disabled={isSigningUp || cooldown > 0}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 dark:text-gray-300 mb-2">Role</label>
+                    <input
+                      type="hidden"
+                      value="brand"
+                      disabled
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none dark:bg-gray-700 dark:text-white"
+                      style={{ 
+                        backgroundColor: '#f5f5f5',
+                        cursor: 'not-allowed',
+                        opacity: 0.7
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 dark:text-gray-300 mb-2">Confirm Password</label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                      placeholder="Confirm your password"
+                      required
+                      disabled={isSigningUp || cooldown > 0}
+                    />
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   disabled={isSigningUp || cooldown > 0}
@@ -428,15 +303,6 @@ const BusinessSignup = () => {
                   {isSigningUp ? 'Creating Account...' : cooldown > 0 ? `Retry in ${cooldown}s` : 'Create Account'}
                 </button>
               </form>
-
-              <div className="mt-6 text-center">
-                <p className="text-gray-600 dark:text-gray-400">
-                  Already have a business account?{' '}
-                  <Link to="/business/login" className="text-purple-600 hover:text-purple-500 font-semibold">
-                    Sign in
-                  </Link>
-                </p>
-              </div>
             </div>
           </div>
         </div>

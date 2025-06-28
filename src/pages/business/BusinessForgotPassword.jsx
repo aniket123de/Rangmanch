@@ -1,13 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { ThemeContext } from '../../context/ThemeContext';
 import { Link } from 'react-router-dom';
-import { useBusinessAuth } from './businessAuthContext';
 import BusinessNavbar from '../../components/Navbar/BusinessNavbar';
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 
 const BusinessForgotPassword = () => {
   const { isDark } = useContext(ThemeContext);
-  const { resetPassword } = useBusinessAuth();
-
   const [email, setEmail] = useState('');
   const [isResetting, setIsResetting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -20,15 +18,15 @@ const BusinessForgotPassword = () => {
         setIsResetting(true);
         setErrorMessage('');
         setSuccessMessage('');
-        await resetPassword(email);
+        await sendPasswordResetEmail(getAuth(), email);
         setSuccessMessage('Password reset email sent. Please check your inbox.');
       } catch (error) {
-        setErrorMessage(error.message);
+        setErrorMessage(error.message || 'Failed to send password reset email.');
       } finally {
         setIsResetting(false);
       }
     }
-  }
+  };
 
   return (
     <>

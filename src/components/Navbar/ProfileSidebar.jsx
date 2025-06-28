@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeContext } from '../../context/ThemeContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { doSignOut } from '../../firebase/auth';
+import { signOutUser } from '../../firebase/auth';
 import { useAuth } from '../../contexts/authContext';
 import { 
   FaUser, 
@@ -34,7 +34,7 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
 
   const handleLogout = async () => {
     try {
-      await doSignOut();
+      await signOutUser();
       onClose(); // Close the sidebar
       navigate('/'); // Navigate to home page
     } catch (error) {

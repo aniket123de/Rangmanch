@@ -1,54 +1,83 @@
-import { auth, googleProvider } from "./firebase";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
   signOut,
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  updatePassword,
-  updateProfile
-} from "firebase/auth";
+  updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup
+} from 'firebase/auth';
+import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { auth, db } from './firebase';
 
-export const doCreateUserWithEmailAndPassword = async (email, password, fullName) => {
-  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  await updateProfile(userCredential.user, {
-    displayName: fullName
-  });
-  return userCredential;
-};
-
-export const doSignInWithEmailAndPassword = async (email, password) => {
-  return signInWithEmailAndPassword(auth, email, password);
-};
-
-export const doSignInWithGoogle = async () => {
+// Sign up with email, password, and role
+export const signUp = async (email, password, displayName = '') => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    return result;
+    // Create user with Firebase Auth
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Update display name if provided
+    if (displayName) {
+      await updateProfile(user, { displayName });
+    }
+
+    // Save user data to Firestore
+    await setDoc(doc(db, 'users', user.uid), {
+      email: user.email,
+      role: 'brand',
+      displayName: displayName || user.displayName,
+      createdAt: serverTimestamp(),
+      uid: user.uid
+    });
+
+    return { user, role: 'brand' };
   } catch (error) {
-    console.error("Google Sign In Error:", error);
     throw error;
   }
 };
 
-export const doSignOut = () => {
-  return signOut(auth);
+// Sign in with email and password
+export const signIn = async (email, password) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (error) {
+    throw error;
+  }
 };
 
-export const doSendPasswordResetEmail = (email) => {
-  return sendPasswordResetEmail(auth, email);
+// Sign in with Google
+export const signInWithGoogle = async () => {
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    // Check if user already exists in Firestore
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    
+    if (!userDoc.exists()) {
+      // New user - prompt for role selection
+      // You might want to redirect to a role selection page
+      console.log('New Google user - needs role selection');
+    }
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
 };
 
-export const doPasswordChange = (password) => {
-  return updatePassword(auth.currentUser, password);
+// Sign out
+export const signOutUser = async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    throw error;
+  }
 };
 
-export const doSendEmailVerification = () => {
-  return sendEmailVerification(auth.currentUser, {
-    url: `${window.location.origin}`
-  });
-};
-
-
-
+// Get current user
+export const getCurrentUser = () => {
+  return auth.currentUser;
+}; 

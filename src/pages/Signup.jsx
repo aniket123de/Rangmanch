@@ -1,8 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ThemeContext } from '../context/ThemeContext';
-import { Link, Navigate } from 'react-router-dom';
-import { doCreateUserWithEmailAndPassword } from '../firebase/auth';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { signUp } from '../firebase/auth';
 import { useAuth } from '../contexts/authContext';
 
 const Signup = () => {
@@ -125,7 +125,7 @@ const Signup = () => {
     try {
       setIsSigningUp(true);
       setErrorMessage('');
-      await doCreateUserWithEmailAndPassword(formData.email, formData.password, formData.fullName);
+      await signUp(formData.email, formData.password, formData.fullName);
     } catch (error) {
       setErrorMessage(error.message);
     } finally {

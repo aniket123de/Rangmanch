@@ -1,13 +1,24 @@
-import React, { useContext, useState } from "react";
-import { motion } from "framer-motion";
-import { ThemeContext } from "../../context/ThemeContext";
+import React, { useContext, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ThemeContext } from '../../context/ThemeContext';
 import styled from 'styled-components';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ProfileSidebar from './ProfileSidebar';
 import Icon from '../../assets/icon.png';
 import { useAuth } from '../../contexts/authContext';
 import AnimatedButton from '../common/AnimatedButton';
-import { useBusinessAuth } from '../../pages/business/businessAuthContext'; 
+import { signOutUser } from '../../firebase/auth';
+import { 
+  FaBars, 
+  FaTimes, 
+  FaUser, 
+  FaSignOutAlt, 
+  FaCog, 
+  FaHeart,
+  FaBell,
+  FaSearch,
+  FaShoppingCart
+} from 'react-icons/fa';
 
 const StyledWrapper = styled.div`
   /* === removing default button style ===*/
@@ -231,7 +242,6 @@ const NavLink = ({ href, children }) => {
 const Navbar = () => {
   const { isDark } = useContext(ThemeContext);
   const { userLoggedIn, currentUser } = useAuth();
-  const { currentUser: businessUser } = useBusinessAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
@@ -296,7 +306,7 @@ const Navbar = () => {
         <div className="flex items-center gap-4 md:gap-6">
           <div className="hidden md:flex items-center gap-4">
             {/* For Business Button - Only show if no user is logged in (business or regular) */}
-            {!userLoggedIn && !businessUser && !isAuthPage && (
+            {!userLoggedIn && !isAuthPage && (
               <>
                 <AnimatedButton 
                   onClick={() => navigate('/for-business')}
@@ -413,7 +423,7 @@ const Navbar = () => {
         ))}
         
         {/* For Business Button */}
-        {!userLoggedIn && !businessUser && (
+        {!userLoggedIn && (
           <AnimatedButton
             onClick={() => {
               navigate('/for-business');
