@@ -84,145 +84,165 @@ const BusinessInfo = () => {
   }
 
   return (
-    <>
-      <button
-        onClick={handleLogout}
-        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 mb-4 float-right"
-      >
-        Logout
-      </button>
-      <form onSubmit={handleSubmit}>
-        {/* Business Profile */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8 mb-8 border border-gray-100 dark:border-gray-700">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Business Profile</h2>
-              <p className="text-gray-600 dark:text-gray-400">Manage your business information visible to creators</p>
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-4 md:mt-0 px-4 py-2 bg-gradient-to-r from-[#9d4edd] to-[#c77dff] text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
-            >
-              <FaCog className="text-sm" /> {loading ? 'Saving...' : 'Save Profile'}
-            </button>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <div className="container mx-auto px-4">
+        {/* Header with Logout */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Business Settings</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your business profile and information</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-gray-700 dark:text-gray-300 mb-2">Business Name</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter your business name"
-                required
-                disabled={loading}
-              />
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          {/* Business Profile */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8 mb-8 border border-gray-100 dark:border-gray-700">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Business Profile</h2>
+                <p className="text-gray-600 dark:text-gray-400">Manage your business information visible to creators</p>
+              </div>
+              <div className="flex gap-3 mt-4 md:mt-0">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-6 py-2 bg-gradient-to-r from-[#9d4edd] to-[#c77dff] text-white rounded-lg hover:from-[#8b3ad3] hover:to-[#b96ef7] transition-all duration-200 flex items-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <FaCog className={`text-sm ${loading ? 'animate-spin' : ''}`} />
+                  {loading ? 'Saving...' : 'Save Profile'}
+                </button>
+              </div>
             </div>
+          <div className="space-y-6">
+            {/* Basic Information */}
             <div>
-              <label className="block text-gray-700 dark:text-gray-300 mb-2">Industry</label>
-              <input
-                type="text"
-                name="industry"
-                value={formData.industry}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter your industry"
-                required
-                disabled={loading}
-              />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Business Name *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white text-sm"
+                    placeholder="Enter your business name"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Industry *</label>
+                  <input
+                    type="text"
+                    name="industry"
+                    value={formData.industry}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white text-sm"
+                    placeholder="Enter your industry"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Location *</label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white text-sm"
+                    placeholder="Enter your location"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Business Size</label>
+                  <input
+                    type="text"
+                    name="businessSize"
+                    value={formData.businessSize}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white text-sm"
+                    placeholder="e.g., 1-10 employees"
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Years in Business</label>
+                  <input
+                    type="text"
+                    name="yearsInBusiness"
+                    value={formData.yearsInBusiness}
+                    onChange={handleInputChange}
+                    className="w-full md:w-1/2 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white text-sm"
+                    placeholder="e.g., 5 years"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
             </div>
+
+            {/* Online Presence */}
             <div>
-              <label className="block text-gray-700 dark:text-gray-300 mb-2">Location</label>
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter your location"
-                required
-                disabled={loading}
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 dark:text-gray-300 mb-2">Business Size</label>
-              <input
-                type="text"
-                name="businessSize"
-                value={formData.businessSize}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter your business size"
-                disabled={loading}
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 dark:text-gray-300 mb-2">Years in Business</label>
-              <input
-                type="text"
-                name="yearsInBusiness"
-                value={formData.yearsInBusiness}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter years in business"
-                disabled={loading}
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 dark:text-gray-300 mb-2">Website</label>
-              <input
-                type="text"
-                name="website"
-                value={formData.website}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter your website"
-                disabled={loading}
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 dark:text-gray-300 mb-2">LinkedIn</label>
-              <input
-                type="text"
-                name="linkedin"
-                value={formData.linkedin}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter your LinkedIn profile"
-                disabled={loading}
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 dark:text-gray-300 mb-2">Instagram</label>
-              <input
-                type="text"
-                name="instagram"
-                value={formData.instagram}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter your Instagram handle"
-                disabled={loading}
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 dark:text-gray-300 mb-2">Twitter</label>
-              <input
-                type="text"
-                name="twitter"
-                value={formData.twitter}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter your Twitter handle"
-                disabled={loading}
-              />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Online Presence</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Website</label>
+                  <input
+                    type="url"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white text-sm"
+                    placeholder="https://www.example.com"
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">LinkedIn</label>
+                  <input
+                    type="url"
+                    name="linkedin"
+                    value={formData.linkedin}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white text-sm"
+                    placeholder="https://linkedin.com/company/..."
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Instagram</label>
+                  <input
+                    type="text"
+                    name="instagram"
+                    value={formData.instagram}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white text-sm"
+                    placeholder="@yourbusiness"
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Twitter</label>
+                  <input
+                    type="text"
+                    name="twitter"
+                    value={formData.twitter}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white text-sm"
+                    placeholder="@yourbusiness"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </form>
-    </>
+      </div>
+    </div>
   );
 };
 

@@ -58,14 +58,34 @@ const Overview = ({ setActiveTab }) => {
 
   return (
     <div className="container mx-auto pt-32 px-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-        <h2 className="text-2xl font-bold mb-4">Brand Overview</h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-2">Name: {brand?.name || user.email}</p>
-        <p className="text-gray-600 dark:text-gray-400 mb-2">Industry: {brand?.industry || 'N/A'}</p>
-        <p className="text-gray-600 dark:text-gray-400 mb-2">Location: {brand?.location || 'N/A'}</p>
-        <p className="text-gray-600 dark:text-gray-400 mb-2">Business Size: {brand?.businessSize || 'N/A'}</p>
-        <p className="text-gray-600 dark:text-gray-400 mb-2">Years in Business: {brand?.yearsInBusiness || 'N/A'}</p>
-        <p className="text-gray-600 dark:text-gray-400 mb-2">Website: {brand?.website || 'N/A'}</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">Brand Overview</h2>
+        <div className="space-y-3">
+          <div className="flex">
+            <span className="font-medium text-gray-700 dark:text-gray-300 w-32">Name:</span>
+            <span className="text-gray-600 dark:text-gray-400">{brand?.name || user.email}</span>
+          </div>
+          <div className="flex">
+            <span className="font-medium text-gray-700 dark:text-gray-300 w-32">Industry:</span>
+            <span className="text-gray-600 dark:text-gray-400">{brand?.industry || 'N/A'}</span>
+          </div>
+          <div className="flex">
+            <span className="font-medium text-gray-700 dark:text-gray-300 w-32">Location:</span>
+            <span className="text-gray-600 dark:text-gray-400">{brand?.location || 'N/A'}</span>
+          </div>
+          <div className="flex">
+            <span className="font-medium text-gray-700 dark:text-gray-300 w-32">Business Size:</span>
+            <span className="text-gray-600 dark:text-gray-400">{brand?.businessSize || 'N/A'}</span>
+          </div>
+          <div className="flex">
+            <span className="font-medium text-gray-700 dark:text-gray-300 w-32">Years Active:</span>
+            <span className="text-gray-600 dark:text-gray-400">{brand?.yearsInBusiness || 'N/A'}</span>
+          </div>
+          <div className="flex">
+            <span className="font-medium text-gray-700 dark:text-gray-300 w-32">Website:</span>
+            <span className="text-gray-600 dark:text-gray-400">{brand?.website || 'N/A'}</span>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
