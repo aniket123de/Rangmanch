@@ -40,6 +40,7 @@ const CreatorsNetwork = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const creatorsPerPage = 5;
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'rejected', 'accepted', or 'sent'
 
   // Listen for Firebase Auth user
   useEffect(() => {
@@ -135,15 +136,37 @@ const CreatorsNetwork = () => {
 
   // Sort creators by createdAt (latest first)
   const sortedCreators = [...filteredCreators].sort((a, b) => {
-    // If you have a createdAt timestamp:
     return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
   });
+
+  // Filter for rejected creators
+  const rejectedCreators = sortedCreators.filter(
+    creator => creatorNotificationMap[creator.id]?.status === 'rejected'
+  );
+  // Filter for accepted creators
+  const acceptedCreators = sortedCreators.filter(
+    creator => creatorNotificationMap[creator.id]?.status === 'accepted'
+  );
+  // Filter for sent creators (status 'new' or 'viewed')
+  const sentCreators = sortedCreators.filter(
+    creator => {
+      const status = creatorNotificationMap[creator.id]?.status;
+      return status === 'new' || status === 'viewed';
+    }
+  );
+  // Filter for 'all' tab: not accepted, not rejected, not sent
+  const allTabCreators = sortedCreators.filter(
+    creator => {
+      const status = creatorNotificationMap[creator.id]?.status;
+      return status !== 'accepted' && status !== 'rejected' && status !== 'new' && status !== 'viewed';
+    }
+  );
 
   // Pagination logic
   const indexOfLast = currentPage * creatorsPerPage;
   const indexOfFirst = indexOfLast - creatorsPerPage;
-  const currentCreators = sortedCreators.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(sortedCreators.length / creatorsPerPage);
+  const currentCreators = allTabCreators.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(allTabCreators.length / creatorsPerPage);
 
   const handleConnect = (creator) => {
     setSelectedCreator(creator);
@@ -258,6 +281,34 @@ const CreatorsNetwork = () => {
             {showFilters ? 'Hide Filters' : '+ Find Creators'}
           </button>
         </div>
+      </div>
+
+      {/* Tab UI */}
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={() => setActiveTab('all')}
+          className={`px-4 py-2 rounded-lg font-semibold ${activeTab === 'all' ? 'bg-purple-600 text-white' : 'bg-gray-300 text-gray-700'}`}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setActiveTab('accepted')}
+          className={`px-4 py-2 rounded-lg font-semibold ${activeTab === 'accepted' ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-700'}`}
+        >
+          Accepted
+        </button>
+        <button
+          onClick={() => setActiveTab('sent')}
+          className={`px-4 py-2 rounded-lg font-semibold ${activeTab === 'sent' ? 'bg-gray-500 text-white' : 'bg-gray-300 text-gray-700'}`}
+        >
+          Sent
+        </button>
+        <button
+          onClick={() => setActiveTab('rejected')}
+          className={`px-4 py-2 rounded-lg font-semibold ${activeTab === 'rejected' ? 'bg-red-600 text-white' : 'bg-gray-300 text-gray-700'}`}
+        >
+          Rejected
+        </button>
       </div>
 
       {/* Smart Filters Panel */}
@@ -393,6 +444,195 @@ const CreatorsNetwork = () => {
           <tbody>
             {loading ? (
               <tr><td colSpan={5} className="text-center py-8">Loading...</td></tr>
+            ) : activeTab === 'rejected' ? (
+              rejectedCreators.length === 0 ? (
+                <tr><td colSpan={5} className="text-center py-8">No rejected creators.</td></tr>
+              ) : (
+                rejectedCreators.map(creator => (
+                  <tr key={creator.id} className="border-b border-gray-700 hover:bg-gray-700/20 transition">
+                    <td className="flex items-center gap-3 py-3">
+                      {creator.avatarUrl ? (
+                        <img src={creator.avatarUrl} alt={creator.name} className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-bold text-lg">
+                          {creator.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}
+                        </div>
+                      )}
+                      <span className="font-semibold">{creator.name}</span>
+                    </td>
+                    <td className="py-3">{creator.niche || '--'}</td>
+                    <td className="py-3">
+                      <div className="flex gap-3">
+                        {creator.socials?.instagram ? (
+                          <a href={creator.socials.instagram} target="_blank" rel="noopener noreferrer" title="Instagram">
+                            <FaInstagram className="text-pink-500 hover:text-pink-600 text-xl" />
+                          </a>
+                        ) : (
+                          <FaInstagram className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="Instagram not provided" />
+                        )}
+                        {creator.socials?.youtube ? (
+                          <a href={creator.socials.youtube} target="_blank" rel="noopener noreferrer" title="YouTube">
+                            <FaYoutube className="text-red-500 hover:text-red-600 text-xl" />
+                          </a>
+                        ) : (
+                          <FaYoutube className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="YouTube not provided" />
+                        )}
+                        {creator.socials?.linkedin ? (
+                          <a href={creator.socials.linkedin} target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                            <FaLinkedin className="text-blue-600 hover:text-blue-700 text-xl" />
+                          </a>
+                        ) : (
+                          <FaLinkedin className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="LinkedIn not provided" />
+                        )}
+                        {creator.email ? (
+                          <a href={`mailto:${creator.email}`} title="Email">
+                            <FaEnvelope className="text-green-500 hover:text-green-600 text-xl" />
+                          </a>
+                        ) : (
+                          <FaEnvelope className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="Email not provided" />
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-3">
+                      {creator.tariff ? `₹${creator.tariff}` : '--'}
+                    </td>
+                    <td className="py-3">
+                      <button
+                        className={`bg-red-600 text-white px-4 py-2 rounded-lg font-semibold opacity-60 cursor-not-allowed`}
+                        disabled
+                      >
+                        Rejected
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )
+            ) : activeTab === 'accepted' ? (
+              acceptedCreators.length === 0 ? (
+                <tr><td colSpan={5} className="text-center py-8">No accepted creators.</td></tr>
+              ) : (
+                acceptedCreators.map(creator => (
+                  <tr key={creator.id} className="border-b border-gray-700 hover:bg-gray-700/20 transition">
+                    <td className="flex items-center gap-3 py-3">
+                      {creator.avatarUrl ? (
+                        <img src={creator.avatarUrl} alt={creator.name} className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-bold text-lg">
+                          {creator.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}
+                        </div>
+                      )}
+                      <span className="font-semibold">{creator.name}</span>
+                    </td>
+                    <td className="py-3">{creator.niche || '--'}</td>
+                    <td className="py-3">
+                      <div className="flex gap-3">
+                        {creator.socials?.instagram ? (
+                          <a href={creator.socials.instagram} target="_blank" rel="noopener noreferrer" title="Instagram">
+                            <FaInstagram className="text-pink-500 hover:text-pink-600 text-xl" />
+                          </a>
+                        ) : (
+                          <FaInstagram className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="Instagram not provided" />
+                        )}
+                        {creator.socials?.youtube ? (
+                          <a href={creator.socials.youtube} target="_blank" rel="noopener noreferrer" title="YouTube">
+                            <FaYoutube className="text-red-500 hover:text-red-600 text-xl" />
+                          </a>
+                        ) : (
+                          <FaYoutube className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="YouTube not provided" />
+                        )}
+                        {creator.socials?.linkedin ? (
+                          <a href={creator.socials.linkedin} target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                            <FaLinkedin className="text-blue-600 hover:text-blue-700 text-xl" />
+                          </a>
+                        ) : (
+                          <FaLinkedin className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="LinkedIn not provided" />
+                        )}
+                        {creator.email ? (
+                          <a href={`mailto:${creator.email}`} title="Email">
+                            <FaEnvelope className="text-green-500 hover:text-green-600 text-xl" />
+                          </a>
+                        ) : (
+                          <FaEnvelope className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="Email not provided" />
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-3">
+                      {creator.tariff ? `₹${creator.tariff}` : '--'}
+                    </td>
+                    <td className="py-3">
+                      <button
+                        className={`bg-green-600 text-white px-4 py-2 rounded-lg font-semibold opacity-60 cursor-not-allowed`}
+                        disabled
+                      >
+                        Connected
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )
+            ) : activeTab === 'sent' ? (
+              sentCreators.length === 0 ? (
+                <tr><td colSpan={5} className="text-center py-8">No sent creators.</td></tr>
+              ) : (
+                sentCreators.map(creator => (
+                  <tr key={creator.id} className="border-b border-gray-700 hover:bg-gray-700/20 transition">
+                    <td className="flex items-center gap-3 py-3">
+                      {creator.avatarUrl ? (
+                        <img src={creator.avatarUrl} alt={creator.name} className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-bold text-lg">
+                          {creator.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}
+                        </div>
+                      )}
+                      <span className="font-semibold">{creator.name}</span>
+                    </td>
+                    <td className="py-3">{creator.niche || '--'}</td>
+                    <td className="py-3">
+                      <div className="flex gap-3">
+                        {creator.socials?.instagram ? (
+                          <a href={creator.socials.instagram} target="_blank" rel="noopener noreferrer" title="Instagram">
+                            <FaInstagram className="text-pink-500 hover:text-pink-600 text-xl" />
+                          </a>
+                        ) : (
+                          <FaInstagram className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="Instagram not provided" />
+                        )}
+                        {creator.socials?.youtube ? (
+                          <a href={creator.socials.youtube} target="_blank" rel="noopener noreferrer" title="YouTube">
+                            <FaYoutube className="text-red-500 hover:text-red-600 text-xl" />
+                          </a>
+                        ) : (
+                          <FaYoutube className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="YouTube not provided" />
+                        )}
+                        {creator.socials?.linkedin ? (
+                          <a href={creator.socials.linkedin} target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                            <FaLinkedin className="text-blue-600 hover:text-blue-700 text-xl" />
+                          </a>
+                        ) : (
+                          <FaLinkedin className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="LinkedIn not provided" />
+                        )}
+                        {creator.email ? (
+                          <a href={`mailto:${creator.email}`} title="Email">
+                            <FaEnvelope className="text-green-500 hover:text-green-600 text-xl" />
+                          </a>
+                        ) : (
+                          <FaEnvelope className="text-gray-400 text-xl cursor-not-allowed opacity-60" title="Email not provided" />
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-3">
+                      {creator.tariff ? `₹${creator.tariff}` : '--'}
+                    </td>
+                    <td className="py-3">
+                      <button
+                        className={`bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold opacity-60 cursor-not-allowed`}
+                        disabled
+                      >
+                        Sent
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )
             ) : currentCreators.length === 0 ? (
               <tr><td colSpan={5} className="text-center py-8">No creators found.</td></tr>
             ) : (
@@ -482,8 +722,8 @@ const CreatorsNetwork = () => {
         </table>
       </div>
 
-      {/* Pagination controls */}
-      {totalPages > 1 && (
+      {/* Pagination controls (only for 'all' tab) */}
+      {activeTab === 'all' && totalPages > 1 && (
         <div className="flex justify-center mt-4 gap-2">
           {Array.from({ length: totalPages }, (_, i) => (
             <button
