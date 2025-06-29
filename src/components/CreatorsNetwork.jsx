@@ -38,6 +38,8 @@ const CreatorsNetwork = () => {
     hasLinkedin: false,
     hasEmail: false
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const creatorsPerPage = 5;
 
   // Listen for Firebase Auth user
   useEffect(() => {
@@ -130,6 +132,18 @@ const CreatorsNetwork = () => {
 
   // Get unique niches for filter dropdown
   const uniqueNiches = [...new Set(creators.map(c => c.niche).filter(Boolean))].sort();
+
+  // Sort creators by createdAt (latest first)
+  const sortedCreators = [...filteredCreators].sort((a, b) => {
+    // If you have a createdAt timestamp:
+    return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+  });
+
+  // Pagination logic
+  const indexOfLast = currentPage * creatorsPerPage;
+  const indexOfFirst = indexOfLast - creatorsPerPage;
+  const currentCreators = sortedCreators.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(sortedCreators.length / creatorsPerPage);
 
   const handleConnect = (creator) => {
     setSelectedCreator(creator);
@@ -379,10 +393,10 @@ const CreatorsNetwork = () => {
           <tbody>
             {loading ? (
               <tr><td colSpan={5} className="text-center py-8">Loading...</td></tr>
-            ) : filteredCreators.length === 0 ? (
+            ) : currentCreators.length === 0 ? (
               <tr><td colSpan={5} className="text-center py-8">No creators found.</td></tr>
             ) : (
-              filteredCreators.map(creator => {
+              currentCreators.map(creator => {
                 // Determine button state
                 const notif = creatorNotificationMap[creator.id];
                 let buttonText = 'Connect';
@@ -467,6 +481,21 @@ const CreatorsNetwork = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-4 gap-2">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 rounded ${currentPage === i + 1 ? 'bg-purple-600 text-white' : 'bg-gray-300 text-gray-700'}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Connection Modal */}
       {showModal && selectedCreator && brandProfile && (
