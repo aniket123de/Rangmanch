@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Navigate, useNavigate, Link } from 'react-router-dom';
 import { ThemeContext } from '../../context/ThemeContext';
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getBrandProfile } from '../../firebase/firestore';
 import BusinessNavbar from '../../components/Navbar/BusinessNavbar';
 import Overview from './Overview';
@@ -31,7 +31,30 @@ const BusinessDashboard = () => {
   const { isDark } = useContext(ThemeContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
-  const user = getAuth().currentUser;
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Show loading while checking auth state
+  if (loading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-gray-900' : 'bg-gray-100'}`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className={isDark ? 'text-white' : 'text-gray-900'}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Protect the route - redirect to login if not authenticated
   if (!user) {
