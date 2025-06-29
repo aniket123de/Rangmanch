@@ -28,6 +28,16 @@ const CreatorsNetwork = () => {
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
   const [brandProfile, setBrandProfile] = useState(null);
   const [creatorNotificationMap, setCreatorNotificationMap] = useState({});
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    niche: '',
+    minTariff: '',
+    maxTariff: '',
+    hasInstagram: false,
+    hasYoutube: false,
+    hasLinkedin: false,
+    hasEmail: false
+  });
 
   // Listen for Firebase Auth user
   useEffect(() => {
@@ -96,13 +106,54 @@ const CreatorsNetwork = () => {
     fetchBrandNotifications();
   }, [user, sending, showModal]);
 
-  const filteredCreators = creators.filter(c =>
-    c.name?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredCreators = creators.filter(c => {
+    // Search filter
+    const matchesSearch = c.name?.toLowerCase().includes(search.toLowerCase());
+    
+    // Niche filter
+    const matchesNiche = !filters.niche || c.niche?.toLowerCase().includes(filters.niche.toLowerCase());
+    
+    // Tariff filter
+    const creatorTariff = parseFloat(c.tariff) || 0;
+    const minTariff = parseFloat(filters.minTariff) || 0;
+    const maxTariff = parseFloat(filters.maxTariff) || Infinity;
+    const matchesTariff = creatorTariff >= minTariff && creatorTariff <= maxTariff;
+    
+    // Social media filters
+    const matchesSocials = (!filters.hasInstagram || c.socials?.instagram) &&
+                          (!filters.hasYoutube || c.socials?.youtube) &&
+                          (!filters.hasLinkedin || c.socials?.linkedin) &&
+                          (!filters.hasEmail || c.email);
+    
+    return matchesSearch && matchesNiche && matchesTariff && matchesSocials;
+  });
+
+  // Get unique niches for filter dropdown
+  const uniqueNiches = [...new Set(creators.map(c => c.niche).filter(Boolean))].sort();
 
   const handleConnect = (creator) => {
     setSelectedCreator(creator);
     setShowModal(true);
+  };
+
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      niche: '',
+      minTariff: '',
+      maxTariff: '',
+      hasInstagram: false,
+      hasYoutube: false,
+      hasLinkedin: false,
+      hasEmail: false
+    });
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
   };
 
   const handleSendNotification = async () => {
@@ -182,9 +233,138 @@ const CreatorsNetwork = () => {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold">+ Find Creators</button>
+          <button 
+            onClick={toggleFilters}
+            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+              showFilters 
+                ? 'bg-purple-600 text-white' 
+                : 'bg-purple-500 hover:bg-purple-600 text-white'
+            }`}
+          >
+            {showFilters ? 'Hide Filters' : '+ Find Creators'}
+          </button>
         </div>
       </div>
+
+      {/* Smart Filters Panel */}
+      {showFilters && (
+        <div className={`mb-6 p-4 rounded-lg border ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Smart Filters</h3>
+            <button
+              onClick={resetFilters}
+              className="text-sm text-blue-500 hover:text-blue-600 font-medium"
+            >
+              Reset All
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Niche Filter */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Niche</label>
+              <select
+                value={filters.niche}
+                onChange={(e) => handleFilterChange('niche', e.target.value)}
+                className={`w-full px-3 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  isDark ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'
+                }`}
+              >
+                <option value="">All Niches</option>
+                {uniqueNiches.map(niche => (
+                  <option key={niche} value={niche}>{niche}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Min Tariff */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Min Tariff (₹)</label>
+              <input
+                type="number"
+                placeholder="0"
+                value={filters.minTariff}
+                onChange={(e) => handleFilterChange('minTariff', e.target.value)}
+                className={`w-full px-3 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  isDark ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'
+                }`}
+              />
+            </div>
+
+            {/* Max Tariff */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Max Tariff (₹)</label>
+              <input
+                type="number"
+                placeholder="No limit"
+                value={filters.maxTariff}
+                onChange={(e) => handleFilterChange('maxTariff', e.target.value)}
+                className={`w-full px-3 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  isDark ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'
+                }`}
+              />
+            </div>
+
+            {/* Active Filters Count */}
+            <div className="flex items-end">
+              <div className={`px-3 py-2 rounded text-sm font-medium ${isDark ? 'bg-gray-600 text-gray-200' : 'bg-gray-200 text-gray-700'}`}>
+                Showing {filteredCreators.length} of {creators.length} creators
+              </div>
+            </div>
+          </div>
+
+          {/* Social Media Filters */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium mb-2">Required Social Platforms</label>
+            <div className="flex flex-wrap gap-3">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filters.hasInstagram}
+                  onChange={(e) => handleFilterChange('hasInstagram', e.target.checked)}
+                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                />
+                <FaInstagram className="text-pink-500" />
+                <span className="text-sm">Instagram</span>
+              </label>
+              
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filters.hasYoutube}
+                  onChange={(e) => handleFilterChange('hasYoutube', e.target.checked)}
+                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                />
+                <FaYoutube className="text-red-500" />
+                <span className="text-sm">YouTube</span>
+              </label>
+              
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filters.hasLinkedin}
+                  onChange={(e) => handleFilterChange('hasLinkedin', e.target.checked)}
+                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                />
+                <FaLinkedin className="text-blue-600" />
+                <span className="text-sm">LinkedIn</span>
+              </label>
+              
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filters.hasEmail}
+                  onChange={(e) => handleFilterChange('hasEmail', e.target.checked)}
+                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                />
+                <FaEnvelope className="text-green-500" />
+                <span className="text-sm">Email</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="overflow-x-auto">
         <table className="min-w-full">
           <thead>
