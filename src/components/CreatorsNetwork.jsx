@@ -791,7 +791,7 @@ const CreatorsNetwork = () => {
                 className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition"
                 rows={4}
                 maxLength={500}
-                style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+                style={{ boxShadow: '0 1px 4px rgba(7, 7, 7, 0.04)' }}
               />
               <div className="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
                 <span>{message.length}/500 characters</span>
