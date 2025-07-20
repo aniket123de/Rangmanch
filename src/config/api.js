@@ -22,5 +22,7 @@ export const getApiUrl = (endpoint) => {
 
 // Alternative direct URL function for emergencies
 export const getDirectApiUrl = (endpoint) => {
-  return `https://backend-rang-1.onrender.com/api${endpoint}`;
+  // Use your deployed backend URL
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://sentiment-api-iop3.onrender.com';
+  return `${backendUrl}/api${endpoint}`;
 };
