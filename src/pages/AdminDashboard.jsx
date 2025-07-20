@@ -22,6 +22,7 @@ import {
   FaSync
 } from 'react-icons/fa';
 import Logo from '../assets/icon.png';
+import BlueTick from '../assets/bluetick.png';
 import { getAllCreators, getAllBrands } from '../firebase/firestore';
 import { updateCreatorVerification, updateBrandVerification } from '../firebase/firestore';
 import axios from 'axios';
@@ -227,6 +228,7 @@ const AdminDashboard = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileError, setProfileError] = useState('');
+  const [processingVerification, setProcessingVerification] = useState(null);
 
   useEffect(() => {
     // Check if admin is logged in
@@ -316,18 +318,19 @@ const AdminDashboard = () => {
     });
 
   const handleVerifyCreator = async (creatorId) => {
-    setCreators(prev => prev.map(creator => 
-      creator.id === creatorId 
-        ? { ...creator, isVerified: !creator.isVerified }
-        : creator
-    ));
-    setSelectedCreator(prev => 
-      prev && prev.id === creatorId 
-        ? { ...prev, isVerified: !prev.isVerified }
-        : prev
-    );
-    // Update Firestore
+    setProcessingVerification(creatorId);
     try {
+      setCreators(prev => prev.map(creator => 
+        (creator.id === creatorId || creator.uid === creatorId)
+          ? { ...creator, isVerified: !creator.isVerified }
+          : creator
+      ));
+      setSelectedCreator(prev => 
+        prev && (prev.id === creatorId || prev.uid === creatorId)
+          ? { ...prev, isVerified: !prev.isVerified }
+          : prev
+      );
+      // Update Firestore
       const creator = creators.find(c => c.id === creatorId || c.uid === creatorId);
       const docId = creator?.uid || creatorId;
       if (creator) {
@@ -335,22 +338,36 @@ const AdminDashboard = () => {
       }
     } catch (err) {
       console.error('Failed to update creator verification in Firestore:', err);
+      // Revert the state change on error
+      setCreators(prev => prev.map(creator => 
+        (creator.id === creatorId || creator.uid === creatorId)
+          ? { ...creator, isVerified: !creator.isVerified }
+          : creator
+      ));
+      setSelectedCreator(prev => 
+        prev && (prev.id === creatorId || prev.uid === creatorId)
+          ? { ...prev, isVerified: !prev.isVerified }
+          : prev
+      );
+    } finally {
+      setProcessingVerification(null);
     }
   };
 
   const handleVerifyBrand = async (brandId) => {
-    setBrands(prev => prev.map(brand => 
-      (brand.id === brandId || brand.uid === brandId)
-        ? { ...brand, isVerified: !brand.isVerified }
-        : brand
-    ));
-    setSelectedBrand(prev => 
-      prev && (prev.id === brandId || prev.uid === brandId)
-        ? { ...prev, isVerified: !prev.isVerified }
-        : prev
-    );
-    // Update Firestore
+    setProcessingVerification(brandId);
     try {
+      setBrands(prev => prev.map(brand => 
+        (brand.id === brandId || brand.uid === brandId)
+          ? { ...brand, isVerified: !brand.isVerified }
+          : brand
+      ));
+      setSelectedBrand(prev => 
+        prev && (prev.id === brandId || prev.uid === brandId)
+          ? { ...prev, isVerified: !prev.isVerified }
+          : prev
+      );
+      // Update Firestore
       const brand = brands.find(b => b.id === brandId || b.uid === brandId);
       const docId = brand?.uid || brandId;
       if (brand) {
@@ -358,6 +375,19 @@ const AdminDashboard = () => {
       }
     } catch (err) {
       console.error('Failed to update brand verification in Firestore:', err);
+      // Revert the state change on error
+      setBrands(prev => prev.map(brand => 
+        (brand.id === brandId || brand.uid === brandId)
+          ? { ...brand, isVerified: !brand.isVerified }
+          : brand
+      ));
+      setSelectedBrand(prev => 
+        prev && (prev.id === brandId || prev.uid === brandId)
+          ? { ...prev, isVerified: !prev.isVerified }
+          : prev
+      );
+    } finally {
+      setProcessingVerification(null);
     }
   };
 
@@ -568,26 +598,124 @@ const AdminDashboard = () => {
                     </div>
                     <div className="max-h-80 overflow-y-auto">
                       <div className="p-4 space-y-3">
+                        {/* Creator verification requests */}
                         {creators.filter(c => !c.isVerified).slice(0, 3).map((creator) => (
-                          <div key={`creator-${creator.id}`} className={`p-3 rounded-lg ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-50 hover:bg-gray-100'} transition-colors duration-200 cursor-pointer`}>
+                          <div key={`creator-${creator.id || creator.uid}`} className={`p-3 rounded-lg ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-50 hover:bg-gray-100'} transition-colors duration-200 cursor-pointer`}>
                             <div className="flex items-center space-x-3">
-                              <img src={creator.avatar} alt={creator.name} className="w-8 h-8 rounded-full" />
-                              <div className="initials-avatar w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 text-white text-2xl font-bold" style={{display: 'none'}}>
-                                {getInitials(creator.name)}
+                              {creator.avatar ? (
+                                <img src={creator.avatar} alt={creator.name} className="w-10 h-10 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 text-white text-sm font-bold">
+                                  {creator.name?.charAt(0)?.toUpperCase() || 'U'}
+                                </div>
+                              )}
+                              <div className="flex-1">
+                                <p className={`font-medium text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                  Creator Verification Request
+                                </p>
+                                <p className={`text-xs ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                                  {creator.name || 'Unknown Creator'} wants to get verified
+                                </p>
+                                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  {creator.category || 'Content Creator'} • {creator.followers || 'N/A'} followers
+                                </p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleVerifyCreator(creator.id || creator.uid);
+                                  }}
+                                  disabled={processingVerification === (creator.id || creator.uid)}
+                                  className={`${processingVerification === (creator.id || creator.uid) 
+                                    ? 'bg-gray-400 cursor-not-allowed' 
+                                    : 'bg-green-500 hover:bg-green-600'
+                                  } text-white px-2 py-1 rounded text-xs transition-colors duration-200 flex items-center space-x-1`}
+                                >
+                                  {processingVerification === (creator.id || creator.uid) ? (
+                                    <>
+                                      <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                                      <span>Verifying...</span>
+                                    </>
+                                  ) : (
+                                    <span>Verify</span>
+                                  )}
+                                </button>
+                                <button className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs transition-colors duration-200">
+                                  Later
+                                </button>
                               </div>
                             </div>
                           </div>
                         ))}
-                        {brands.filter(b => !b.isVerified).slice(0, 2).map((brand) => (
-                          <div key={`brand-${brand.id}`} className={`p-3 rounded-lg ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-50 hover:bg-gray-100'} transition-colors duration-200 cursor-pointer`}>
+                        
+                        {/* Brand verification requests */}
+                        {brands.filter(b => !b.isVerified).slice(0, 3).map((brand) => (
+                          <div key={`brand-${brand.id || brand.uid}`} className={`p-3 rounded-lg ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-50 hover:bg-gray-100'} transition-colors duration-200 cursor-pointer`}>
                             <div className="flex items-center space-x-3">
-                              <img src={brand.logo} alt={brand.name} className="w-8 h-8 rounded-lg" />
-                              <div className="initials-avatar w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 text-white text-2xl font-bold" style={{display: 'none'}}>
-                                {getInitials(brand.name)}
+                              {brand.logo ? (
+                                <img 
+                                  src={brand.logo} 
+                                  alt={brand.name} 
+                                  className="w-10 h-10 rounded-lg object-cover"
+                                  onError={(e) => {
+                                    e.target.src = `https://ui-avatars.com/api/?name=${brand.name}&background=6366f1&color=fff&size=40`;
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-500 text-white text-sm font-bold">
+                                  {brand.name?.charAt(0)?.toUpperCase() || 'B'}
+                                </div>
+                              )}
+                              <div className="flex-1">
+                                <p className={`font-medium text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                  Business Verification Request
+                                </p>
+                                <p className={`text-xs ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                                  {brand.name || 'Unknown Business'} wants to get verified
+                                </p>
+                                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  {brand.industry || 'Business'} • {brand.location || 'Location not specified'}
+                                </p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleVerifyBrand(brand.id || brand.uid);
+                                  }}
+                                  disabled={processingVerification === (brand.id || brand.uid)}
+                                  className={`${processingVerification === (brand.id || brand.uid) 
+                                    ? 'bg-gray-400 cursor-not-allowed' 
+                                    : 'bg-green-500 hover:bg-green-600'
+                                  } text-white px-2 py-1 rounded text-xs transition-colors duration-200 flex items-center space-x-1`}
+                                >
+                                  {processingVerification === (brand.id || brand.uid) ? (
+                                    <>
+                                      <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                                      <span>Verifying...</span>
+                                    </>
+                                  ) : (
+                                    <span>Verify</span>
+                                  )}
+                                </button>
+                                <button className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs transition-colors duration-200">
+                                  Later
+                                </button>
                               </div>
                             </div>
                           </div>
                         ))}
+                        
+                        {/* Show message if no pending verifications */}
+                        {creators.filter(c => !c.isVerified).length === 0 && brands.filter(b => !b.isVerified).length === 0 && (
+                          <div className="text-center py-8">
+                            <FaBell className={`mx-auto w-12 h-12 ${isDark ? 'text-gray-600' : 'text-gray-400'} mb-3`} />
+                            <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm`}>
+                              No pending verification requests
+                            </p>
+                          </div>
+                        )}
                       </div>
                       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
                         <button className="w-full text-center text-purple-500 hover:text-purple-600 font-medium text-sm transition-colors duration-200">
@@ -794,7 +922,12 @@ const AdminDashboard = () => {
                             )}
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
-                                <h3 className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{creator.name}</h3>
+                                <div className="flex items-center space-x-2">
+                                  <h3 className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{creator.name}</h3>
+                                  {creator.isVerified && (
+                                    <img src={BlueTick} alt="Verified" className="w-5 h-5" />
+                                  )}
+                                </div>
                                 <div className="flex items-center space-x-3">
                                   {creator.isVerified ? (
                                     <FaCheck className="text-green-500 w-5 h-5" />
@@ -867,7 +1000,12 @@ const AdminDashboard = () => {
                             />
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
-                                <h3 className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{brandName}</h3>
+                                <div className="flex items-center space-x-2">
+                                  <h3 className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{brandName}</h3>
+                                  {brand.isVerified && (
+                                    <img src={BlueTick} alt="Verified" className="w-5 h-5" />
+                                  )}
+                                </div>
                                 <div className="flex items-center space-x-3">
                                   {brand.isVerified ? (
                                     <FaCheck className="text-green-500 w-5 h-5" />
@@ -931,9 +1069,14 @@ const AdminDashboard = () => {
                         {getInitials(selectedCreator.name)}
                       </div>
                     )}
-                    <h3 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                      {selectedCreator.name}
-                    </h3>
+                    <div className="flex items-center justify-center space-x-2 mb-2">
+                      <h3 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        {selectedCreator.name}
+                      </h3>
+                      {selectedCreator.isVerified && (
+                        <img src={BlueTick} alt="Verified" className="w-6 h-6" />
+                      )}
+                    </div>
                     <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                       {selectedCreator.email}
                     </p>
@@ -1085,7 +1228,12 @@ const AdminDashboard = () => {
                         e.target.src = `https://ui-avatars.com/api/?name=${selectedBrand.name}&background=6366f1&color=fff&size=128`;
                       }}
                     />
-                    <h3 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{selectedBrand.name}</h3>
+                    <div className="flex items-center justify-center space-x-2 mb-2">
+                      <h3 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{selectedBrand.name}</h3>
+                      {selectedBrand.isVerified && (
+                        <img src={BlueTick} alt="Verified" className="w-6 h-6" />
+                      )}
+                    </div>
                     <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{selectedBrand.email}</p>
                     <div className="flex items-center justify-center space-x-3 mt-3">
                       <span className={`px-4 py-2 rounded-full text-base ${

@@ -3,6 +3,7 @@ import { Navigate, useNavigate, Link } from 'react-router-dom';
 import { ThemeContext } from '../../context/ThemeContext';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getBrandProfile } from '../../firebase/firestore';
+import BlueTick from '../../assets/bluetick.png';
 import BusinessNavbar from '../../components/Navbar/BusinessNavbar';
 import Overview from './Overview';
 import BusinessInfo from './BusinessInfo';
@@ -33,11 +34,20 @@ const BusinessDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [brandData, setBrandData] = useState(null);
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        try {
+          const brand = await getBrandProfile(currentUser.uid);
+          setBrandData(brand);
+        } catch (error) {
+          // If brand profile not found, keep brandData as null
+        }
+      }
       setLoading(false);
     });
 
@@ -66,7 +76,12 @@ const BusinessDashboard = () => {
       <BusinessNavbar />
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8 mt-24">
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-transparent bg-clip-text">Business Dashboard</h1>
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-transparent bg-clip-text">Business Dashboard</h1>
+            {brandData?.isVerified && (
+              <img src={BlueTick} alt="Verified" className="w-8 h-8 md:w-12 md:h-12" />
+            )}
+          </div>
         </div>
 
         <div className="flex flex-wrap justify-center gap-4 mb-8">

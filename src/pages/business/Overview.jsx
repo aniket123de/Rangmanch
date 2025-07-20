@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
 import { getBrandProfile } from '../../firebase/firestore';
 import { FaChartBar, FaUsers, FaBullhorn, FaCheckCircle, FaFileInvoiceDollar, FaPlus, FaSearch } from 'react-icons/fa';
+import BlueTick from '../../assets/bluetick.png';
 import BusinessCalendar from './BusinessCalendar';
 import CreatorsNetwork from '../../components/CreatorsNetwork';
 
@@ -61,9 +62,14 @@ const Overview = ({ setActiveTab }) => {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
         <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">Brand Overview</h2>
         <div className="space-y-3">
-          <div className="flex">
+          <div className="flex items-center">
             <span className="font-medium text-gray-700 dark:text-gray-300 w-32">Name:</span>
-            <span className="text-gray-600 dark:text-gray-400">{brand?.name || user.email}</span>
+            <div className="flex items-center space-x-2">
+              <span className="text-gray-600 dark:text-gray-400">{brand?.name || user.email}</span>
+              {brand?.isVerified && (
+                <img src={BlueTick} alt="Verified" className="w-5 h-5" />
+              )}
+            </div>
           </div>
           <div className="flex">
             <span className="font-medium text-gray-700 dark:text-gray-300 w-32">Industry:</span>

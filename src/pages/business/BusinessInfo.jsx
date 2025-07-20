@@ -3,11 +3,13 @@ import { ThemeContext } from '../../context/ThemeContext';
 import { createOrUpdateBrandProfile, getBrandProfile } from '../../firebase/firestore';
 import { getAuth, signOut } from 'firebase/auth';
 import { FaCog, FaPlus, FaUpload } from 'react-icons/fa';
+import BlueTick from '../../assets/bluetick.png';
 
 const BusinessInfo = () => {
   const { isDark } = useContext(ThemeContext);
   const user = getAuth().currentUser;
   const [loading, setLoading] = useState(false);
+  const [brandData, setBrandData] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     industry: '',
@@ -29,6 +31,7 @@ const BusinessInfo = () => {
       setLoading(true);
       try {
         const data = await getBrandProfile(user.uid);
+        setBrandData(data);
         setFormData({
           name: data.name || '',
           industry: data.industry || '',
@@ -99,7 +102,12 @@ const BusinessInfo = () => {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8 mb-8 border border-gray-100 dark:border-gray-700">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Business Profile</h2>
+                <div className="flex items-center space-x-2 mb-2">
+                  <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Business Profile</h2>
+                  {brandData?.isVerified && (
+                    <img src={BlueTick} alt="Verified" className="w-6 h-6" />
+                  )}
+                </div>
                 <p className="text-gray-600 dark:text-gray-400">Manage your business information visible to creators</p>
               </div>
               <div className="flex gap-3 mt-4 md:mt-0">
