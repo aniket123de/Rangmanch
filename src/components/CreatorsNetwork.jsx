@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getAllCreators } from '../firebase/firestore';
 import { sendNotification } from '../firebase/notifications';
 import { useTheme } from '../contexts/ThemeContext';
-import { FaInstagram, FaYoutube, FaLinkedin, FaEnvelope } from 'react-icons/fa';
+import { FaInstagram, FaYoutube, FaLinkedin, FaEnvelope, FaCheckCircle } from 'react-icons/fa';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { auth } from '../firebase/firebase';
@@ -667,7 +667,10 @@ const CreatorsNetwork = () => {
                           {creator.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}
                         </div>
                       )}
-                      <span className="font-semibold">{creator.name}</span>
+                      <span className="font-semibold flex items-center gap-1">
+                        {creator.name}
+                        {creator.isVerified && <FaCheckCircle style={{ color: '#2196f3' }} title="Verified" />}
+                      </span>
                     </td>
                     <td className="py-3">{creator.niche || '--'}</td>
                     <td className="py-3">

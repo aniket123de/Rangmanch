@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeContext } from '../../context/ThemeContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -14,14 +14,29 @@ import {
   FaQuestionCircle,
   FaSun,
   FaNewspaper,
-  FaMoon
+  FaMoon,
+  FaCheckCircle
 } from 'react-icons/fa';
 import Switch from './Switch';
+import { getBrandProfile } from '../../firebase/firestore';
 
 const ProfileSidebar = ({ isOpen, onClose }) => {
   const { isDark, toggleTheme } = useContext(ThemeContext);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const [isVerified, setIsVerified] = useState(false);
+
+  useEffect(() => {
+    async function fetchVerification() {
+      if (currentUser) {
+        try {
+          const brand = await getBrandProfile(currentUser.uid);
+          setIsVerified(!!brand.isVerified);
+        } catch {}
+      }
+    }
+    fetchVerification();
+  }, [currentUser]);
 
   // Function to get user's first name
   const getFirstName = () => {
@@ -138,8 +153,9 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
                   <div className="absolute bottom-0 right-0 bg-green-500 w-4 h-4 rounded-full border-2 border-white dark:border-gray-900"></div>
                 </div>
                 <div className="text-center">
-                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center justify-center gap-2">
                     {getFirstName()}
+                    {isVerified && <FaCheckCircle style={{ color: '#2196f3' }} title="Verified" />}
                   </h2>
                   <p className="text-gray-500 dark:text-gray-400 text-sm break-all mt-1">
                     {currentUser?.email}

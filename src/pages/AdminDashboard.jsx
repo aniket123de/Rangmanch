@@ -23,6 +23,7 @@ import {
 } from 'react-icons/fa';
 import Logo from '../assets/icon.png';
 import { getAllCreators } from '../firebase/firestore';
+import { updateCreatorVerification, updateBrandVerification } from '../firebase/firestore';
 import axios from 'axios';
 
 // Dummy data for creators and brands
@@ -301,7 +302,7 @@ const AdminDashboard = () => {
       }
     });
 
-  const handleVerifyCreator = (creatorId) => {
+  const handleVerifyCreator = async (creatorId) => {
     setCreators(prev => prev.map(creator => 
       creator.id === creatorId 
         ? { ...creator, isVerified: !creator.isVerified }
@@ -312,9 +313,19 @@ const AdminDashboard = () => {
         ? { ...prev, isVerified: !prev.isVerified }
         : prev
     );
+    // Update Firestore
+    try {
+      const creator = creators.find(c => c.id === creatorId || c.uid === creatorId);
+      const docId = creator?.uid || creatorId;
+      if (creator) {
+        await updateCreatorVerification(docId, !creator.isVerified);
+      }
+    } catch (err) {
+      console.error('Failed to update creator verification in Firestore:', err);
+    }
   };
 
-  const handleVerifyBrand = (brandId) => {
+  const handleVerifyBrand = async (brandId) => {
     setBrands(prev => prev.map(brand => 
       brand.id === brandId 
         ? { ...brand, isVerified: !brand.isVerified }
@@ -325,6 +336,16 @@ const AdminDashboard = () => {
         ? { ...prev, isVerified: !prev.isVerified }
         : prev
     );
+    // Update Firestore
+    try {
+      const brand = brands.find(b => b.id === brandId || b.uid === brandId);
+      const docId = brand?.uid || brandId;
+      if (brand) {
+        await updateBrandVerification(docId, !brand.isVerified);
+      }
+    } catch (err) {
+      console.error('Failed to update brand verification in Firestore:', err);
+    }
   };
 
   const handleDeleteCreator = (creatorId) => {

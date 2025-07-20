@@ -163,3 +163,24 @@ export const updateCollaborationStatus = async (collaborationId, status) => {
     throw error;
   }
 }; 
+
+// ===== VERIFICATION UPDATE FUNCTIONS =====
+export const updateCreatorVerification = async (creatorId, isVerified) => {
+  try {
+    const creatorRef = doc(db, 'creators', creatorId);
+    await updateDoc(creatorRef, { isVerified });
+    return { success: true };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateBrandVerification = async (brandId, isVerified) => {
+  try {
+    const brandRef = doc(db, 'brands', brandId);
+    await updateDoc(brandRef, { isVerified });
+    return { success: true };
+  } catch (error) {
+    throw error;
+  }
+}; 
