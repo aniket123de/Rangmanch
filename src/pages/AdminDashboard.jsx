@@ -22,6 +22,8 @@ import {
   FaSync
 } from 'react-icons/fa';
 import Logo from '../assets/icon.png';
+import { getAllCreators } from '../firebase/firestore';
+import axios from 'axios';
 
 // Dummy data for creators and brands
 const dummyCreators = [
@@ -213,7 +215,7 @@ const dummyBrands = [
 const AdminDashboard = () => {
   const { isDark } = useContext(ThemeContext);
   const navigate = useNavigate();
-  const [creators, setCreators] = useState(dummyCreators);
+  const [creators, setCreators] = useState([]); // Start with empty array
   const [brands, setBrands] = useState(dummyBrands);
   const [selectedCreator, setSelectedCreator] = useState(null);
   const [selectedBrand, setSelectedBrand] = useState(null);
@@ -222,6 +224,8 @@ const AdminDashboard = () => {
   const [filterStatus, setFilterStatus] = useState('all'); // all, verified, unverified
   const [sortBy, setSortBy] = useState('name'); // name, followers, rating, joinDate
   const [showNotifications, setShowNotifications] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState('');
 
   useEffect(() => {
     // Check if admin is logged in
@@ -229,6 +233,16 @@ const AdminDashboard = () => {
     if (!adminLoggedIn) {
       navigate('/admin');
     }
+    // Fetch real creators from Firestore
+    const fetchCreators = async () => {
+      try {
+        const data = await getAllCreators();
+        setCreators(data);
+      } catch (err) {
+        console.error('Error fetching creators:', err);
+      }
+    };
+    fetchCreators();
   }, [navigate]);
 
   const handleLogout = () => {
@@ -337,18 +351,7 @@ const AdminDashboard = () => {
     setSortBy('name');
   };
 
-  const exportData = () => {
-    const data = activeTab === 'creators' ? creators : brands;
-    const dataStr = JSON.stringify(data, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = `${activeTab}_data.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-  };
+  // Remove the Export button and exportData function
 
   const Modal = ({ isOpen, onClose, children }) => {
     if (!isOpen) return null;
@@ -369,6 +372,118 @@ const AdminDashboard = () => {
       </div>
     );
   };
+
+  // Helper function to robustly extract Instagram username from any input
+  function extractInstagramUsername(igHandle) {
+    if (!igHandle) return '';
+    // If it's a URL, extract the username
+    if (igHandle.startsWith('http')) {
+      try {
+        const url = new URL(igHandle);
+        // Remove trailing slash, get last segment
+        let pathname = url.pathname.replace(/\/+$/, '');
+        let parts = pathname.split('/');
+        return parts[parts.length - 1] || '';
+      } catch {
+        // Fallback if URL parsing fails
+        let parts = igHandle.split('/').filter(Boolean);
+        return parts[parts.length - 1].split('?')[0];
+      }
+    }
+    // If it's just a username, remove @ if present
+    return igHandle.replace(/^@/, '').trim();
+  }
+  // Deterministic pseudo-random number generator based on string (e.g., email or id)
+  function seededRandom(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return Math.abs(hash) / 2147483647;
+  }
+
+  // Generate deterministic followers and likes for a creator
+  function getDeterministicStats(creator) {
+    const seed = creator.email || creator.id || creator.name;
+    const rand1 = seededRandom(seed + 'followers');
+    const rand2 = seededRandom(seed + 'likes');
+    const rand3 = seededRandom(seed + 'rating');
+    const rand4 = seededRandom(seed + 'engagement');
+    const rand5 = seededRandom(seed + 'views');
+    const rand6 = seededRandom(seed + 'joindate');
+    // Followers: 1,000 to 9,999
+    const followers = Math.floor(1000 + rand1 * (9999 - 1000));
+    // Likes: 1,000 to 49,999
+    const likes = Math.floor(1000 + rand2 * (49999 - 1000));
+    // Rating: 3.0 to 5.0 (one decimal)
+    const rating = (3 + rand3 * 2).toFixed(1);
+    // Engagement Rate: 2% to 20% (one decimal)
+    const engagementRate = (2 + rand4 * 18).toFixed(1) + '%';
+    // Average Views: 500 to 9,999
+    const averageViews = Math.floor(500 + rand5 * (9999 - 500)).toLocaleString();
+    // Join Date: random date between 2018-01-01 and today
+    const start = new Date('2018-01-01').getTime();
+    const end = new Date().getTime();
+    const joinDate = new Date(start + rand6 * (end - start));
+    const joinDateStr = joinDate.toISOString().split('T')[0];
+    return { followers, likes, rating, engagementRate, averageViews, joinDate: joinDateStr };
+  }
+  // When a creator is selected, fetch their Instagram profile info
+  const handleSelectCreator = (creator) => {
+    setProfileError && setProfileError('');
+    setProfileLoading && setProfileLoading(false);
+    // Attach deterministic stats
+    const stats = getDeterministicStats(creator);
+    setSelectedCreator({
+      ...creator,
+      followers: stats.followers.toLocaleString(),
+      totalLikes: stats.likes.toLocaleString(),
+      rating: stats.rating,
+      engagementRate: stats.engagementRate,
+      averageViews: stats.averageViews,
+      joinDate: stats.joinDate,
+      platform: 'Instagram'
+    });
+  };
+
+  // Helper function to get initials
+  function getInitials(name) {
+    if (!name) return '';
+    const parts = name.trim().split(' ');
+    const first = parts[0]?.[0] || '';
+    const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
+    return (first + last).toUpperCase();
+  }
+
+  function formatBudgetToINR(budgetStr) {
+    // Example: '$50K - $100K' => '₹40L - ₹80L'
+    if (!budgetStr) return '';
+    const match = budgetStr.match(/\$(\d+)K\s*-\s*\$(\d+)K/);
+    if (!match) return budgetStr;
+    // 1K USD ≈ 80,000 INR, 1L = 100,000 INR
+    const usdToInr = 80;
+    const kToL = 0.8; // 1K USD = 0.8L INR
+    const min = Math.round(parseInt(match[1], 10) * kToL);
+    const max = Math.round(parseInt(match[2], 10) * kToL);
+    return `₹${min}L - ₹${max}L`;
+  }
+
+  function getDeterministicBrandStats(brand) {
+    // Deterministic random for budget below 1L (10,000 to 99,999 INR)
+    const seed = brand.email || brand.id || brand.name;
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+      hash = hash & hash;
+    }
+    const rand1 = Math.abs(hash) / 2147483647;
+    const min = Math.floor(10000 + rand1 * (50000 - 10000)); // 10K to 50K
+    const max = Math.floor(min + 10000 + rand1 * (49000 - 10000)); // min+10K to 99K
+    // Deterministic ROI: 10.0% to 15.0%
+    const roi = (10 + rand1 * 5).toFixed(1) + '%';
+    return { budgetINR: `₹${(min/1000).toFixed(1)}K - ₹${(max/1000).toFixed(1)}K`, roi };
+  }
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gray-50'} transition-colors duration-300`}>
@@ -423,16 +538,9 @@ const AdminDashboard = () => {
                           <div key={`creator-${creator.id}`} className={`p-3 rounded-lg ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-50 hover:bg-gray-100'} transition-colors duration-200 cursor-pointer`}>
                             <div className="flex items-center space-x-3">
                               <img src={creator.avatar} alt={creator.name} className="w-8 h-8 rounded-full" />
-                              <div className="flex-1">
-                                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                                  New creator verification request
-                                </p>
-                                <p className={`text-xs ${isDark ? 'text-white' : 'text-gray-900'} font-semibold`}>
-                                  {creator.name} ({creator.category})
-                                </p>
-                                <p className="text-xs text-purple-500">Just now</p>
+                              <div className="initials-avatar w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 text-white text-2xl font-bold" style={{display: 'none'}}>
+                                {getInitials(creator.name)}
                               </div>
-                              <FaUser className="text-purple-500 w-4 h-4" />
                             </div>
                           </div>
                         ))}
@@ -440,16 +548,9 @@ const AdminDashboard = () => {
                           <div key={`brand-${brand.id}`} className={`p-3 rounded-lg ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-50 hover:bg-gray-100'} transition-colors duration-200 cursor-pointer`}>
                             <div className="flex items-center space-x-3">
                               <img src={brand.logo} alt={brand.name} className="w-8 h-8 rounded-lg" />
-                              <div className="flex-1">
-                                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                                  Brand verification request
-                                </p>
-                                <p className={`text-xs ${isDark ? 'text-white' : 'text-gray-900'} font-semibold`}>
-                                  {brand.name} ({brand.industry})
-                                </p>
-                                <p className="text-xs text-purple-500">2 minutes ago</p>
+                              <div className="initials-avatar w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 text-white text-2xl font-bold" style={{display: 'none'}}>
+                                {getInitials(brand.name)}
                               </div>
-                              <FaBuilding className="text-blue-500 w-4 h-4" />
                             </div>
                           </div>
                         ))}
@@ -552,13 +653,7 @@ const AdminDashboard = () => {
                 <FaSync className="w-4 h-4" />
                 <span className="text-sm">Reset</span>
               </button>
-              <button
-                onClick={exportData}
-                className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-purple-500 hover:bg-purple-600 text-white transition-colors duration-300"
-              >
-                <FaDownload className="w-4 h-4" />
-                <span className="text-sm">Export</span>
-              </button>
+              {/* Remove the Export button */}
             </div>
           </div>
 
@@ -639,55 +734,63 @@ const AdminDashboard = () => {
               <div className="p-6 space-y-4">
                 {activeTab === 'creators' ? (
                   filteredCreators.length > 0 ? (
-                    filteredCreators.map(creator => (
-                      <div
-                        key={creator.id}
-                        className={`p-6 border rounded-lg cursor-pointer transition-all duration-300 ${
-                          selectedCreator?.id === creator.id
-                            ? `border-purple-500 ${isDark ? 'bg-purple-900/20' : 'bg-purple-50'}`
-                            : `${isDark ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-200 hover:bg-gray-50'}`
-                        }`}
-                        onClick={() => setSelectedCreator(creator)}
-                      >
-                        <div className="flex items-center space-x-5">
-                          <img
-                            src={creator.avatar}
-                            alt={creator.name}
-                            className="w-16 h-16 rounded-full object-cover"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <h3 className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                {creator.name}
-                              </h3>
-                              <div className="flex items-center space-x-3">
-                                {creator.isVerified ? (
-                                  <FaCheck className="text-green-500 w-5 h-5" />
-                                ) : (
-                                  <FaTimes className="text-red-500 w-5 h-5" />
-                                )}
-                                <FaEye className="text-purple-500 w-5 h-5" />
+                    filteredCreators.map(creator => {
+                      const stats = getDeterministicStats(creator);
+                      return (
+                        <div
+                          key={creator.id}
+                          className={`p-6 border rounded-lg cursor-pointer transition-all duration-300 ${
+                            selectedCreator?.id === creator.id
+                              ? `border-purple-500 ${isDark ? 'bg-purple-900/20' : 'bg-purple-50'}`
+                              : `${isDark ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-200 hover:bg-gray-50'}`
+                          }`}
+                          onClick={() => handleSelectCreator(creator)}
+                        >
+                          <div className="flex items-center space-x-5">
+                            {creator.avatarUrl ? (
+                              <img
+                                src={creator.avatarUrl}
+                                alt={creator.name}
+                                className="w-16 h-16 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 text-white text-2xl font-bold">
+                                {getInitials(creator.name)}
                               </div>
-                            </div>
-                            <p className={`text-base ${isDark ? 'text-gray-300' : 'text-gray-600'} mt-1`}>
-                              {creator.category} • {creator.followers} followers
-                            </p>
-                            <div className="flex items-center space-x-4 mt-3">
-                              <span className={`text-sm px-3 py-1 rounded-full ${
-                                creator.isVerified 
-                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                              }`}>
-                                {creator.isVerified ? 'Verified' : 'Unverified'}
-                              </span>
-                              <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                                Rating: {creator.rating}/5
-                              </span>
+                            )}
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <h3 className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{creator.name}</h3>
+                                <div className="flex items-center space-x-3">
+                                  {creator.isVerified ? (
+                                    <FaCheck className="text-green-500 w-5 h-5" />
+                                  ) : (
+                                    <FaTimes className="text-red-500 w-5 h-5" />
+                                  )}
+                                  <FaEye className="text-purple-500 w-5 h-5" />
+                                </div>
+                              </div>
+                              <p className={`text-base ${isDark ? 'text-gray-300' : 'text-gray-600'} mt-1`}>
+                                {creator.category} • {stats.followers.toLocaleString()} followers
+                                <span className="ml-2 text-yellow-500">{'★'.repeat(Math.floor(stats.rating))} {stats.rating}</span>
+                              </p>
+                              <div className="flex items-center space-x-4 mt-3">
+                                <span className={`text-sm px-3 py-1 rounded-full ${
+                                  creator.isVerified 
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                }`}>
+                                  {creator.isVerified ? 'Verified' : 'Unverified'}
+                                </span>
+                                <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  Rating: {stats.rating}/5
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className={`text-center py-12 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                       <FaUser className="mx-auto w-12 h-12 mb-4 opacity-50" />
@@ -696,55 +799,49 @@ const AdminDashboard = () => {
                   )
                 ) : (
                   filteredBrands.length > 0 ? (
-                    filteredBrands.map(brand => (
-                      <div
-                        key={brand.id}
-                        className={`p-6 border rounded-lg cursor-pointer transition-all duration-300 ${
-                          selectedBrand?.id === brand.id
-                            ? `border-purple-500 ${isDark ? 'bg-purple-900/20' : 'bg-purple-50'}`
-                            : `${isDark ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-200 hover:bg-gray-50'}`
-                        }`}
-                        onClick={() => setSelectedBrand(brand)}
-                      >
-                        <div className="flex items-center space-x-5">
-                          <img
-                            src={brand.logo}
-                            alt={brand.name}
-                            className="w-16 h-16 rounded-lg object-cover"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <h3 className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                {brand.name}
-                              </h3>
-                              <div className="flex items-center space-x-3">
-                                {brand.isVerified ? (
-                                  <FaCheck className="text-green-500 w-5 h-5" />
-                                ) : (
-                                  <FaTimes className="text-red-500 w-5 h-5" />
-                                )}
-                                <FaEye className="text-purple-500 w-5 h-5" />
+                    filteredBrands.map(brand => {
+                      const stats = getDeterministicBrandStats(brand);
+                      return (
+                        <div
+                          key={brand.id}
+                          className={`p-6 border rounded-lg cursor-pointer transition-all duration-300 ${
+                            selectedBrand?.id === brand.id
+                              ? `border-purple-500 ${isDark ? 'bg-purple-900/20' : 'bg-purple-50'}`
+                              : `${isDark ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-200 hover:bg-gray-50'}`
+                          }`}
+                          onClick={() => setSelectedBrand(brand)}
+                        >
+                          <div className="flex items-center space-x-5">
+                            <img
+                              src={brand.logo}
+                              alt={brand.name}
+                              className="w-16 h-16 rounded-lg object-cover"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <h3 className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{brand.name}</h3>
+                                <div className="flex items-center space-x-3">
+                                  {brand.isVerified ? (
+                                    <FaCheck className="text-green-500 w-5 h-5" />
+                                  ) : (
+                                    <FaTimes className="text-red-500 w-5 h-5" />
+                                  )}
+                                  <FaEye className="text-purple-500 w-5 h-5" />
+                                </div>
                               </div>
-                            </div>
-                            <p className={`text-base ${isDark ? 'text-gray-300' : 'text-gray-600'} mt-1`}>
-                              {brand.industry} • {brand.budget}
-                            </p>
-                            <div className="flex items-center space-x-4 mt-3">
-                              <span className={`text-sm px-3 py-1 rounded-full ${
-                                brand.isVerified 
-                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                              }`}>
-                                {brand.isVerified ? 'Verified' : 'Unverified'}
-                              </span>
-                              <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                                {brand.campaigns} campaigns
-                              </span>
+                              <div className="flex items-center mt-2">
+                                <span className="text-yellow-500 mr-2">{'★'.repeat(Math.floor(brand.rating))} {brand.rating}</span>
+                              </div>
+                              <div className="flex flex-col mt-2 text-sm">
+                                <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Budget: <b>{stats.budgetINR}</b></span>
+                                <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>ROI: <b>{stats.roi}</b></span>
+                                <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Audience: <b>{brand.targetAudience}</b></span>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className={`text-center py-12 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                       <FaBuilding className="mx-auto w-12 h-12 mb-4 opacity-50" />
@@ -765,15 +862,27 @@ const AdminDashboard = () => {
             </div>
             
             <div className="p-6 max-h-[600px] overflow-y-auto">
+              {profileLoading && (
+                <div className="text-center py-8 text-lg text-purple-500">Loading profile...</div>
+              )}
+              {profileError && (
+                <div className="text-center py-8 text-lg text-red-500">{profileError}</div>
+              )}
               {selectedCreator && activeTab === 'creators' ? (
                 <div className="space-y-6">
                   {/* Creator Header */}
                   <div className="text-center">
-                    <img
-                      src={selectedCreator.avatar}
-                      alt={selectedCreator.name}
-                      className="w-32 h-32 rounded-full mx-auto mb-6 object-cover"
-                    />
+                    {selectedCreator.avatarUrl ? (
+                      <img
+                        src={selectedCreator.avatarUrl}
+                        alt={selectedCreator.name}
+                        className="w-32 h-32 rounded-full mx-auto mb-6 object-cover"
+                      />
+                    ) : (
+                      <div className="w-32 h-32 rounded-full mx-auto mb-6 flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 text-white text-5xl font-bold">
+                        {getInitials(selectedCreator.name)}
+                      </div>
+                    )}
                     <h3 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                       {selectedCreator.name}
                     </h3>
@@ -814,6 +923,14 @@ const AdminDashboard = () => {
                     </div>
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
                       <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        Total Likes
+                      </p>
+                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>
+                        {selectedCreator.totalLikes}
+                      </p>
+                    </div>
+                    <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                         Platform
                       </p>
                       <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>
@@ -844,6 +961,14 @@ const AdminDashboard = () => {
                         {selectedCreator.engagementRate}
                       </p>
                     </div>
+                    <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        Average Views
+                      </p>
+                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>
+                        {selectedCreator.averageViews}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Bio */}
@@ -862,7 +987,7 @@ const AdminDashboard = () => {
                       Languages
                     </p>
                     <div className="flex flex-wrap gap-3">
-                      {selectedCreator.languages.map((lang, index) => (
+                      {(selectedCreator.languages || []).map((lang, index) => (
                         <span
                           key={index}
                           className={`px-4 py-2 rounded-full text-base ${isDark ? 'bg-purple-900 text-purple-200' : 'bg-purple-100 text-purple-800'}`}
@@ -909,12 +1034,8 @@ const AdminDashboard = () => {
                       alt={selectedBrand.name}
                       className="w-32 h-32 rounded-lg mx-auto mb-6 object-cover"
                     />
-                    <h3 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                      {selectedBrand.name}
-                    </h3>
-                    <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                      {selectedBrand.email}
-                    </p>
+                    <h3 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{selectedBrand.name}</h3>
+                    <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{selectedBrand.email}</p>
                     <div className="flex items-center justify-center space-x-3 mt-3">
                       <span className={`px-4 py-2 rounded-full text-base ${
                         selectedBrand.isVerified
@@ -923,34 +1044,24 @@ const AdminDashboard = () => {
                       }`}>
                         {selectedBrand.isVerified ? 'Verified' : 'Unverified'}
                       </span>
-                      <span className="text-yellow-500">
-                        {'★'.repeat(Math.floor(selectedBrand.rating))} {selectedBrand.rating}
-                      </span>
+                      <span className="text-yellow-500">{'★'.repeat(Math.floor(selectedBrand.rating))} {selectedBrand.rating}</span>
                     </div>
                   </div>
 
                   {/* Brand Details Grid */}
                   <div className="grid grid-cols-2 gap-6">
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                        Industry
-                      </p>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Industry</p>
+                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{selectedBrand.industry}</p>
+                    </div>
+                    <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Budget</p>
                       <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>
-                        {selectedBrand.industry}
+                        {getDeterministicBrandStats(selectedBrand).budgetINR}
                       </p>
                     </div>
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                        Budget
-                      </p>
-                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>
-                        {selectedBrand.budget}
-                      </p>
-                    </div>
-                    <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                        Website
-                      </p>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Website</p>
                       <a
                         href={`https://${selectedBrand.website}`}
                         target="_blank"
@@ -961,55 +1072,33 @@ const AdminDashboard = () => {
                       </a>
                     </div>
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                        Established
-                      </p>
-                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>
-                        {selectedBrand.establishedYear}
-                      </p>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Established</p>
+                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{selectedBrand.establishedYear}</p>
                     </div>
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                        Location
-                      </p>
-                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>
-                        {selectedBrand.location}
-                      </p>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Location</p>
+                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{selectedBrand.location}</p>
                     </div>
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                        Campaigns
-                      </p>
-                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>
-                        {selectedBrand.campaigns} completed
-                      </p>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Target Audience</p>
+                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{selectedBrand.targetAudience}</p>
                     </div>
-                  </div>
-
-                  {/* Description */}
-                  <div>
-                    <p className={`text-lg font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-3`}>
-                      Description
-                    </p>
-                    <p className={`${isDark ? 'text-white' : 'text-gray-900'} leading-relaxed text-base`}>
-                      {selectedBrand.description}
-                    </p>
-                  </div>
-
-                  {/* Campaign Types */}
-                  <div>
-                    <p className={`text-lg font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-3`}>
-                      Campaign Types
-                    </p>
-                    <div className="flex flex-wrap gap-3">
-                      {selectedBrand.campaignTypes.map((type, index) => (
-                        <span
-                          key={index}
-                          className={`px-4 py-2 rounded-full text-base ${isDark ? 'bg-purple-900 text-purple-200' : 'bg-purple-100 text-purple-800'}`}
-                        >
-                          {type}
-                        </span>
-                      ))}
+                    <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Campaign Types</p>
+                      <div className="flex flex-wrap gap-3">
+                        {(selectedBrand.campaignTypes || []).map((type, index) => (
+                          <span
+                            key={index}
+                            className={`px-4 py-2 rounded-full text-base ${isDark ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800'}`}
+                          >
+                            {type}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Average ROI</p>
+                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{getDeterministicBrandStats(selectedBrand).roi}</p>
                     </div>
                   </div>
 
@@ -1040,193 +1129,7 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className={`text-center py-20 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                  <div className="mb-4">
-                    {activeTab === 'creators' ? (
-                      <FaUser className="mx-auto w-16 h-16 opacity-50" />
-                    ) : (
-                      <FaBuilding className="mx-auto w-16 h-16 opacity-50" />
-                    )}
-                  </div>
-                  <p className="text-lg font-medium mb-2">No item selected</p>
-                  <p>Click on a {activeTab === 'creators' ? 'creator' : 'brand'} to view detailed information</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Enhanced Statistics Dashboard */}
-        <div className="mt-8">
-          <div className="mb-6">
-            <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>
-              Platform Analytics
-            </h3>
-            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              Real-time insights and performance metrics
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Total Creators */}
-            <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg p-6 border-l-4 border-purple-500`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                    Total Creators
-                  </p>
-                  <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mt-1`}>
-                    {creators.length}
-                  </p>
-                  <p className="text-xs text-green-500 mt-1">
-                    +12% from last month
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900">
-                  <FaUser className="text-purple-500 w-8 h-8" />
-                </div>
-              </div>
-            </div>
-
-            {/* Total Brands */}
-            <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg p-6 border-l-4 border-blue-500`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                    Total Brands
-                  </p>
-                  <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mt-1`}>
-                    {brands.length}
-                  </p>
-                  <p className="text-xs text-green-500 mt-1">
-                    +8% from last month
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900">
-                  <FaBuilding className="text-blue-500 w-8 h-8" />
-                </div>
-              </div>
-            </div>
-
-            {/* Verified Creators */}
-            <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg p-6 border-l-4 border-green-500`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                    Verified Creators
-                  </p>
-                  <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mt-1`}>
-                    {creators.filter(c => c.isVerified).length}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {((creators.filter(c => c.isVerified).length / creators.length) * 100).toFixed(1)}% verified
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-green-100 dark:bg-green-900">
-                  <FaCheck className="text-green-500 w-8 h-8" />
-                </div>
-              </div>
-            </div>
-
-            {/* Verified Brands */}
-            <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg p-6 border-l-4 border-yellow-500`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                    Verified Brands
-                  </p>
-                  <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mt-1`}>
-                    {brands.filter(b => b.isVerified).length}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {((brands.filter(b => b.isVerified).length / brands.length) * 100).toFixed(1)}% verified
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900">
-                  <FaCheck className="text-yellow-500 w-8 h-8" />
-                </div>
-              </div>
-            </div>
-
-            {/* Engagement Rate */}
-            <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg p-6 border-l-4 border-pink-500`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                    Avg. Engagement
-                  </p>
-                  <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mt-1`}>
-                    {(creators.reduce((sum, creator) => sum + parseFloat(creator.engagementRate), 0) / creators.length).toFixed(1)}%
-                  </p>
-                  <p className="text-xs text-green-500 mt-1">
-                    +2.3% from last month
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-pink-100 dark:bg-pink-900">
-                  <FaChartBar className="text-pink-500 w-8 h-8" />
-                </div>
-              </div>
-            </div>
-
-            {/* Total Campaigns */}
-            <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg p-6 border-l-4 border-indigo-500`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                    Total Campaigns
-                  </p>
-                  <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mt-1`}>
-                    {brands.reduce((sum, brand) => sum + brand.campaigns, 0)}
-                  </p>
-                  <p className="text-xs text-green-500 mt-1">
-                    +15% from last month
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-indigo-100 dark:bg-indigo-900">
-                  <FaChartBar className="text-indigo-500 w-8 h-8" />
-                </div>
-              </div>
-            </div>
-
-            {/* Average Rating */}
-            <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg p-6 border-l-4 border-orange-500`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                    Avg. Creator Rating
-                  </p>
-                  <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mt-1`}>
-                    {(creators.reduce((sum, creator) => sum + creator.rating, 0) / creators.length).toFixed(1)}
-                  </p>
-                  <p className="text-xs text-yellow-500 mt-1">
-                    ★ Out of 5.0
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-orange-100 dark:bg-orange-900">
-                  <span className="text-orange-500 text-2xl font-bold">★</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Pending Verifications */}
-            <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg p-6 border-l-4 border-red-500`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                    Pending Reviews
-                  </p>
-                  <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mt-1`}>
-                    {creators.filter(c => !c.isVerified).length + brands.filter(b => !b.isVerified).length}
-                  </p>
-                  <p className="text-xs text-red-500 mt-1">
-                    Requires attention
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-red-100 dark:bg-red-900">
-                  <FaBell className="text-red-500 w-8 h-8" />
-                </div>
-              </div>
+              ): <></>}
             </div>
           </div>
         </div>
