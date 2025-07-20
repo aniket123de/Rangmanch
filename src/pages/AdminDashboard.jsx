@@ -22,7 +22,7 @@ import {
   FaSync
 } from 'react-icons/fa';
 import Logo from '../assets/icon.png';
-import { getAllCreators } from '../firebase/firestore';
+import { getAllCreators, getAllBrands } from '../firebase/firestore';
 import { updateCreatorVerification, updateBrandVerification } from '../firebase/firestore';
 import axios from 'axios';
 
@@ -217,7 +217,7 @@ const AdminDashboard = () => {
   const { isDark } = useContext(ThemeContext);
   const navigate = useNavigate();
   const [creators, setCreators] = useState([]); // Start with empty array
-  const [brands, setBrands] = useState(dummyBrands);
+  const [brands, setBrands] = useState([]); // Start with empty array instead of dummy data
   const [selectedCreator, setSelectedCreator] = useState(null);
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [activeTab, setActiveTab] = useState('creators');
@@ -234,6 +234,7 @@ const AdminDashboard = () => {
     if (!adminLoggedIn) {
       navigate('/admin');
     }
+    
     // Fetch real creators from Firestore
     const fetchCreators = async () => {
       try {
@@ -243,7 +244,19 @@ const AdminDashboard = () => {
         console.error('Error fetching creators:', err);
       }
     };
+
+    // Fetch real brands from Firestore
+    const fetchBrands = async () => {
+      try {
+        const data = await getAllBrands();
+        setBrands(data);
+      } catch (err) {
+        console.error('Error fetching brands:', err);
+      }
+    };
+
     fetchCreators();
+    fetchBrands();
   }, [navigate]);
 
   const handleLogout = () => {
@@ -327,12 +340,12 @@ const AdminDashboard = () => {
 
   const handleVerifyBrand = async (brandId) => {
     setBrands(prev => prev.map(brand => 
-      brand.id === brandId 
+      (brand.id === brandId || brand.uid === brandId)
         ? { ...brand, isVerified: !brand.isVerified }
         : brand
     ));
     setSelectedBrand(prev => 
-      prev && prev.id === brandId 
+      prev && (prev.id === brandId || prev.uid === brandId)
         ? { ...prev, isVerified: !prev.isVerified }
         : prev
     );
@@ -359,8 +372,8 @@ const AdminDashboard = () => {
 
   const handleDeleteBrand = (brandId) => {
     if (window.confirm('Are you sure you want to delete this brand?')) {
-      setBrands(prev => prev.filter(brand => brand.id !== brandId));
-      if (selectedBrand && selectedBrand.id === brandId) {
+      setBrands(prev => prev.filter(brand => brand.id !== brandId && brand.uid !== brandId));
+      if (selectedBrand && (selectedBrand.id === brandId || selectedBrand.uid === brandId)) {
         setSelectedBrand(null);
       }
     }
@@ -822,11 +835,22 @@ const AdminDashboard = () => {
                   filteredBrands.length > 0 ? (
                     filteredBrands.map(brand => {
                       const stats = getDeterministicBrandStats(brand);
+                      // Handle both real Firestore data and dummy data structure
+                      const brandName = brand.name;
+                      const brandEmail = brand.email;
+                      const brandIndustry = brand.industry || 'Not Specified';
+                      const brandLogo = brand.logo || `https://ui-avatars.com/api/?name=${brandName}&background=6366f1&color=fff&size=64`;
+                      const brandRating = brand.rating || 4.0;
+                      const brandWebsite = brand.website || 'Not provided';
+                      const brandLocation = brand.location || 'Not specified';
+                      const brandBusinessSize = brand.businessSize || 'Not specified';
+                      const brandYearsInBusiness = brand.yearsInBusiness || 'Not specified';
+                      
                       return (
                         <div
-                          key={brand.id}
+                          key={brand.id || brand.uid}
                           className={`p-6 border rounded-lg cursor-pointer transition-all duration-300 ${
-                            selectedBrand?.id === brand.id
+                            selectedBrand?.id === brand.id || selectedBrand?.uid === brand.uid
                               ? `border-purple-500 ${isDark ? 'bg-purple-900/20' : 'bg-purple-50'}`
                               : `${isDark ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-200 hover:bg-gray-50'}`
                           }`}
@@ -834,13 +858,16 @@ const AdminDashboard = () => {
                         >
                           <div className="flex items-center space-x-5">
                             <img
-                              src={brand.logo}
-                              alt={brand.name}
+                              src={brandLogo}
+                              alt={brandName}
                               className="w-16 h-16 rounded-lg object-cover"
+                              onError={(e) => {
+                                e.target.src = `https://ui-avatars.com/api/?name=${brandName}&background=6366f1&color=fff&size=64`;
+                              }}
                             />
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
-                                <h3 className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{brand.name}</h3>
+                                <h3 className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{brandName}</h3>
                                 <div className="flex items-center space-x-3">
                                   {brand.isVerified ? (
                                     <FaCheck className="text-green-500 w-5 h-5" />
@@ -851,12 +878,12 @@ const AdminDashboard = () => {
                                 </div>
                               </div>
                               <div className="flex items-center mt-2">
-                                <span className="text-yellow-500 mr-2">{'★'.repeat(Math.floor(brand.rating))} {brand.rating}</span>
+                                <span className="text-yellow-500 mr-2">{'★'.repeat(Math.floor(brandRating))} {brandRating}</span>
                               </div>
                               <div className="flex flex-col mt-2 text-sm">
-                                <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Budget: <b>{stats.budgetINR}</b></span>
-                                <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>ROI: <b>{stats.roi}</b></span>
-                                <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Audience: <b>{brand.targetAudience}</b></span>
+                                <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Industry: <b>{brandIndustry}</b></span>
+                                <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Location: <b>{brandLocation}</b></span>
+                                <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Business Size: <b>{brandBusinessSize}</b></span>
                               </div>
                             </div>
                           </div>
@@ -1051,9 +1078,12 @@ const AdminDashboard = () => {
                   {/* Brand Header */}
                   <div className="text-center">
                     <img
-                      src={selectedBrand.logo}
+                      src={selectedBrand.logo || `https://ui-avatars.com/api/?name=${selectedBrand.name}&background=6366f1&color=fff&size=128`}
                       alt={selectedBrand.name}
                       className="w-32 h-32 rounded-lg mx-auto mb-6 object-cover"
+                      onError={(e) => {
+                        e.target.src = `https://ui-avatars.com/api/?name=${selectedBrand.name}&background=6366f1&color=fff&size=128`;
+                      }}
                     />
                     <h3 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{selectedBrand.name}</h3>
                     <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{selectedBrand.email}</p>
@@ -1065,7 +1095,7 @@ const AdminDashboard = () => {
                       }`}>
                         {selectedBrand.isVerified ? 'Verified' : 'Unverified'}
                       </span>
-                      <span className="text-yellow-500">{'★'.repeat(Math.floor(selectedBrand.rating))} {selectedBrand.rating}</span>
+                      <span className="text-yellow-500">{'★'.repeat(Math.floor(selectedBrand.rating || 4.0))} {selectedBrand.rating || 4.0}</span>
                     </div>
                   </div>
 
@@ -1073,60 +1103,90 @@ const AdminDashboard = () => {
                   <div className="grid grid-cols-2 gap-6">
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
                       <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Industry</p>
-                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{selectedBrand.industry}</p>
+                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{selectedBrand.industry || 'Not Specified'}</p>
                     </div>
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Budget</p>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Business Size</p>
                       <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>
-                        {getDeterministicBrandStats(selectedBrand).budgetINR}
+                        {selectedBrand.businessSize || 'Not Specified'}
                       </p>
                     </div>
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
                       <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Website</p>
-                      <a
-                        href={`https://${selectedBrand.website}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`${isDark ? 'text-purple-400' : 'text-purple-600'} hover:underline font-semibold text-lg`}
-                      >
-                        {selectedBrand.website}
-                      </a>
+                      {selectedBrand.website ? (
+                        <a
+                          href={selectedBrand.website.startsWith('http') ? selectedBrand.website : `https://${selectedBrand.website}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`${isDark ? 'text-purple-400' : 'text-purple-600'} hover:underline font-semibold text-lg break-all`}
+                        >
+                          {selectedBrand.website}
+                        </a>
+                      ) : (
+                        <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>Not Provided</p>
+                      )}
                     </div>
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Established</p>
-                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{selectedBrand.establishedYear}</p>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Years in Business</p>
+                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{selectedBrand.yearsInBusiness || selectedBrand.establishedYear || 'Not Specified'}</p>
                     </div>
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
                       <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Location</p>
-                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{selectedBrand.location}</p>
+                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{selectedBrand.location || 'Not Specified'}</p>
                     </div>
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Target Audience</p>
-                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{selectedBrand.targetAudience}</p>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>LinkedIn</p>
+                      {selectedBrand.linkedin ? (
+                        <a
+                          href={selectedBrand.linkedin.startsWith('http') ? selectedBrand.linkedin : `https://${selectedBrand.linkedin}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`${isDark ? 'text-purple-400' : 'text-purple-600'} hover:underline font-semibold text-lg break-all`}
+                        >
+                          LinkedIn Profile
+                        </a>
+                      ) : (
+                        <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>Not Provided</p>
+                      )}
                     </div>
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Campaign Types</p>
-                      <div className="flex flex-wrap gap-3">
-                        {(selectedBrand.campaignTypes || []).map((type, index) => (
-                          <span
-                            key={index}
-                            className={`px-4 py-2 rounded-full text-base ${isDark ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800'}`}
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Social Media</p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedBrand.instagram && (
+                          <a
+                            href={selectedBrand.instagram.startsWith('http') ? selectedBrand.instagram : `https://${selectedBrand.instagram}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`px-3 py-1 rounded-full text-sm ${isDark ? 'bg-pink-900 text-pink-200' : 'bg-pink-100 text-pink-800'}`}
                           >
-                            {type}
-                          </span>
-                        ))}
+                            Instagram
+                          </a>
+                        )}
+                        {selectedBrand.twitter && (
+                          <a
+                            href={selectedBrand.twitter.startsWith('http') ? selectedBrand.twitter : `https://${selectedBrand.twitter}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`px-3 py-1 rounded-full text-sm ${isDark ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800'}`}
+                          >
+                            Twitter
+                          </a>
+                        )}
+                        {!selectedBrand.instagram && !selectedBrand.twitter && (
+                          <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>Not Provided</p>
+                        )}
                       </div>
                     </div>
                     <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Average ROI</p>
-                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{getDeterministicBrandStats(selectedBrand).roi}</p>
+                      <p className={`text-base font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>User ID</p>
+                      <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-sm break-all`}>{selectedBrand.uid || selectedBrand.id || 'N/A'}</p>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
                   <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <button
-                      onClick={() => handleVerifyBrand(selectedBrand.id)}
+                      onClick={() => handleVerifyBrand(selectedBrand.uid || selectedBrand.id)}
                       className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition-colors duration-300 ${
                         selectedBrand.isVerified
                           ? 'bg-red-500 hover:bg-red-600 text-white'
@@ -1141,7 +1201,7 @@ const AdminDashboard = () => {
                         <span>Edit</span>
                       </button>
                       <button
-                        onClick={() => handleDeleteBrand(selectedBrand.id)}
+                        onClick={() => handleDeleteBrand(selectedBrand.uid || selectedBrand.id)}
                         className="flex items-center justify-center space-x-3 py-3 px-5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors duration-300 text-base font-medium"
                       >
                         <FaTrash className="w-5 h-5" />
