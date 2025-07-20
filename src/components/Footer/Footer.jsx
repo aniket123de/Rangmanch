@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import Logo from "../../assets/icon.png";
-import { FaPhone, FaSun, FaMoon } from "react-icons/fa6";
+import { FaPhone, FaSun, FaMoon, FaUserShield, FaLock } from "react-icons/fa6";
 import { LuMessageSquare } from "react-icons/lu";
 import { ThemeContext } from "../../context/ThemeContext";
 import StyledSwitch from "../Navbar/Switch";
@@ -72,8 +72,16 @@ const Footer = () => {
         </div>
 
         {/* Theme toggle section */}
-        <div className="flex items-center mt-8">
-          <div className="flex items-center space-x-3">
+        <div className="flex items-center justify-between mt-8">
+          <div className="flex items-center space-x-4">
+            <a 
+              href="/admin" 
+              className="group flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 dark:from-purple-500 dark:to-purple-600 dark:hover:from-purple-600 dark:hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+            >
+              <FaUserShield className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+              <span className="text-sm font-semibold">Admin Portal</span>
+              <FaLock className="w-3 h-3 opacity-60" />
+            </a>
           </div>
           <StyledSwitch isChecked={isDark} onChange={toggleTheme} />
         </div>

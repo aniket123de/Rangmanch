@@ -28,6 +28,8 @@ import Help from "./pages/Help";
 import Settings from "./pages/Settings";
 import Offers from "./pages/Offers";
 import SentimentAnalysis from "./pages/SentimentAnalysis";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import ScrollProgressBar from './components/common/ScrollProgressBar';
 
 // Import providers
@@ -62,8 +64,53 @@ const Home = () => {
 const NavbarWrapper = () => {
   const location = useLocation();
   const isBusinessRoute = location.pathname.startsWith('/business') || location.pathname === '/for-business';
+  const isAdminRoute = location.pathname.startsWith('/admin');
    
+  // Don't show navbar on admin routes
+  if (isAdminRoute) {
+    return null;
+  }
+  
   return isBusinessRoute ? <BusinessNavbar /> : <Navbar />;
+};
+
+// Component to conditionally render ScrollToTopButton
+const ScrollToTopWrapper = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+   
+  // Don't show ScrollToTop on admin routes
+  if (isAdminRoute) {
+    return null;
+  }
+  
+  return <ScrollToTopButton />;
+};
+
+// Component to conditionally render ChatbotButton
+const ChatbotWrapper = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+   
+  // Don't show Chatbot on admin routes
+  if (isAdminRoute) {
+    return null;
+  }
+  
+  return <ChatbotButton />;
+};
+
+// Component to conditionally render the footer
+const FooterWrapper = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+   
+  // Don't show footer on admin routes
+  if (isAdminRoute) {
+    return null;
+  }
+  
+  return <Footer />;
 };
 
 const App = () => {
@@ -97,6 +144,10 @@ const App = () => {
                   <Route path="/offers" element={<Offers />} />
                   <Route path="/sentiment-analysis" element={<SentimentAnalysis />} />
                    
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={<AdminLogin />} />
+                  <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                   
                   {/* Business Routes */}
                   <Route path="/for-business" element={<ForBusiness />} />
                   <Route path="/business/login" element={<BusinessLogin />} />
@@ -104,9 +155,9 @@ const App = () => {
                   <Route path="/business/forgot-password" element={<BusinessForgotPassword />} />
                   <Route path="/business/dashboard" element={<BusinessDashboard />} />
                 </Routes>
-                <Footer />
-                <ScrollToTopButton />
-                <ChatbotButton />
+                <FooterWrapper />
+                <ScrollToTopWrapper />
+                <ChatbotWrapper />
               </main>
             </ChatbotProvider> {/* Close ChatbotProvider */}
           </LoadingProvider>
